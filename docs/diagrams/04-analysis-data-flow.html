@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>经营分析数据流</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Serif:ital@0;1&family=Noto+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@400&family=Noto+Sans+TC:wght@400;500;600&family=Noto+Serif+TC:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper: #f5f5f5;
+      --color-ink: #2d3142;
+      --color-muted: #4f5d75;
+      --color-accent: #bf4520;
+      --font-sans: 'Geist', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+      --font-serif: 'Instrument Serif', 'Noto Serif', 'Songti SC', serif;
+      --font-mono: 'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1200px; width: 100%; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+    .footnote {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      color: var(--color-muted);
+      margin-top: 0.75rem;
+    }
+    svg { width: 100%; min-width: 1080px; display: block; }
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Data Flow · Analysis</p>
+    <h1>一次经营分析如何变成可预览的产物</h1>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1080 640" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="analysis-flow-title analysis-flow-desc">
+        <title id="analysis-flow-title">经营分析数据流</title>
+        <desc id="analysis-flow-desc">用户提问经 IPC 进入 Agent Runtime，调用 DeepSeek 与工具查询只读 MySQL，结果在 workspace 落盘并由产物服务在抽屉中预览。</desc>
+        <defs>
+          <marker id="af-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+          <marker id="af-arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#bf4520"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+        <!-- arrows -->
+        <path d="M 240,204 H 280" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#af-arrow)"/>
+        <path d="M 460,204 H 500" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#af-arrow)"/>
+        <path d="M 680,204 H 720" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#af-arrow)"/>
+        <path d="M 590,104 V 160" fill="none" stroke="#2e5aa8" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#af-arrow)"/>
+        <path d="M 810,248 V 400" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#af-arrow)"/>
+        <rect x="818" y="312" width="40" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="838" y="324" fill="#4f5d75" font-size="12" font-weight="500" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">只读</text>
+        <path d="M 720,444 H 680" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#af-arrow)"/>
+        <path d="M 500,444 H 460" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#af-arrow)"/>
+        <path d="M 280,444 H 240" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#af-arrow)"/>
+        <path d="M 540,248 V 400" fill="none" stroke="#bf4520" stroke-width="1.2" marker-end="url(#af-arrow-accent)"/>
+        <rect x="550" y="312" width="52" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="602" y="324" fill="#bf4520" font-size="12" font-weight="500" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="end">写盘</text>
+
+        <!-- top row -->
+        <rect x="60" y="160" width="180" height="88" rx="6" fill="rgba(79,93,117,0.10)" stroke="#5a6580" stroke-width="1"/>
+        <text x="72" y="178" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">01</text>
+        <text x="150" y="204" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">用户提问</text>
+        <text x="150" y="222" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">PromptInput</text>
+
+        <rect x="280" y="160" width="180" height="88" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="292" y="178" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">02</text>
+        <text x="370" y="204" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">IPC Bridge</text>
+        <text x="370" y="222" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">session.send</text>
+
+        <rect x="500" y="160" width="180" height="88" rx="6" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1.2"/>
+        <text x="512" y="178" fill="#bf4520" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">03</text>
+        <text x="590" y="204" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">Agent Runtime</text>
+        <text x="590" y="222" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">pi-agent-core · run</text>
+
+        <rect x="720" y="160" width="180" height="88" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="732" y="178" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">04</text>
+        <text x="810" y="204" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">Tool Registry</text>
+        <text x="810" y="222" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">零售查询工具</text>
+
+        <rect x="500" y="32" width="180" height="72" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+        <text x="590" y="62" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">DeepSeek</text>
+        <text x="590" y="80" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">pi-ai · 推理与归纳</text>
+
+        <!-- bottom row -->
+        <rect x="720" y="400" width="180" height="88" rx="6" fill="rgba(45,49,66,0.05)" stroke="#bf4520" stroke-width="1.2"/>
+        <text x="732" y="418" fill="#bf4520" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">05</text>
+        <text x="810" y="444" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">MySQL 只读</text>
+        <text x="810" y="462" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">SELECT · 200 · 10s</text>
+
+        <rect x="500" y="400" width="180" height="88" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <text x="512" y="418" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">06</text>
+        <text x="590" y="444" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">Workspace</text>
+        <text x="590" y="462" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">~/.nova/workspaces</text>
+
+        <rect x="280" y="400" width="180" height="88" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="292" y="418" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">07</text>
+        <text x="370" y="444" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">Artifact</text>
+        <text x="370" y="462" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">HTML · CSV 发布</text>
+
+        <rect x="60" y="400" width="180" height="88" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="72" y="418" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">08</text>
+        <text x="150" y="444" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">ArtifactPanel</text>
+        <text x="150" y="462" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">Sheet · 预览</text>
+
+        <!-- note + legend -->
+        <text x="60" y="548" fill="#4f5d75" font-size="14" font-family="'Instrument Serif', 'Noto Serif', 'Songti SC', serif" font-style="italic">产物落在 workspace，经本地只读服务在抽屉中预览；模型只看到裁剪后的摘要。</text>
+
+        <line x1="60" y1="596" x2="92" y2="596" stroke="#bf4520" stroke-width="1.2"/>
+        <text x="100" y="600" fill="#4f5d75" font-size="11" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif">写盘</text>
+        <line x1="170" y1="596" x2="202" y2="596" stroke="#2e5aa8" stroke-width="1" stroke-dasharray="4,3"/>
+        <text x="210" y="600" fill="#4f5d75" font-size="11" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif">模型调用</text>
+        <line x1="300" y1="596" x2="332" y2="596" stroke="#4f5d75" stroke-width="1.2"/>
+        <text x="340" y="600" fill="#4f5d75" font-size="11" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif">数据 / 事件</text>
+      </svg>
+    </div>
+    <p class="footnote">NOVA · ANALYSIS DATA FLOW · 2026-10-26</p>
+  </div>
+</body>
+</html>

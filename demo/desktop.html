@@ -1,0 +1,2430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DaveBella 桌面端 · 原型</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="./demo.css" />
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+<div class="h-screen w-screen p-2.5">
+  <div id="app-shell" class="relative flex h-full overflow-hidden rounded-xl border border-[#d4d4d8] bg-white shadow-[0_20px_60px_rgba(0,0,0,.18)]">
+
+    <!-- 左侧导航 -->
+    <aside class="flex w-[78px] shrink-0 flex-col items-center border-r border-[#e4e4e7] bg-white pt-9">
+      <button class="mb-5 flex h-9 w-9 items-center justify-center" title="Dave &amp; Bella" onclick="go('analysis')">
+        <svg viewBox="0 0 1024 1024" width="32" height="32" xmlns="http://www.w3.org/2000/svg" aria-label="Dave &amp; Bella">
+          <path fill="#4f46e5" d="M721.419424 204.785372h54.853225c71.309192 0 134.280694 54.633812 142.618384 123.968288l67.579173 561.404472c8.776516 72.771945-46.588672 133.768731-121.335333 133.76873H158.771613C83.878677 1023.926862 28.732902 963.003214 37.43628 890.231269L105.088591 328.387972c8.264553-68.89565 71.455467-123.6026 142.472109-123.6026h54.926362v-0.146275C302.487062 91.641454 396.395783 0 511.953243 0c115.55746 0 209.466181 91.860867 209.466181 204.639097V204.785372z m-352.742804 0h175.676595c24.354832 0 44.101993 19.308335 44.101992 43.151204 0 23.769731-19.747161 43.078066-44.101992 43.078066H368.67662v98.735804a53.317334 53.317334 0 0 1 19.747161 41.395901 54.487537 54.487537 0 0 1-55.072638 53.902435 54.487537 54.487537 0 0 1-55.145775-53.902435c0-18.576959 9.654168-34.959789 24.281694-44.613956V290.941504h-54.926362c-26.329548 0-51.854582 22.014428-54.853225 47.466324L125.055165 900.324263c-2.559817 21.575602 11.702021 37.37333 33.716448 37.37333h706.36326c21.94129 0 36.276266-15.870866 33.643311-37.519606l-67.506035-561.404471c-3.071781-25.817584-28.377402-47.758874-54.926362-47.758874h-54.853225v98.735804a53.317334 53.317334 0 0 1 19.747161 41.395901 54.487537 54.487537 0 0 1-55.072638 53.902435 54.487537 54.487537 0 0 1-55.145775-53.902435c0-18.576959 9.654168-34.959789 24.281694-44.613956V204.56596C655.303004 127.552032 590.941887 64.653668 511.953243 64.653668s-143.349761 62.752089-143.34976 139.985429V204.785372zM293.27172 611.064924c0-1.755303 0-3.510606-1.901578-3.510606a46.296122 46.296122 0 0 1 13.018499-24.793658l126.528105-113.143918a47.027498 47.027498 0 0 1 59.460895 0 34.374688 34.374688 0 0 1 0 53.024784l-52.073994 46.003571h270.828655c24.135419 0 44.613956 17.699307 44.613956 38.909221 0 21.209914-20.478537 38.909221-44.613956 38.90922H334.155657a42.127277 42.127277 0 0 1-27.865438-10.604956c-7.460039-7.09435-13.018499-15.944004-13.018499-24.793658z m460.474538 119.653168c0 1.755303 0 3.510606 1.901578 1.755303a46.296122 46.296122 0 0 1-13.018498 24.793657L616.101233 870.337833a47.027498 47.027498 0 0 1-59.534034 0 34.374688 34.374688 0 0 1 0-53.024784l52.073995-44.248268H337.885677c-24.135419 0-44.613956-17.699307-44.613957-38.909221 0-21.209914 20.478537-38.909221 44.613957-38.90922h374.976644c9.288479 0 20.478537 3.583744 27.865438 10.604956 7.460039 7.09435 13.018499 15.944004 13.018499 24.793658z"></path>
+        </svg>
+      </button>
+      <nav id="rail" class="flex flex-col items-center gap-1"></nav>
+      <div class="flex-1"></div>
+      <button class="mb-4 flex h-9 w-9 items-center justify-center rounded-lg text-[#71717a] transition hover:bg-[#f4f4f5] hover:text-[#18181b]" title="设置" onclick="openDialog('settings')"><i data-lucide="settings" class="h-[18px] w-[18px]"></i></button>
+    </aside>
+
+    <!-- 主区域 -->
+    <div class="flex min-w-0 flex-1 flex-col">
+      <header class="flex h-14 shrink-0 items-center gap-3 border-b border-[#e4e4e7] px-5">
+        <div class="flex shrink-0 flex-col justify-center leading-none">
+          <span class="text-[15px] font-semibold tracking-[-0.01em]">Dave &amp; Bella</span>
+          <span class="mt-1 text-[10px] text-[#a1a1aa]">v1.0.0</span>
+        </div>
+        <span class="h-7 w-px shrink-0 bg-[#e4e4e7]"></span>
+        <div class="min-w-0">
+          <h1 id="page-title" class="truncate text-[15px] font-semibold">经营分析</h1>
+          <p id="page-sub" class="truncate text-[11px] text-[#71717a]">左任务、右对话，产物可预览</p>
+        </div>
+
+        <div class="ml-auto flex items-center gap-2">
+          <button class="btn btn-sm btn-ghost" title="刷新"><i data-lucide="refresh-cw" class="h-4 w-4"></i></button>
+          <div class="relative">
+            <button id="notif-trigger" class="btn btn-sm btn-ghost relative" title="消息" onclick="event.stopPropagation();toggleNotif()">
+              <i data-lucide="bell" class="h-4 w-4"></i>
+              <span id="notif-dot" class="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-[#dc2626]"></span>
+            </button>
+            <div id="notif-menu" class="absolute right-0 top-11 z-50 hidden w-[336px] overflow-hidden rounded-xl border border-[#e4e4e7] bg-white shadow-xl"></div>
+          </div>
+          <div class="relative">
+            <button id="user-trigger" class="flex items-center gap-2 rounded-lg py-1 pl-1 pr-2 hover:bg-[#f4f4f5]">
+              <i data-lucide="circle-user-round" class="h-[18px] w-[18px] text-[#71717a]"></i>
+              <span class="text-xs font-medium">林晓</span>
+              <i data-lucide="chevron-down" class="h-3 w-3 text-[#71717a]"></i>
+            </button>
+            <div id="user-menu" class="absolute right-0 top-11 z-50 hidden w-[196px] overflow-hidden rounded-xl border border-[#e4e4e7] bg-white p-1 shadow-xl">
+              <div class="px-3 py-2">
+                <p class="text-xs font-semibold">林晓</p>
+                <p class="mt-0.5 text-[11px] text-[#71717a]">店长 · Dave &amp; Bella</p>
+              </div>
+              <div class="my-1 h-px bg-[#e4e4e7]"></div>
+              <button class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs hover:bg-[#f4f4f5]" onclick="openDialog('oplog')"><i data-lucide="scroll-text" class="h-4 w-4 text-[#71717a]"></i>操作日志</button>
+              <button class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs hover:bg-[#f4f4f5]" onclick="openDialog('settings')"><i data-lucide="settings" class="h-4 w-4 text-[#71717a]"></i>系统设置</button>
+              <button class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs hover:bg-[#f4f4f5]" onclick="openDialog('password')"><i data-lucide="key-round" class="h-4 w-4 text-[#71717a]"></i>修改密码</button>
+              <div class="my-1 h-px bg-[#e4e4e7]"></div>
+              <button class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs text-[#dc2626] hover:bg-[#fef2f2]" onclick="openDialog('logout')"><i data-lucide="log-out" class="h-4 w-4"></i>退出登录</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main id="page-root" class="relative min-h-0 flex-1 overflow-hidden"></main>
+    </div>
+  </div>
+</div>
+
+<!-- 登录 / 注册 -->
+<div id="auth-screen" class="fixed inset-0 z-[90] flex bg-white">
+  <div class="relative hidden w-[52%] flex-col justify-between overflow-hidden bg-[#4f46e5] p-10 text-white lg:flex">
+    <div class="pointer-events-none absolute -right-24 -top-24 h-[420px] w-[420px] rounded-full bg-white/10"></div>
+    <div class="pointer-events-none absolute -bottom-32 -left-20 h-[380px] w-[380px] rounded-full bg-white/5"></div>
+    <div class="relative flex items-center gap-3">
+      <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-white">
+        <svg viewBox="0 0 1024 1024" width="24" height="24" xmlns="http://www.w3.org/2000/svg" aria-label="Dave &amp; Bella">
+          <path fill="#4f46e5" d="M721.419424 204.785372h54.853225c71.309192 0 134.280694 54.633812 142.618384 123.968288l67.579173 561.404472c8.776516 72.771945-46.588672 133.768731-121.335333 133.76873H158.771613C83.878677 1023.926862 28.732902 963.003214 37.43628 890.231269L105.088591 328.387972c8.264553-68.89565 71.455467-123.6026 142.472109-123.6026h54.926362v-0.146275C302.487062 91.641454 396.395783 0 511.953243 0c115.55746 0 209.466181 91.860867 209.466181 204.639097V204.785372z m-352.742804 0h175.676595c24.354832 0 44.101993 19.308335 44.101992 43.151204 0 23.769731-19.747161 43.078066-44.101992 43.078066H368.67662v98.735804a53.317334 53.317334 0 0 1 19.747161 41.395901 54.487537 54.487537 0 0 1-55.072638 53.902435 54.487537 54.487537 0 0 1-55.145775-53.902435c0-18.576959 9.654168-34.959789 24.281694-44.613956V290.941504h-54.926362c-26.329548 0-51.854582 22.014428-54.853225 47.466324L125.055165 900.324263c-2.559817 21.575602 11.702021 37.37333 33.716448 37.37333h706.36326c21.94129 0 36.276266-15.870866 33.643311-37.519606l-67.506035-561.404471c-3.071781-25.817584-28.377402-47.758874-54.926362-47.758874h-54.853225v98.735804a53.317334 53.317334 0 0 1 19.747161 41.395901 54.487537 54.487537 0 0 1-55.072638 53.902435 54.487537 54.487537 0 0 1-55.145775-53.902435c0-18.576959 9.654168-34.959789 24.281694-44.613956V204.56596C655.303004 127.552032 590.941887 64.653668 511.953243 64.653668s-143.349761 62.752089-143.34976 139.985429V204.785372zM293.27172 611.064924c0-1.755303 0-3.510606-1.901578-3.510606a46.296122 46.296122 0 0 1 13.018499-24.793658l126.528105-113.143918a47.027498 47.027498 0 0 1 59.460895 0 34.374688 34.374688 0 0 1 0 53.024784l-52.073994 46.003571h270.828655c24.135419 0 44.613956 17.699307 44.613956 38.909221 0 21.209914-20.478537 38.909221-44.613956 38.90922H334.155657a42.127277 42.127277 0 0 1-27.865438-10.604956c-7.460039-7.09435-13.018499-15.944004-13.018499-24.793658z m460.474538 119.653168c0 1.755303 0 3.510606 1.901578 1.755303a46.296122 46.296122 0 0 1-13.018498 24.793657L616.101233 870.337833a47.027498 47.027498 0 0 1-59.534034 0 34.374688 34.374688 0 0 1 0-53.024784l52.073995-44.248268H337.885677c-24.135419 0-44.613956-17.699307-44.613957-38.909221 0-21.209914 20.478537-38.909221 44.613957-38.90922h374.976644c9.288479 0 20.478537 3.583744 27.865438 10.604956 7.460039 7.09435 13.018499 15.944004 13.018499 24.793658z"></path>
+        </svg>
+      </span>
+      <span class="text-[17px] font-semibold tracking-[-0.01em]">Dave &amp; Bella</span>
+    </div>
+    <div class="relative max-w-[420px]">
+      <p class="text-[30px] font-semibold leading-[1.25]">懂我，帮我的<br />经营伙伴</p>
+      <p class="mt-4 text-[13px] leading-relaxed text-white/70">经营分析、订单、库存、会员、营销与数据，一个工作台完成门店每天的经营闭环。</p>
+      <div class="mt-8 space-y-3 text-[12px] text-white/80">
+        <div class="flex items-center gap-2"><i data-lucide="sparkles" class="h-4 w-4"></i>定时生成日报 / 周报 / 月报</div>
+        <div class="flex items-center gap-2"><i data-lucide="database" class="h-4 w-4"></i>数据可追溯，口径统一</div>
+        <div class="flex items-center gap-2"><i data-lucide="shield-check" class="h-4 w-4"></i>单店经营，权限清晰</div>
+      </div>
+    </div>
+    <p class="relative text-[11px] text-white/50">v1.0.0 · 单店版</p>
+  </div>
+  <div class="flex flex-1 flex-col bg-[#fafafa]">
+    <div class="flex justify-end px-6 pt-5">
+      <span class="text-[11px] text-[#a1a1aa]">DaveBella v1.0.0</span>
+    </div>
+    <div class="flex flex-1 items-center justify-center px-6 pb-10">
+      <div id="auth-panel" class="w-full max-w-[360px]"></div>
+    </div>
+  </div>
+</div>
+
+<div id="dialog-mask" class="dialog-mask" onclick="if(event.target===this)closeDialog()">
+  <div id="dialog" class="dialog"></div>
+</div>
+<div id="toast" class="toast"><i data-lucide="check-circle-2" class="h-4 w-4 text-[#4ade80]"></i><span id="toast-text">已完成</span></div>
+
+<script>
+/* ================= 数据 ================= */
+// 任务分组（从上到下：经营分析 / 自由对话 / 归档任务）
+const TASK_GROUPS = [
+  {
+    id:'analysis', label:'经营分析', note:'定时自动生成, 完成后消息通知',
+    items:[
+      { id:'t1', title:'店铺经营日报', icon:'sun', schedule:'每晚 21:20', status:'done', time:'今天 21:20', range:'10/23', active:true },
+      { id:'t2', title:'店铺经营周报', icon:'calendar-check', schedule:'每周一 10:10', status:'done', time:'10/19 10:10', range:'10/12 - 10/18' },
+      { id:'t3', title:'店铺经营月报', icon:'calendar-range', schedule:'每月 1 日 10:20', status:'done', time:'10/01 10:20', range:'09/01 - 09/30' },
+    ]
+  },
+  {
+    id:'free', label:'自由对话', note:'随问随答，不设周期',
+    items:[
+      { id:'f1', title:'今日经营追问：补货建议', icon:'message-square', status:'running', time:'今天 16:05', range:'今天' },
+      { id:'f2', title:'库存健康诊断', icon:'package-search', status:'done', time:'昨天 20:10', range:'近 30 天' },
+      { id:'f3', title:'会员复购分析', icon:'users', status:'done', time:'昨天 20:10', range:'近 90 天' },
+      { id:'f4', title:'分析昨天退款订单', icon:'search', status:'failed', time:'10/21', range:'10/20' },
+    ]
+  },
+  {
+    id:'archive', label:'归档任务', note:'已归档的历史任务',
+    items:[
+      { id:'a1', title:'国庆活动复盘', icon:'megaphone', status:'done', time:'10/08', range:'09/28 - 10/07' },
+      { id:'a2', title:'09 月第二周经营周报', icon:'calendar-check', status:'done', time:'09/14', range:'09/07 - 09/13' },
+    ]
+  },
+];
+const ALL_TASKS = () => TASK_GROUPS.reduce((a,g)=>a.concat(g.items), []);
+
+// 消息通知（右上角铃铛）
+const NOTIFS = [
+  { id:'n1', title:'店铺经营日报已生成', desc:'2026-10-23 · 含异常提醒与明日建议', time:'今天 21:20', task:'t1', unread:true },
+  { id:'n2', title:'店铺经营周报已生成', desc:'10/12 - 10/18 · 上周经营周报', time:'10/19 10:10', task:'t2', unread:true },
+  { id:'n3', title:'店铺经营月报已生成', desc:'09/01 - 09/30 · 上月经营月报', time:'10/01 10:20', task:'t3', unread:true },
+];
+
+const NAV = [
+  { id:'analysis', label:'AI经营', icon:'sparkles' },
+  { id:'buy', label:'买单', icon:'scan-line' },
+  { id:'orders', label:'订单', icon:'receipt-text' },
+  { id:'inventory', label:'库存', icon:'package' },
+  { id:'members', label:'会员', icon:'users' },
+  { id:'marketing', label:'营销', icon:'megaphone' },
+  { id:'data', label:'数据', icon:'chart-column' },
+];
+
+const PAGE_META = {
+  analysis: ['经营分析','左任务、右对话，产物可预览'],
+  buy: ['买单','扫码开单 · 会员权益 · 多支付方式'],
+  orders: ['订单中心','查询、退换货、对账；导出在商品明细抽屉'],
+  inventory: ['库存中心','库存、流水、断码与热销'],
+  members: ['会员中心','会员画像、积分、余额与优惠券'],
+  marketing: ['营销中心','活动名称、时间与类型筛选，活动效果与核销'],
+  data: ['数据中心','事实数据看板，不含 AI 与导购业绩'],
+};
+
+const state = { page:'analysis', artifactOpen:false, selectedArtifact:'report', taskId:'t1', collapsed:{} };
+
+/* ================= 页面渲染 ================= */
+function renderRail(){
+  document.getElementById('rail').innerHTML = NAV.map(n => `
+    <button class="rail-btn ${state.page===n.id?'active':''}" onclick="go('${n.id}')" title="${n.label}">
+      <i data-lucide="${n.icon}"></i><span>${n.label}</span>
+    </button>`).join('');
+}
+
+function go(page){
+  state.page = page;
+  const [title, sub] = PAGE_META[page];
+  document.getElementById('page-title').textContent = title;
+  document.getElementById('page-sub').textContent = sub;
+  renderRail();
+  const root = document.getElementById('page-root');
+  root.innerHTML = ({
+    analysis: analysisPage, buy: buyPage, orders: ordersPage,
+    inventory: inventoryPage, members: membersPage, marketing: marketingPage, data: dataPage
+  })[page]();
+  lucide.createIcons();
+  renderNotifBadge();
+  if(page==='analysis' && state.artifactOpen) openArtifact(state.selectedArtifact, false);
+}
+
+/* ---------- 经营分析 ---------- */
+function taskItem(t){
+  const color = t.status==='running' ? 'bg-[#4f46e5]' : t.status==='failed' ? 'bg-[#dc2626]' : 'bg-[#16a34a]';
+  const sel = state.taskId===t.id;
+  return `
+  <button class="group w-full rounded-lg px-3 py-2.5 text-left ${sel?'bg-[#f4f4f5]':'hover:bg-[#fafafa]'}" onclick="selectTask('${t.id}')">
+    <div class="flex items-center gap-2">
+      <span class="dot ${color} ${t.status==='running'?'animate-pulse':''}"></span>
+      <span class="flex-1 truncate text-[13px] font-medium">${t.title}</span>
+      <span class="shrink-0 text-[10px] text-[#a1a1aa]">${t.time}</span>
+    </div>
+    <div class="mt-1 flex items-center gap-1.5 pl-3.5 text-[11px] text-[#71717a]">
+      <i data-lucide="${t.icon}" class="h-3 w-3 shrink-0"></i>
+      <span class="truncate">${t.range}</span>
+      ${t.status==='running'?'<span class="ml-auto shrink-0 text-[#4f46e5]">运行中</span>':''}
+      ${t.status==='failed'?'<span class="ml-auto shrink-0 text-[#dc2626]">失败</span>':''}
+    </div>
+    ${t.schedule?`<div class="mt-1 flex items-center gap-1 pl-3.5 text-[10px] text-[#a1a1aa]"><i data-lucide="clock" class="h-3 w-3"></i>${t.schedule} 自动执行</div>`:''}
+  </button>`;
+}
+
+function taskGroups(){
+  return TASK_GROUPS.map((g,gi)=>`
+    <div class="${gi?'mt-2':''}">
+      <div class="flex items-center gap-1 rounded-md px-3 pb-1 pt-2 hover:bg-[#fafafa]">
+        <button class="flex min-w-0 flex-1 items-center gap-2 text-left" onclick="toggleGroup('${g.id}')">
+          <i data-lucide="${state.collapsed[g.id]?'chevron-right':'chevron-down'}" class="h-3 w-3 shrink-0 text-[#a1a1aa]"></i>
+          <span class="text-[10px] font-medium uppercase tracking-wider text-[#a1a1aa]">${g.label}</span>
+          <span class="badge">${g.items.length}</span>
+        </button>
+        ${g.id==='free'?`<button class="btn btn-sm btn-ghost h-5 w-5 p-0" title="新建自由对话" onclick="event.stopPropagation();newFreeTask()"><i data-lucide="plus" class="h-3.5 w-3.5"></i></button>`:''}
+      </div>
+      ${state.collapsed[g.id]?'':g.items.map(taskItem).join('')}
+    </div>`).join('');
+}
+
+function newFreeTask(){
+  const id = 'f' + Date.now();
+  TASK_GROUPS[1].items.unshift({ id, title:'新对话', icon:'message-square', status:'done', time:'刚刚', range:'待确认' });
+  state.collapsed.free = false;
+  state.taskId = id;
+  go('analysis');
+  showToast('已新建自由对话');
+}
+
+function toggleGroup(id){
+  state.collapsed[id] = !state.collapsed[id];
+  go('analysis');
+}
+
+function currentTask(){
+  return ALL_TASKS().find(t=>t.id===state.taskId) || TASK_GROUPS[0].items[0];
+}
+
+function analysisPage(){
+  const t = currentTask();
+  const statusBadge = t.status==='done'
+    ? '<span class="badge badge-success"><i data-lucide="check" class="h-3 w-3"></i>已完成</span>'
+    : t.status==='running'
+      ? '<span class="badge badge-brand"><i data-lucide="loader" class="h-3 w-3 animate-spin"></i>运行中</span>'
+      : '<span class="badge badge-danger"><i data-lucide="x" class="h-3 w-3"></i>失败</span>';
+  return `
+  <div class="flex h-full overflow-hidden rounded-xl border border-[#e4e4e7]">
+    <aside class="flex w-[280px] shrink-0 flex-col border-r border-[#e4e4e7] bg-white">
+      <div class="flex items-center justify-between px-3 pb-2 pt-3">
+        <div class="flex items-center gap-2 text-[13px] font-semibold">任务<span class="badge">${ALL_TASKS().length}</span></div>
+      </div>
+      <div class="flex-1 overflow-y-auto px-2 pb-3">
+        ${taskGroups()}
+      </div>
+    </aside>
+
+    <section class="flex min-w-0 flex-1 flex-col bg-[#fafafa]">
+      <div class="flex h-[52px] shrink-0 items-center gap-2 border-b border-[#e4e4e7] bg-white px-5">
+        <h2 class="text-[14px] font-semibold">${t.title}</h2>
+        ${statusBadge}
+        <span class="text-[11px] text-[#71717a]">数据范围 ${t.range}${t.schedule?` · ${t.schedule}自动执行`:''}</span>
+        <div class="ml-auto flex items-center gap-1.5">
+          <button class="btn btn-sm btn-ghost" title="重新生成" onclick="showToast('已重新发起分析')"><i data-lucide="rotate-ccw" class="h-3.5 w-3.5"></i></button>
+          <button class="btn btn-sm" id="artifact-btn" onclick="toggleArtifact()"><i data-lucide="panel-right" class="h-3.5 w-3.5"></i>产物 <span class="badge badge-brand">2</span></button>
+          <button class="btn btn-sm btn-ghost"><i data-lucide="ellipsis" class="h-3.5 w-3.5"></i></button>
+        </div>
+      </div>
+
+      <div id="chat-scroll" class="flex-1 overflow-y-auto px-6 py-5">
+        ${state.taskId==='t1' ? `
+        <div class="mx-auto max-w-[760px] space-y-5 fade-in">
+          <!-- 用户：hover 展示时间，非当天带上日期 -->
+          <div class="group relative flex justify-end">
+            <span class="absolute -top-5 right-2 hidden text-[10px] text-[#a1a1aa] group-hover:block">10-23 21:30</span>
+            <div class="max-w-[560px] rounded-xl rounded-br-sm bg-[#4f46e5] px-4 py-3 text-[13px] leading-relaxed text-white">
+              帮我做一下今天的经营分析，重点看营业额、连带率和会员占比，有异常提醒我。
+            </div>
+          </div>
+
+          <!-- Agent -->
+          <div class="flex gap-2.5">
+            <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#18181b] text-[11px] font-semibold text-white">N</span>
+            <div class="min-w-0 flex-1">
+              <div class="mb-1.5 flex items-center gap-2">
+                <span class="text-[12px] font-semibold">Nova</span>
+                <span class="text-[10px] text-[#a1a1aa]">21:32</span>
+              </div>
+              <div class="rounded-xl rounded-tl-sm border border-[#e4e4e7] bg-white px-4 py-3.5 text-[13px] leading-relaxed">
+                <p class="font-medium">今天生意整体正常，但有 2 个需要关注的点：</p>
+                <ul class="mt-2 space-y-1.5 text-[#3f3f46]">
+                  <li class="flex gap-2"><span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[#4f46e5]"></span>营业额 <b class="tnum">¥12,860.50</b>，较昨日 <span class="text-[#16a34a]">+12.0%</span>，较上周同日 <span class="text-[#16a34a]">+8.4%</span>。</li>
+                  <li class="flex gap-2"><span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[#4f46e5]"></span>连带率 <b>1.8</b> 件/单，低于近 14 天均值 2.1，主要集中在 14:00–16:00 时段。</li>
+                  <li class="flex gap-2"><span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[#4f46e5]"></span>会员订单占比 <b>61%</b>，但会员余额消费 <b class="tnum">¥860</b>，较昨日下降 32%。</li>
+                </ul>
+                <div class="mt-3 rounded-lg border border-[#fde68a] bg-[#fffbeb] px-3 py-2 text-[12px] text-[#92400e]">
+                  <b>异常：</b>款号 DB-2026-1088 今日 0 动销，库存 46 件，为库存金额最高的零动销款。
+                </div>
+              </div>
+
+              <!-- 工具调用 -->
+              <div class="mt-2 space-y-1.5">
+                <details class="group rounded-lg border border-[#e4e4e7] bg-white">
+                  <summary class="flex cursor-pointer list-none items-center gap-2 px-3 py-2 text-[12px] text-[#71717a]">
+                    <i data-lucide="database" class="h-3.5 w-3.5 text-[#4f46e5]"></i>
+                    <span class="font-medium text-[#3f3f46]">get_business_overview</span>
+                    <span>2026-10-23 · compare=yesterday</span>
+                    <span class="badge badge-success ml-auto">成功</span><span class="tnum">1.2s</span>
+                    <i data-lucide="chevron-down" class="h-3 w-3 transition group-open:rotate-180"></i>
+                  </summary>
+                  <pre class="overflow-x-auto border-t border-[#f1f1f3] bg-[#fafafa] px-3 py-2 text-[11px] text-[#52525b]">revenue: 12860.5, orders: 42, avgTicket: 306.2
+itemsPerOrder: 1.8, memberOrderRate: 0.61, refundRate: 0.02</pre>
+                </details>
+                <details class="group rounded-lg border border-[#e4e4e7] bg-white">
+                  <summary class="flex cursor-pointer list-none items-center gap-2 px-3 py-2 text-[12px] text-[#71717a]">
+                    <i data-lucide="shield-alert" class="h-3.5 w-3.5 text-[#d97706]"></i>
+                    <span class="font-medium text-[#3f3f46]">detect_business_anomalies</span>
+                    <span>2026-10-23</span>
+                    <span class="badge badge-warning ml-auto">2 条异常</span><span class="tnum">0.3s</span>
+                    <i data-lucide="chevron-down" class="h-3 w-3 transition group-open:rotate-180"></i>
+                  </summary>
+                  <div class="border-t border-[#f1f1f3] px-3 py-2 text-[11px] text-[#52525b]">
+                    1. 款号 DB-2026-1088 零动销 / 库存 46 件 / 阈值 0 件<br/>
+                    2. 14:00–16:00 连带率 1.3 / 近 14 天均值 2.1 / 下降 38%
+                  </div>
+                </details>
+              </div>
+
+              <!-- 产物 -->
+              <div class="mt-3 grid grid-cols-2 gap-2">
+                <button class="flex items-center gap-3 rounded-xl border border-[#e4e4e7] bg-white p-3 text-left hover:border-[#4f46e5]" onclick="openArtifact('report')">
+                  <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-[#fef2f2] text-[#dc2626]"><i data-lucide="file-text" class="h-4 w-4"></i></span>
+                  <span class="min-w-0 flex-1"><span class="block truncate text-[12px] font-medium">今日经营日报.html</span><span class="text-[11px] text-[#71717a]">HTML · 48 KB</span></span>
+                  <i data-lucide="arrow-up-right" class="h-3.5 w-3.5 text-[#a1a1aa]"></i>
+                </button>
+                <button class="flex items-center gap-3 rounded-xl border border-[#e4e4e7] bg-white p-3 text-left hover:border-[#4f46e5]" onclick="openArtifact('csv')">
+                  <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-[#ecfdf5] text-[#16a34a]"><i data-lucide="table-2" class="h-4 w-4"></i></span>
+                  <span class="min-w-0 flex-1"><span class="block truncate text-[12px] font-medium">指标明细.csv</span><span class="text-[11px] text-[#71717a]">CSV · 6 KB</span></span>
+                  <i data-lucide="arrow-up-right" class="h-3.5 w-3.5 text-[#a1a1aa]"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 追问 -->
+          <div class="flex justify-end">
+            <div class="max-w-[560px] rounded-xl rounded-br-sm bg-[#4f46e5] px-4 py-3 text-[13px] text-white">把滞销款也加进报告，并给我补货建议。</div>
+          </div>
+          <div class="flex gap-2.5">
+            <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#18181b] text-[11px] font-semibold text-white">N</span>
+            <div class="min-w-0 flex-1">
+              <div class="rounded-xl rounded-tl-sm border border-[#e4e4e7] bg-white px-4 py-3 text-[13px] leading-relaxed">
+                已补充「库存健康」章节并更新报告：
+                <div class="mt-2 grid grid-cols-3 gap-2 text-center">
+                  <div class="rounded-lg bg-[#fafafa] px-2 py-2"><p class="text-[15px] font-semibold tnum">3</p><p class="text-[10px] text-[#71717a]">零动销款</p></div>
+                  <div class="rounded-lg bg-[#fafafa] px-2 py-2"><p class="text-[15px] font-semibold tnum">128</p><p class="text-[10px] text-[#71717a]">滞销件数</p></div>
+                  <div class="rounded-lg bg-[#fafafa] px-2 py-2"><p class="text-[15px] font-semibold tnum">¥8,420</p><p class="text-[10px] text-[#71717a]">占用金额</p></div>
+                </div>
+                <p class="mt-2 text-[#3f3f46]">建议：DB-2026-1088 周末做 8 折组合陈列；DB-2026-0932 暂停补货；DB-2026-0755 调拨至滨江店。</p>
+              </div>
+              <div class="mt-2 flex items-center gap-2 rounded-lg border border-[#e4e4e7] bg-white px-3 py-2 text-[12px]">
+                <i data-lucide="file-pen-line" class="h-3.5 w-3.5 text-[#4f46e5]"></i>
+                <span class="font-medium">更新产物</span>
+                <span class="text-[#71717a]">今日经营日报.html · 版本 2</span>
+                <button class="btn btn-sm ml-auto" onclick="openArtifact('report')">查看</button>
+              </div>
+            </div>
+          </div>
+          <div class="h-2"></div>
+        </div>` : taskChat(t)}
+      </div>
+
+      <!-- 输入区 -->
+      <div class="shrink-0 border-t border-[#e4e4e7] bg-white px-6 py-3">
+        <div class="mx-auto max-w-[760px]">
+          <div class="rounded-xl border border-[#e4e4e7] bg-white p-2 shadow-sm focus-within:border-[#4f46e5]">
+            <textarea rows="2" class="w-full resize-none border-0 bg-transparent px-2 py-1.5 text-[13px] outline-none" placeholder="继续追问，或让 Nova 生成新的报表…"></textarea>
+            <div class="flex items-center gap-1 px-1">
+              <button class="btn btn-sm btn-ghost" title="添加附件"><i data-lucide="paperclip" class="h-4 w-4"></i></button>
+              <button class="btn btn-sm btn-ghost" title="使用技能"><i data-lucide="sparkles" class="h-4 w-4"></i></button>
+              <span class="ml-1 text-[10px] text-[#a1a1aa]">默认数据范围：今天 · DeepSeek</span>
+              <button class="btn btn-primary btn-sm ml-auto" onclick="showToast('已发送，Nova 正在分析')"><i data-lucide="arrow-up" class="h-3.5 w-3.5"></i>发送</button>
+            </div>
+          </div>
+          <p class="mt-1.5 text-center text-[10px] text-[#a1a1aa]">Nova 可能会出错，请核对关键数字 · 写操作会先向你确认</p>
+        </div>
+      </div>
+    </section>
+  </div>`;
+}
+
+function taskChat(t){
+  if(t.schedule){
+    const metrics = t.id==='t2'
+      ? [['营业额','¥86,420.50','+6.2%'],['订单数','286','+4.1%'],['客单价','¥302.17','+2.0%'],['连带率','1.9','-0.1'],['会员订单占比','58.4%','+1.8pt']]
+      : [['营业额','¥368,240.00','+4.8%'],['订单数','1,246','+3.2%'],['客单价','¥295.54','+1.5%'],['连带率','2.0','+0.2'],['会员订单占比','56.1%','-0.6pt']];
+    return `
+    <div class="mx-auto max-w-[760px] space-y-5 fade-in">
+      <div class="flex justify-end">
+        <div class="max-w-[560px] rounded-xl rounded-br-sm bg-[#4f46e5] px-4 py-3 text-[13px] leading-relaxed text-white">
+          按周期自动生成${t.title}，数据范围 ${t.range}。
+        </div>
+      </div>
+      <div class="flex gap-2.5">
+        <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#18181b] text-[11px] font-semibold text-white">N</span>
+        <div class="min-w-0 flex-1">
+          <div class="mb-1.5 flex items-center gap-2"><span class="text-[12px] font-semibold">Nova</span><span class="text-[10px] text-[#a1a1aa]">${t.time}</span><span class="badge badge-brand ml-auto">定时任务</span></div>
+          <div class="rounded-xl rounded-tl-sm border border-[#e4e4e7] bg-white px-4 py-3.5 text-[13px] leading-relaxed">
+            <p class="font-medium">${t.title}已生成，结论摘要：</p>
+            <div class="mt-2 grid grid-cols-5 gap-2 text-center">
+              ${metrics.map(([l,v,d])=>`<div class="rounded-lg bg-[#fafafa] px-1 py-2"><p class="text-[11px] text-[#71717a]">${l}</p><p class="mt-0.5 text-[13px] font-semibold tnum">${v}</p><p class="text-[10px] ${d.startsWith('-')?'text-[#dc2626]':'text-[#16a34a]'}">${d}</p></div>`).join('')}
+            </div>
+            <p class="mt-2 text-[#3f3f46]">${t.id==='t2' ? '周三、周六为高产日；针织品类连带率下滑 0.2，建议周末做主推组合。' : '月中与月末冲量明显；会员余额消耗环比下降，建议月初做会员唤醒活动。'}</p>
+          </div>
+          <div class="mt-3 grid grid-cols-2 gap-2">
+            <button class="flex items-center gap-3 rounded-xl border border-[#e4e4e7] bg-white p-3 text-left hover:border-[#4f46e5]" onclick="openArtifact('report')">
+              <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-[#fef2f2] text-[#dc2626]"><i data-lucide="file-text" class="h-4 w-4"></i></span>
+              <span class="min-w-0 flex-1"><span class="block truncate text-[12px] font-medium">${t.title}.html</span><span class="text-[11px] text-[#71717a]">HTML · 42 KB</span></span>
+              <i data-lucide="arrow-up-right" class="h-3.5 w-3.5 text-[#a1a1aa]"></i>
+            </button>
+            <button class="flex items-center gap-3 rounded-xl border border-[#e4e4e7] bg-white p-3 text-left hover:border-[#4f46e5]" onclick="openArtifact('csv')">
+              <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-[#ecfdf5] text-[#16a34a]"><i data-lucide="table-2" class="h-4 w-4"></i></span>
+              <span class="min-w-0 flex-1"><span class="block truncate text-[12px] font-medium">指标明细.csv</span><span class="text-[11px] text-[#71717a]">CSV · 8 KB</span></span>
+              <i data-lucide="arrow-up-right" class="h-3.5 w-3.5 text-[#a1a1aa]"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+  return `
+  <div class="mx-auto flex h-full max-w-[760px] flex-col items-center justify-center text-center">
+    <span class="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#a1a1aa] shadow-sm"><i data-lucide="${t.icon}" class="h-5 w-5"></i></span>
+    <p class="mt-3 text-[13px] font-medium">${t.title}</p>
+    <p class="mt-1 text-[11px] text-[#71717a]">自由对话任务，数据范围 ${t.range} · 原型的会话内容仅演示预设报告任务</p>
+    <button class="btn btn-sm mt-3" onclick="showToast('已创建新的自由对话')"><i data-lucide="plus" class="h-3.5 w-3.5"></i>继续追问</button>
+  </div>`;
+}
+
+function selectTask(id){
+  state.taskId = id;
+  go('analysis');
+}
+
+/* ---------- 消息通知 ---------- */
+function unreadCount(){ return NOTIFS.filter(n=>n.unread).length; }
+
+function renderNotifBadge(){
+  const dot = document.getElementById('notif-dot');
+  if(dot) dot.classList.toggle('hidden', unreadCount()===0);
+}
+
+function renderNotifMenu(){
+  const menu = document.getElementById('notif-menu');
+  if(!menu) return;
+  menu.innerHTML = `
+    <div class="flex items-center justify-between border-b border-[#e4e4e7] px-3 py-2.5">
+      <p class="text-xs font-semibold">消息</p>
+      <span class="text-[11px] text-[#71717a]">${unreadCount()} 条未读</span>
+    </div>
+    <div class="max-h-[320px] overflow-y-auto p-1">
+      ${NOTIFS.map(n=>`
+        <button class="flex w-full items-start gap-2 rounded-lg px-2 py-2 text-left hover:bg-[#fafafa]" onclick="openNotif('${n.id}')">
+          <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${n.unread?'bg-[#dc2626]':'bg-transparent'}"></span>
+          <span class="min-w-0 flex-1">
+            <span class="flex items-center gap-2">
+              <span class="min-w-0 flex-1 truncate text-[12px] font-medium ${n.unread?'text-[#18181b]':'text-[#71717a]'}">${n.title}</span>
+              <span class="shrink-0 text-[10px] text-[#a1a1aa]">${n.time}</span>
+            </span>
+            <span class="mt-0.5 block truncate text-[11px] text-[#71717a]">${n.desc}</span>
+          </span>
+        </button>`).join('')}
+    </div>
+    <div class="border-t border-[#e4e4e7] px-3 py-2">
+      <button class="w-full text-center text-[11px] text-[#4f46e5]" onclick="markAllRead()">全部标记为已读</button>
+    </div>`;
+  lucide.createIcons();
+}
+
+function toggleNotif(){
+  const menu = document.getElementById('notif-menu');
+  if(!menu) return;
+  if(menu.classList.contains('hidden')){
+    renderNotifMenu();
+    menu.classList.remove('hidden');
+  } else {
+    menu.classList.add('hidden');
+  }
+}
+
+function openNotif(id){
+  const n = NOTIFS.find(x=>x.id===id);
+  if(!n) return;
+  n.unread = false;
+  renderNotifBadge();
+  document.getElementById('notif-menu')?.classList.add('hidden');
+  state.taskId = n.task;
+  go('analysis');
+  showToast(`已打开「${n.title}」`);
+}
+
+function markAllRead(){
+  NOTIFS.forEach(n=>n.unread=false);
+  renderNotifBadge();
+  renderNotifMenu();
+  showToast('消息已全部标记为已读');
+}
+
+/* ---------- 产物抽屉 ---------- */
+function artifactContent(key){
+  if(key==='csv'){
+    return `
+      <div class="p-5">
+        <div class="mb-3 flex items-center justify-between">
+          <div><p class="text-[15px] font-semibold">指标明细.csv</p><p class="mt-0.5 text-[11px] text-[#71717a]">2026-10-23 · 9 行 · 6 KB</p></div>
+          <button class="btn btn-sm" onclick="showToast('已下载')"><i data-lucide="download" class="h-3.5 w-3.5"></i>下载</button>
+        </div>
+        <div class="overflow-hidden rounded-lg border border-[#e4e4e7]">
+          <table class="table">
+            <thead><tr><th>指标</th><th>今日</th><th>昨日</th><th>环比</th></tr></thead>
+            <tbody>
+              <tr><td>营业额</td><td class="tnum">12,860.50</td><td class="tnum">11,482.00</td><td class="text-[#16a34a]">+12.0%</td></tr>
+              <tr><td>订单数</td><td class="tnum">42</td><td class="tnum">39</td><td class="text-[#16a34a]">+7.7%</td></tr>
+              <tr><td>客单价</td><td class="tnum">306.20</td><td class="tnum">294.41</td><td class="text-[#16a34a]">+4.0%</td></tr>
+              <tr><td>连带率</td><td class="tnum">1.8</td><td class="tnum">2.0</td><td class="text-[#dc2626]">-10.0%</td></tr>
+              <tr><td>毛利率</td><td class="tnum">52.0%</td><td class="tnum">50.8%</td><td class="text-[#16a34a]">+1.2pt</td></tr>
+              <tr><td>会员订单占比</td><td class="tnum">61.0%</td><td class="tnum">58.9%</td><td class="text-[#16a34a]">+2.1pt</td></tr>
+              <tr><td>退款率</td><td class="tnum">2.0%</td><td class="tnum">1.8%</td><td class="text-[#dc2626]">+0.2pt</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+  }
+  return `
+    <div class="mx-auto max-w-[560px] p-6">
+      <div class="mb-5 flex items-start justify-between">
+        <div>
+          <p class="text-[11px] font-medium uppercase tracking-wider text-[#4f46e5]">DAILY BUSINESS REPORT</p>
+          <h2 class="mt-1 text-[22px] font-semibold tracking-tight">今日经营日报</h2>
+          <p class="mt-1 text-[11px] text-[#71717a]">2026-10-23 · 戴维贝拉万象城店 · 数据截止 21:35</p>
+        </div>
+        <span class="badge badge-brand">Nova 生成</span>
+      </div>
+      <div class="grid grid-cols-4 gap-2">
+        <div class="rounded-lg border border-[#e4e4e7] p-3"><p class="metric-label">营业额</p><p class="mt-1 text-[19px] font-semibold tnum">¥12,860</p><p class="mt-1 text-[10px] text-[#16a34a]">+12.0%</p></div>
+        <div class="rounded-lg border border-[#e4e4e7] p-3"><p class="metric-label">订单数</p><p class="mt-1 text-[19px] font-semibold tnum">42</p><p class="mt-1 text-[10px] text-[#16a34a]">+7.7%</p></div>
+        <div class="rounded-lg border border-[#e4e4e7] p-3"><p class="metric-label">客单价</p><p class="mt-1 text-[19px] font-semibold tnum">¥306</p><p class="mt-1 text-[10px] text-[#16a34a]">+4.0%</p></div>
+        <div class="rounded-lg border border-[#e4e4e7] p-3"><p class="metric-label">连带率</p><p class="mt-1 text-[19px] font-semibold tnum">1.8</p><p class="mt-1 text-[10px] text-[#dc2626]">-10.0%</p></div>
+      </div>
+      <div class="mt-5">
+        <h3 class="text-[13px] font-semibold">一、结论</h3>
+        <ul class="mt-2 space-y-1.5 text-[12px] leading-relaxed text-[#3f3f46]">
+          <li>1. 整体销售好于昨日与上周同日，会员贡献稳定。</li>
+          <li>2. 连带率下滑是今日最明显的效率问题，集中在午后时段。</li>
+          <li>3. 高库存零动销款占用现金，需要尽快处理。</li>
+        </ul>
+      </div>
+      <div class="mt-5">
+        <h3 class="text-[13px] font-semibold">二、异常与建议</h3>
+        <div class="mt-2 overflow-hidden rounded-lg border border-[#e4e4e7]">
+          <table class="table">
+            <thead><tr><th>问题</th><th>证据</th><th>建议动作</th><th>优先级</th></tr></thead>
+            <tbody>
+              <tr><td>连带率下降</td><td>1.8，近 14 天 2.1</td><td>午后主推两件 9 折组合</td><td><span class="badge badge-warning">高</span></td></tr>
+              <tr><td>零动销高库存</td><td>DB-2026-1088 · 46 件</td><td>周末陈列 + 8 折</td><td><span class="badge badge-warning">高</span></td></tr>
+              <tr><td>会员余额消费下降</td><td>¥860，环比 -32%</td><td>短信唤醒余额 > 500 会员</td><td><span class="badge">中</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="mt-5 rounded-lg bg-[#fafafa] p-3 text-[11px] text-[#71717a]">
+        数据口径：订单状态为 normal，含已支付订单，不含隐藏订单；金额为实收金额；毛利率按下单时成本计算。
+      </div>
+    </div>`;
+}
+
+function openArtifact(key, openDrawer = true){
+  state.selectedArtifact = key;
+  if(openDrawer) state.artifactOpen = true;
+  const pageRoot = document.getElementById('page-root');
+  let drawer = document.getElementById('artifact-drawer');
+  if(!drawer){
+    drawer = document.createElement('div');
+    drawer.id = 'artifact-drawer';
+    drawer.className = 'absolute bottom-0 right-0 top-0 z-40 flex w-[720px] max-w-[70%] flex-col border-l border-[#e4e4e7] bg-white shadow-[-16px_0_48px_rgba(0,0,0,.12)]';
+    pageRoot.appendChild(drawer);
+  }
+  drawer.innerHTML = `
+    <div class="flex h-[52px] shrink-0 items-center gap-2 border-b border-[#e4e4e7] px-3">
+      <button class="btn btn-sm btn-ghost" onclick="closeArtifact()"><i data-lucide="panel-right-close" class="h-4 w-4"></i></button>
+      <span class="text-[13px] font-semibold">产物</span>
+      <span class="badge">2 个文件</span>
+      <div class="ml-auto flex items-center gap-1">
+        <button class="btn btn-sm btn-ghost" title="在文件夹中显示" onclick="showToast('已在 Finder 中显示工作目录')"><i data-lucide="folder-open" class="h-4 w-4"></i></button>
+        <button class="btn btn-sm btn-ghost" title="最大化" onclick="showToast('已最大化预览')"><i data-lucide="maximize-2" class="h-4 w-4"></i></button>
+      </div>
+    </div>
+    <div class="flex min-h-0 flex-1">
+      <div class="flex min-w-0 flex-1 flex-col bg-white">
+        <div class="flex h-8 shrink-0 items-center gap-1.5 border-b border-[#e4e4e7] px-3 text-[11px] text-[#71717a]">
+          <i data-lucide="${key==='csv'?'table-2':'file-text'}" class="h-3.5 w-3.5"></i>
+          <span>${key==='csv'?'artifacts/指标明细.csv':'artifacts/今日经营日报.html'}</span>
+          <span class="ml-auto">${key==='csv'?'6 KB':'48 KB'}</span>
+        </div>
+        <div class="flex-1 overflow-y-auto">${artifactContent(key)}</div>
+      </div>
+      <div class="flex w-[200px] shrink-0 flex-col border-l border-[#e4e4e7] bg-[#fafafa]">
+        <div class="flex h-8 shrink-0 items-center border-b border-[#e4e4e7] px-3 text-[10px] font-medium uppercase tracking-wider text-[#71717a]">文件</div>
+        <div class="flex-1 overflow-y-auto p-1.5 text-[12px]">
+          <p class="flex items-center gap-1.5 rounded px-2 py-1 text-[#71717a]"><i data-lucide="chevron-down" class="h-3 w-3"></i><i data-lucide="folder" class="h-3.5 w-3.5"></i>artifacts</p>
+          <button class="ml-4 flex w-[calc(100%-16px)] items-center gap-1.5 rounded px-2 py-1.5 text-left ${key==='report'?'bg-[#eef2ff] text-[#4338ca] font-medium':'hover:bg-[#f4f4f5]'}" onclick="openArtifact('report')"><i data-lucide="file-text" class="h-3.5 w-3.5"></i>今日经营日报.html</button>
+          <button class="ml-4 flex w-[calc(100%-16px)] items-center gap-1.5 rounded px-2 py-1.5 text-left ${key==='csv'?'bg-[#eef2ff] text-[#4338ca] font-medium':'hover:bg-[#f4f4f5]'}" onclick="openArtifact('csv')"><i data-lucide="table-2" class="h-3.5 w-3.5"></i>指标明细.csv</button>
+          <button class="ml-4 flex w-[calc(100%-16px)] items-center gap-1.5 rounded px-2 py-1.5 text-left hover:bg-[#f4f4f5]"><i data-lucide="file-code" class="h-3.5 w-3.5"></i>异常清单.md</button>
+          <p class="mt-2 flex items-center gap-1.5 rounded px-2 py-1 text-[#71717a]"><i data-lucide="chevron-right" class="h-3 w-3"></i><i data-lucide="folder" class="h-3.5 w-3.5"></i>scripts</p>
+          <p class="ml-4 flex items-center gap-1.5 rounded px-2 py-1 text-[#71717a]"><i data-lucide="file-code" class="h-3.5 w-3.5"></i>query_overview.ts</p>
+        </div>
+      </div>
+    </div>`;
+  drawer.classList.remove('hidden');
+  lucide.createIcons();
+}
+
+function closeArtifact(){
+  state.artifactOpen = false;
+  const d = document.getElementById('artifact-drawer');
+  if(d) d.remove();
+}
+
+function toggleArtifact(){
+  if(state.artifactOpen) closeArtifact(); else openArtifact(state.selectedArtifact);
+}
+
+/* ---------- 买单 ---------- */
+let CART = [
+  { name:'小童纯棉针织开衫', style:'DB-2026-1088', spec:'奶白 / 110', price:399, qty:1, color:'#d4a373' },
+  { name:'女童格纹连衣裙', style:'DB-2026-0932', spec:'红格 / 120', price:459, qty:2, color:'#b91c1c' },
+  { name:'儿童软底运动鞋', style:'DB-2026-0755', spec:'白 / 28', price:299, qty:1, color:'#0f766e' },
+];
+let HELD = null;
+
+function clearCart(){ CART = []; go('buy'); }
+
+function holdOrder(){
+  if(!CART.length) return;
+  HELD = { cart: CART.map(i=>({...i})) };
+  CART = [];
+  go('buy');
+  showToast('已挂单，可在「恢复挂单」中取回');
+}
+
+function restoreOrder(){
+  if(!HELD) return;
+  if(CART.length){ openDialog('restore'); return; }
+  doRestore();
+}
+
+function doRestore(){
+  if(!HELD) return;
+  CART = HELD.cart.map(i=>({...i}));
+  HELD = null;
+  closeDialog();
+  go('buy');
+  showToast('挂单已恢复');
+}
+
+function buyPage(){
+  const rows = CART.length ? CART.map(i => {
+    const [cColor, cSize] = i.spec.split('/').map(s=>s.trim());
+    const sale = i.price * 0.6;
+    return `
+    <tr>
+      <td><div class="flex items-center gap-2.5"><span class="swatch" style="background:${i.color}">${i.name.slice(0,1)}</span><div class="min-w-0"><p class="truncate font-medium">${i.name}</p><p class="mt-0.5 text-[11px] text-[#71717a]">${i.style}</p></div></div></td>
+      <td class="max-w-[96px] truncate">${cColor||'—'}</td>
+      <td class="tnum">${cSize||'—'}</td>
+      <td><div><p class="font-medium tnum">¥${sale.toFixed(2)}</p><p class="mt-0.5 text-[11px] text-[#71717a] line-through tnum">¥${i.price.toFixed(2)}</p></div></td>
+      <td class="text-center"><input class="input h-7 w-[56px] text-center text-xs tnum" value="6.0" title="折扣，如 6.0 表示 6 折" /></td>
+      <td><div class="inline-flex items-center gap-2 rounded-lg border border-[#e4e4e7] px-1"><button class="h-6 w-6 text-[#71717a]">−</button><span class="w-4 text-center text-xs tnum">${i.qty}</span><button class="h-6 w-6 text-[#71717a]">+</button></div></td>
+      <td class="text-right font-medium tnum">¥${(sale*i.qty).toFixed(2)}</td>
+      <td class="text-center"><button class="btn btn-sm btn-ghost"><i data-lucide="x" class="h-3.5 w-3.5"></i></button></td>
+    </tr>`;}).join('') : `<tr><td colspan="8" class="py-12 text-center text-[12px] text-[#a1a1aa]">暂无待售商品，扫描条码或输入款号加入清单</td></tr>`;
+  const total = CART.reduce((s,i)=>s+i.price*i.qty,0);
+  const count = CART.reduce((s,i)=>s+i.qty,0);
+  const discount = CART.length ? 60 : 0;
+  const payable = total - discount;
+  return `
+  <div class="flex h-full gap-4">
+    <div class="flex min-w-0 flex-1 flex-col gap-3">
+      <div class="card flex items-center gap-2 p-3">
+        <div class="relative flex-1">
+          <i data-lucide="scan-barcode" class="pointer-events-none absolute left-3 top-3 h-4 w-4 text-[#4f46e5]"></i>
+          <input class="input h-10 pl-9 text-[13px]" placeholder="扫描条码或输入款号 / SKU，回车加入清单" value="DB-2026-1088" />
+        </div>
+      </div>
+
+      <div class="card flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div class="flex items-center gap-3 border-b border-[#e4e4e7] px-4 py-3">
+          <span class="text-[13px] font-semibold">待售清单</span>
+          <span class="badge">${CART.length} 款 · ${count} 件</span>
+          <button class="btn btn-sm btn-ghost ml-auto" onclick="clearCart()"><i data-lucide="trash-2" class="h-3.5 w-3.5"></i>清空</button>
+          ${CART.length ? `<button class="btn btn-sm" onclick="holdOrder()"><i data-lucide="archive" class="h-3.5 w-3.5"></i>挂单</button>` : ''}
+          ${HELD ? `<button class="btn btn-sm" onclick="restoreOrder()"><i data-lucide="rotate-ccw" class="h-3.5 w-3.5"></i>恢复挂单</button>` : ''}
+        </div>
+        <div class="flex-1 overflow-auto">
+          <table class="table">
+            <thead><tr><th>商品</th><th>颜色</th><th>尺码</th><th>单价</th><th class="text-center">折扣</th><th>数量</th><th class="text-right">小计</th><th class="text-center">操作</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        <div class="flex items-center gap-4 border-t border-[#e4e4e7] bg-[#fafafa] px-4 py-2.5 text-[12px] text-[#71717a]">
+          <span>待售 <b class="text-[#18181b] tnum">${CART.length} 款</b> · ${count} 件</span>
+          <span>原价 <b class="text-[#18181b] tnum">¥${total.toFixed(2)}</b></span>
+          <span>优惠 <b class="text-[#dc2626] tnum">-¥${discount.toFixed(2)}</b></span>
+          <span class="ml-auto">应付 <b class="text-[16px] text-[#18181b] tnum">¥${payable.toFixed(2)}</b></span>
+        </div>
+      </div>
+    </div>
+
+    <aside class="flex w-[360px] shrink-0 flex-col gap-3 overflow-y-auto">
+      <div class="card p-4">
+        <div class="flex items-center gap-2">
+          <span class="flex h-9 w-9 items-center justify-center rounded-full bg-[#eef2ff] text-[12px] font-semibold text-[#4338ca]">陈</span>
+          <div class="flex-1"><p class="text-[13px] font-medium">陈女士 <span class="badge badge-brand ml-1">金卡</span> <span class="text-[11px] font-medium text-[#dc2626]">本月生日</span></p><p class="mt-0.5 text-[11px] text-[#71717a]">13812346688 · 最近到店 10/18</p></div>
+          <button class="btn btn-sm">更换</button>
+        </div>
+        <div class="mt-3 grid grid-cols-3 gap-2 text-center">
+          <div class="rounded-lg bg-[#fafafa] py-2"><p class="text-[13px] font-semibold tnum">2,680</p><p class="text-[10px] text-[#71717a]">积分</p></div>
+          <div class="rounded-lg bg-[#fafafa] py-2"><p class="text-[13px] font-semibold tnum">¥860</p><p class="text-[10px] text-[#71717a]">余额</p></div>
+          <div class="rounded-lg bg-[#fafafa] py-2"><p class="text-[13px] font-semibold tnum">2</p><p class="text-[10px] text-[#71717a]">可用券</p></div>
+        </div>
+      </div>
+
+      <div class="card divide-y divide-[#f1f1f3] text-[13px]">
+        <div class="flex items-center px-4 py-3"><span>应收金额</span><span class="ml-auto text-[16px] font-semibold tnum">¥${payable.toFixed(2)}</span></div>
+        <div class="flex items-center px-4 py-3"><span>积分抵扣</span><span class="ml-auto text-[11px] text-[#71717a]">可用 2680 分抵 ¥26.80</span><button class="ml-2 h-4 w-7 rounded-full bg-[#4f46e5] p-0.5"><span class="block h-3 w-3 translate-x-3 rounded-full bg-white"></span></button></div>
+        <div class="flex items-center px-4 py-3"><span>余额抵扣</span><span class="ml-auto text-[11px] text-[#71717a]">可用 ¥860.00</span><button class="ml-2 h-4 w-7 rounded-full bg-[#4f46e5] p-0.5"><span class="block h-3 w-3 translate-x-3 rounded-full bg-white"></span></button></div>
+        <div class="flex items-center px-4 py-3"><span>会员优惠券</span><span class="ml-auto text-[12px] text-[#4f46e5]">满 800 减 60</span><i data-lucide="chevron-right" class="ml-1 h-4 w-4 text-[#a1a1aa]"></i></div>
+        <div class="flex items-center px-4 py-3"><span>店铺优惠券</span><span class="ml-auto text-[11px] text-[#a1a1aa]">暂无可用店铺优惠券</span><i data-lucide="chevron-right" class="ml-1 h-4 w-4 text-[#a1a1aa]"></i></div>
+        <div class="flex items-center px-4 py-3"><span>整单折扣</span><span class="ml-auto text-[12px]">无</span><i data-lucide="chevron-right" class="ml-1 h-4 w-4 text-[#a1a1aa]"></i></div>
+      </div>
+
+      <div class="card divide-y divide-[#f1f1f3] text-[13px]">
+        <p class="border-b border-[#f1f1f3] px-4 py-2.5 text-[12px] font-medium">账单明细</p>
+        <div class="flex items-center px-4 py-2.5"><span>订单应收:</span><span class="ml-auto font-medium tnum">¥${total.toFixed(2)}</span></div>
+        <div class="flex items-center px-4 py-2.5"><span>使用店铺优惠券抵扣:</span><span class="ml-auto text-[#dc2626] tnum">-¥0.00</span></div>
+        <div class="flex items-center px-4 py-2.5"><span>使用积分抵扣:</span><span class="ml-auto text-[#dc2626] tnum">-¥26.80</span></div>
+        <div class="flex items-center px-4 py-2.5"><span>使用余额抵扣:</span><span class="ml-auto text-[#dc2626] tnum">-¥0.00</span></div>
+        <div class="flex items-center px-4 py-2.5"><span>使用会员优惠券抵扣:</span><span class="ml-auto text-[#dc2626] tnum">-¥60.00</span></div>
+        <div class="flex items-center px-4 py-2.5"><span>订单应付:</span><span class="ml-auto font-semibold tnum">¥${payable.toFixed(2)}</span></div>
+        <div class="flex items-center px-4 py-2.5"><span>本次获得积分:</span><span class="ml-auto tnum">${Math.floor(payable)}</span></div>
+      </div>
+
+      <div class="card p-4">
+        <p class="mb-2 text-[12px] font-medium">导购员</p>
+        <select class="input h-8 w-full text-xs"><option>林晓</option><option>周敏</option><option>陈静</option></select>
+        <p class="mb-1.5 mt-3 text-[12px] font-medium">备注</p>
+        <input class="input h-8 w-full text-xs" placeholder="选填，将随订单保存" />
+      </div>
+
+      <div class="card p-4">
+        <p class="mb-2 text-[12px] font-medium">支付方式</p>
+        <select class="input h-9 w-full text-xs"><option>微信</option><option>支付宝</option><option>现金</option><option>银行卡</option><option>其他</option></select>
+        <div class="mt-3 flex items-center gap-2"><span class="shrink-0 whitespace-nowrap text-[12px] text-[#71717a]">实收</span><input class="input min-w-0 flex-1 text-right tnum" value="${payable.toFixed(2)}" /></div>
+        <button class="btn btn-primary mt-3 h-11 w-full text-[14px]" onclick="openDialog('paySuccess')"><i data-lucide="circle-check" class="h-4 w-4"></i>确认收款</button>
+      </div>
+    </aside>
+  </div>`;
+}
+
+/* ---------- 订单 ---------- */
+const DATE_RANGES = {
+  orders:    { start:'2026-10-23', end:'2026-10-23', draftStart:null, draftEnd:null, month:8 },
+  members:   { start:'2025-05-01', end:'2026-10-23', draftStart:null, draftEnd:null, month:8 },
+  marketing: { start:'2026-01-01', end:'2026-10-23', draftStart:null, draftEnd:null, month:8 },
+  data:      { start:'2026-09-24', end:'2026-10-23', draftStart:null, draftEnd:null, month:8 },
+  oplog:     { start:'2026-10-17', end:'2026-10-23', draftStart:null, draftEnd:null, month:8 },
+};
+let rangeScope = 'orders';
+let rangePopEl = null;
+function activePop(){ return rangePopEl || document.getElementById('range-popover'); }
+
+function pad2(n){ return String(n).padStart(2,'0'); }
+function rangeOf(scope){ return DATE_RANGES[scope] || DATE_RANGES.orders; }
+function rangeLabel(scope){ const r = rangeOf(scope || rangeScope); return `${r.start} → ${r.end}`; }
+
+function calMonth(year, month, r){
+  const first = new Date(year, month, 1);
+  const days = new Date(year, month + 1, 0).getDate();
+  const pad = (first.getDay() + 6) % 7;
+  const cells = Array(pad).fill(null);
+  for (let d = 1; d <= days; d++) cells.push(`${year}-${pad2(month + 1)}-${pad2(d)}`);
+  while (cells.length % 7 !== 0) cells.push(null);
+  const week = ['一','二','三','四','五','六','日'];
+  const s = r.draftStart || r.start;
+  const e = r.draftStart ? (r.draftEnd || r.draftStart) : r.end;
+  return `
+    <div class="flex-1">
+      <p class="text-center text-[11px] font-medium">${year} 年 ${month + 1} 月</p>
+      <div class="mt-2 grid grid-cols-7 gap-y-1 text-center">
+        ${week.map(w=>`<span class="text-[10px] text-[#a1a1aa]">${w}</span>`).join('')}
+        ${cells.map(ds=>{
+          if(!ds) return '<span></span>';
+          const d = Number(ds.slice(-2));
+          const inRange = ds >= s && ds <= e;
+          const edge = ds === s || ds === e;
+          const today = ds === '2026-10-23';
+          return `<button class="relative mx-auto flex h-8 w-8 items-center justify-center rounded-md text-[12px] tnum ${edge?'bg-[#4f46e5] text-white font-medium':inRange?'bg-[#eef2ff] text-[#4338ca]':'hover:bg-[#f4f4f5]'}" onclick="pickRangeDate('${ds}')">${d}${today&&!edge?'<span class="absolute bottom-1 h-1 w-1 rounded-full bg-[#4f46e5]"></span>':''}</button>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+function renderRangePopup(){
+  const pop = activePop();
+  if(!pop) return;
+  const r = rangeOf(pop.dataset.scope || rangeScope);
+  const y = 2026, m = r.month;
+  const m2 = m + 1 > 11 ? 0 : m + 1;
+  const y2 = m + 1 > 11 ? y + 1 : y;
+  pop.innerHTML = `
+    <div class="flex items-center justify-between">
+      <p class="text-[12px] font-semibold">选择日期区间</p>
+      <div class="flex items-center gap-1">
+        <button class="btn btn-sm btn-ghost" onclick="shiftRangeMonth(-1)"><i data-lucide="chevron-left" class="h-4 w-4"></i></button>
+        <button class="btn btn-sm btn-ghost" onclick="shiftRangeMonth(1)"><i data-lucide="chevron-right" class="h-4 w-4"></i></button>
+      </div>
+    </div>
+    <div class="mt-3 flex gap-4">
+      ${calMonth(y, m, r)}
+      <span class="w-px shrink-0 bg-[#e4e4e7]"></span>
+      ${calMonth(y2, m2, r)}
+    </div>
+    <div class="mt-3 flex items-center justify-between border-t border-[#f1f1f3] pt-3">
+      <p class="text-[11px] text-[#71717a]">已选：<span class="tnum text-[#18181b]">${r.draftStart || '开始日期'}</span> 至 <span class="tnum text-[#18181b]">${r.draftEnd || r.draftStart || '结束日期'}</span></p>
+      <div class="flex gap-2">
+        <button class="btn btn-sm" onclick="closeRangePopup()">取消</button>
+        <button class="btn btn-sm btn-primary" onclick="applyRange()">确定</button>
+      </div>
+    </div>`;
+  lucide.createIcons();
+}
+
+function toggleRangePopup(scope){
+  const targetId = scope==='oplog' ? 'oplog-range-popover' : 'range-popover';
+  const pop = document.getElementById(targetId);
+  if(!pop) return;
+  rangePopEl = pop;
+  if(scope) { pop.dataset.scope = scope; rangeScope = scope; }
+  if(!pop.classList.contains('hidden')){ closeRangePopup(); return; }
+  const r = rangeOf(pop.dataset.scope || rangeScope);
+  r.draftStart = r.start;
+  r.draftEnd = r.end;
+  pop.classList.remove('hidden');
+  renderRangePopup();
+}
+
+function closeRangePopup(){
+  activePop()?.classList.add('hidden');
+  rangePopEl = null;
+}
+
+function shiftRangeMonth(delta){
+  const pop = activePop();
+  const r = rangeOf(pop?.dataset.scope || rangeScope);
+  r.month += delta;
+  if(r.month < 0) r.month = 10;
+  if(r.month > 10) r.month = 0;
+  renderRangePopup();
+}
+
+function pickRangeDate(ds){
+  const pop = activePop();
+  const r = rangeOf(pop?.dataset.scope || rangeScope);
+  if(!r.draftStart || r.draftEnd){
+    r.draftStart = ds;
+    r.draftEnd = null;
+  } else if(ds < r.draftStart){
+    r.draftStart = ds;
+    r.draftEnd = null;
+  } else {
+    r.draftEnd = ds;
+  }
+  renderRangePopup();
+}
+
+function applyRange(){
+  const pop = activePop();
+  const scope = pop?.dataset.scope || rangeScope;
+  const r = rangeOf(scope);
+  if(r.draftStart){
+    r.start = r.draftStart;
+    r.end = r.draftEnd || r.draftStart;
+  }
+  const label = document.getElementById(`range-label-${scope}`);
+  if(label) label.textContent = rangeLabel(scope);
+  closeRangePopup();
+  showToast(`已筛选 ${rangeLabel(scope)}`);
+}
+
+function ordersPage(){
+  // 列对齐老系统：订单号 / 商品数量 / 应付金额 / 实付金额 / 支付方式 / 会员 / 时间 / 导购员 / 对账状态 / 打印 / 操作
+  const rows = [
+    { no:'DB202610230042', count:'4', payable:'¥1,556.00', actual:'¥1,456.00', pay:'微信', member:'15906536862', time:'2026/10/23 21:18:05', clerk:'林晓', done:true, printed:'已打印', deduct:'优惠券 ¥100.00' },
+    { no:'DB202610230041', count:'2', payable:'¥798.00', actual:'¥798.00', pay:'支付宝', member:'18906531234', time:'2026/10/23 20:56:41', clerk:'周敏', done:false, printed:'未打印', deduct:'' },
+    { no:'DB202610230040', count:'1', payable:'¥299.00', actual:'¥299.00', pay:'现金', member:'', time:'2026/10/23 20:31:12', clerk:'林晓', done:true, printed:'未打印', deduct:'' },
+    { no:'DB202610230039', count:'3', payable:'¥1,197.00', actual:'¥1,147.00', pay:'微信', member:'15006539876', time:'2026/10/23 19:44:36', clerk:'周敏', done:false, printed:'已打印', deduct:'余额 ¥50.00' },
+    { no:'DB202610230038', count:'2', payable:'¥658.00', actual:'¥658.00', pay:'银行卡', member:'', time:'2026/10/23 18:20:08', clerk:'林晓', done:true, printed:'已打印', deduct:'' },
+    { no:'DB202610230037', count:'5', payable:'¥2,096.00', actual:'¥1,996.00', pay:'微信', member:'13606532109', time:'2026/10/23 17:02:55', clerk:'周敏', done:false, printed:'未打印', deduct:'积分 ¥100.00' },
+  ];
+  return `
+  <div class="flex h-full flex-col gap-3">
+    <div class="grid grid-cols-5 gap-3">
+      ${[['订单数','42','+7.7%','receipt-text'],['商品数','126','+9.4%','shirt'],['订单金额','¥12,860.50','+12.0%','wallet'],['余额消耗','¥1,286.00','+3.2%','credit-card'],['充值金额','¥2,000.00','-8.0%','badge-dollar-sign']].map(([l,v,s,i])=>`
+      <div class="card p-4"><div class="flex items-center justify-between"><p class="metric-label">${l}</p><i data-lucide="${i}" class="h-4 w-4 text-[#a1a1aa]"></i></div><p class="metric-value mt-1">${v}</p><p class="mt-0.5 text-[11px] text-[#16a34a]">${s}</p></div>`).join('')}
+    </div>
+    <div class="card relative flex flex-wrap items-center gap-2 p-3">
+      <span class="text-[11px] text-[#71717a]">创建时间</span>
+      <button class="btn btn-sm" id="range-trigger" onclick="toggleRangePopup('orders')">
+        <i data-lucide="calendar-range" class="h-3.5 w-3.5"></i><span id="range-label-orders" class="tnum">${rangeLabel('orders')}</span><i data-lucide="chevron-down" class="h-3 w-3 text-[#71717a]"></i>
+      </button>
+      <span class="text-[11px] text-[#71717a]">订单号 / 会员手机</span>
+      <input class="input h-8 w-[180px] text-xs" placeholder="输入订单号或会员手机号" />
+      <span class="text-[11px] text-[#71717a]">支付方式</span>
+      <select class="input h-8 w-[110px] text-xs"><option>全部</option><option>微信</option><option>支付宝</option><option>现金</option><option>银行卡</option><option>其他</option></select>
+      <span class="text-[11px] text-[#71717a]">导购员</span>
+      <select class="input h-8 w-[110px] text-xs"><option>全部导购</option><option>林晓</option><option>周敏</option><option>陈静</option></select>
+      <button class="btn btn-sm">查询</button>
+      <button class="btn btn-sm">重置</button>
+      <div class="ml-auto flex items-center gap-2">
+        <button class="btn btn-sm" onclick="openReconcileDrawer()"><i data-lucide="clipboard-check" class="h-3.5 w-3.5"></i>对账</button>
+        <button class="btn btn-sm" onclick="openOrderGoodsDrawer()"><i data-lucide="package-search" class="h-3.5 w-3.5"></i>订单商品</button>
+      </div>
+      <div id="range-popover" data-scope="orders" class="absolute left-3 top-[52px] z-50 hidden w-[520px] rounded-xl border border-[#e4e4e7] bg-white p-4 shadow-xl"></div>
+    </div>
+    <div class="card min-h-0 flex-1 overflow-auto">
+      <table class="table">
+        <thead><tr><th>订单号</th><th>商品数量</th><th>应付金额</th><th>实付金额</th><th>支付方式</th><th>会员</th><th>时间</th><th>导购员</th><th>对账状态</th><th>打印状态</th><th>操作</th></tr></thead>
+        <tbody>${rows.map(r=>`<tr>
+          <td class="font-medium">${r.no}</td>
+          <td class="tnum">${r.count}</td>
+          <td class="tnum">${r.payable}</td>
+          <td class="tnum font-medium text-[#dc2626]">${r.actual}${r.deduct?`<i data-lucide="info" class="ml-1 inline h-3 w-3 text-[#d97706]" title="${r.deduct}"></i>`:''}</td>
+          <td>${r.pay}</td>
+          <td class="tnum text-[12px]">${r.member||'—'}</td>
+          <td class="tnum text-[12px] text-[#71717a]">${r.time.slice(5,10).replace('/','-')} ${r.time.slice(11,16)}</td>
+          <td>${r.clerk}</td>
+          <td><span class="badge ${r.done?'badge-success':'badge-warning'}">${r.done?'已对账':'未对账'}</span></td>
+          <td><span class="badge ${r.printed==='已打印'?'badge-success':'badge-warning'}">${r.printed}</span></td>
+          <td class="text-right whitespace-nowrap"><button class="btn btn-sm btn-ghost" onclick="openOrderDrawer('${r.no}','${r.actual}')">详情</button><button class="btn btn-sm btn-ghost" onclick="openOrderEdit()">修改</button><button class="btn btn-sm btn-ghost text-[#71717a]">更多</button></td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>
+    <div class="flex items-center justify-between text-[12px] text-[#71717a]"><span>共 1,286 条</span><div class="flex gap-1"><button class="btn btn-sm">上一页</button><button class="btn btn-sm btn-primary">1</button><button class="btn btn-sm">2</button><button class="btn btn-sm">3</button><button class="btn btn-sm">下一页</button></div></div>
+  </div>`;
+}
+
+/* ---------- 修改订单 ---------- */
+function openOrderEdit(){
+  const appShell = document.getElementById('app-shell');
+  let dialog = document.getElementById('order-edit-dialog');
+  if(dialog) dialog.remove();
+  dialog = document.createElement('div');
+  dialog.id = 'order-edit-dialog';
+  dialog.className = 'absolute inset-0 z-50 flex items-center justify-center bg-black/30';
+  dialog.innerHTML = `
+    <div class="w-[520px] rounded-xl bg-white p-5 shadow-2xl">
+      <div class="flex items-center gap-3">
+        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"><i data-lucide="pencil-line" class="h-5 w-5"></i></span>
+        <div class="min-w-0">
+          <p class="text-[14px] font-semibold">修改订单</p>
+          <p class="text-[11px] text-[#71717a]">修改后立即写入订单，并同步会员积分与实付</p>
+        </div>
+        <button class="btn btn-sm btn-ghost ml-auto" onclick="document.getElementById('order-edit-dialog')?.remove()"><i data-lucide="x" class="h-4 w-4"></i></button>
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-3 rounded-xl border border-[#e4e4e7] p-3 text-[12px]">
+        <div><p class="mb-1 text-[#71717a]">订单编码</p><input class="input h-9 w-full" value="DB202610230042" /></div>
+        <div><p class="mb-1 text-[#71717a]">支付方式 <span class="text-[#dc2626]">*</span></p><select class="input h-9 w-full"><option>微信</option><option>支付宝</option><option>现金</option><option>银行卡</option><option>其他</option></select></div>
+        <div><p class="mb-1 text-[#71717a]">实付金额 <span class="text-[#dc2626]">*</span></p><input class="input h-9 w-full tnum" value="1456.00" /></div>
+        <div><p class="mb-1 text-[#71717a]">导购员 <span class="text-[#dc2626]">*</span></p><select class="input h-9 w-full"><option>林晓</option><option>周敏</option><option>陈静</option></select></div>
+        <div class="col-span-2"><p class="mb-1 text-[#71717a]">会员</p><input class="input h-9 w-full tnum" placeholder="输入会员手机号" value="15906536862" /></div>
+      </div>
+      <div class="mt-3 rounded-xl border border-[#e4e4e7] p-3 text-[12px]">
+        <p class="mb-1 text-[#71717a]">备注</p><input class="input h-9 w-full" placeholder="输入订单备注" />
+      </div>
+      <div class="mt-4 flex justify-end gap-2"><button class="btn btn-sm" onclick="document.getElementById('order-edit-dialog')?.remove()">关闭</button><button class="btn btn-sm btn-primary" onclick="document.getElementById('order-edit-dialog')?.remove();showToast('更新订单成功')">确定</button></div>
+    </div>`;
+  appShell.appendChild(dialog);
+  lucide.createIcons();
+}
+
+
+function openOrderDrawer(no, amount){
+  const appShell = document.getElementById('app-shell');
+  let drawer = document.getElementById('order-drawer');
+  if(drawer) drawer.remove();
+  drawer = document.createElement('div');
+  drawer.id = 'order-drawer';
+  drawer.className = 'absolute inset-y-0 right-0 z-40 flex w-[760px] max-w-[74%] flex-col border-l border-[#e4e4e7] bg-white shadow-[-16px_0_48px_rgba(0,0,0,.12)]';
+  // 商品表列对齐老系统 OrderItemList：款号 / 条码 / 吊牌价 / 实付金额 / 折扣 / 数量 / 状态
+  const goods = [
+    ['DB-2026-1088','小童纯棉针织开衫','6941496121586','[奶白 / 110]','¥399.00','¥359.00','90','1','正常'],
+    ['DB-2026-0932','女童格纹连衣裙','6941496121593','[红格 / 120]','¥459.00','¥459.00','100','2','正常'],
+    ['DB-2026-0755','儿童软底运动鞋','6941496121609','[白 / 28]','¥299.00','¥269.00','90','1','有退货'],
+  ];
+  const coupons = [
+    ['1024','新客立减 100 元','店铺优惠券','¥100.00','2026-10-23 21:18:05'],
+  ];
+  drawer.innerHTML = `
+    <div class="flex h-[52px] shrink-0 items-center gap-2 border-b border-[#e4e4e7] px-3">
+      <button class="btn btn-sm btn-ghost" onclick="document.getElementById('order-drawer')?.remove()"><i data-lucide="x" class="h-4 w-4"></i></button>
+      <span class="text-[13px] font-semibold">订单详情</span>
+      <span class="badge tnum">${no}</span>
+    </div>
+    <div class="min-h-0 flex-1 overflow-y-auto p-4">
+      <p class="mb-2 text-[12px] font-semibold">订单信息</p>
+      <div class="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-[#e4e4e7] bg-[#e4e4e7] text-[11px]">
+        ${[['订单号',no],['订单时间','2026-10-23 21:18:05'],['吊牌价','¥1,556.00'],['应付金额','¥1,556.00'],['实付金额',amount],['支付方式','微信'],['商品数量','4'],['会员','15906536862'],['导购员','林晓'],['使用积分','—'],['使用余额','—'],['备注','—']].map(([l,v])=>`
+        <div class="flex bg-white"><span class="w-[84px] shrink-0 bg-[#fafafa] px-3 py-2 text-[#71717a]">${l}</span><span class="min-w-0 flex-1 truncate px-3 py-2">${v}</span></div>`).join('')}
+      </div>
+      <p class="mb-2 mt-4 text-[12px] font-semibold">订单商品</p>
+      <div class="overflow-x-auto rounded-xl border border-[#e4e4e7]">
+        <table class="table">
+          <thead><tr><th>款号</th><th>条码</th><th>吊牌价</th><th>实付金额</th><th>折扣</th><th>数量</th><th>状态</th></tr></thead>
+          <tbody>${goods.map(g=>`<tr>
+            <td><p class="font-medium">${g[0]}</p><p class="text-[11px] text-[#71717a]">${g[1]}</p></td>
+            <td><p class="tnum text-[12px]">${g[2]}</p><p class="text-[11px] text-[#71717a]">${g[3]}</p></td>
+            <td class="tnum">${g[4]}</td>
+            <td class="tnum font-medium">${g[5]}</td>
+            <td class="tnum text-[12px]">${g[6]}</td>
+            <td class="tnum">${g[7]}</td>
+            <td><span class="badge ${g[8]==='正常'?'badge-success':'badge-danger'}">${g[8]}</span></td>
+          </tr>`).join('')}</tbody>
+        </table>
+      </div>
+      <p class="mb-2 mt-4 text-[12px] font-semibold">订单优惠券</p>
+      <div class="overflow-x-auto rounded-xl border border-[#e4e4e7]">
+        <table class="table">
+          <thead><tr><th>优惠券ID</th><th>优惠券描述</th><th>优惠券类型</th><th>使用金额</th><th>使用时间</th></tr></thead>
+          <tbody>${coupons.map(c=>`<tr><td class="tnum text-[12px]">${c[0]}</td><td>${c[1]}</td><td>${c[2]}</td><td class="tnum">${c[3]}</td><td class="tnum text-[12px] text-[#71717a]">${c[4]}</td></tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="flex shrink-0 items-center justify-end gap-2 border-t border-[#e4e4e7] p-3">
+      <button class="btn btn-sm" onclick="openRefundDrawer('${no}', '${amount}')">退货</button>
+      <button class="btn btn-sm" onclick="openExchangeDrawer('${no}', '${amount}')">换货</button>
+      <button class="btn btn-sm" onclick="printReceipt()"><i data-lucide="printer" class="h-3.5 w-3.5"></i>打印小票</button>
+    </div>`;
+  appShell.appendChild(drawer);
+  lucide.createIcons();
+}
+
+const ORDER_INFO_ROWS = (no, amount) => [
+  ['订单号', no], ['订单时间', '2026-10-23 21:18:05'], ['吊牌价', '¥1,556.00'],
+  ['应付金额', '¥1,556.00'], ['实付金额', amount], ['支付方式', '微信'],
+  ['商品数量', '4'], ['会员', '15906536862'], ['导购员', '林晓'],
+  ['使用优惠券', '—'], ['使用积分', '—'], ['使用余额', '—'], ['备注', '—']
+];
+
+/** 订单信息块：样式与订单详情抽屉保持一致，退换货抽屉复用 */
+function orderInfoBlock(no, amount){
+  return `
+    <p class="mb-2 text-[12px] font-semibold">订单信息</p>
+    <div class="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-[#e4e4e7] bg-[#e4e4e7] text-[11px]">
+      ${ORDER_INFO_ROWS(no, amount).map(([l,v])=>`
+      <div class="flex bg-white"><span class="w-[84px] shrink-0 bg-[#fafafa] px-3 py-2 text-[#71717a]">${l}</span><span class="min-w-0 flex-1 truncate px-3 py-2">${v}</span></div>`).join('')}
+    </div>`;
+}
+
+/** 退货抽屉：订单信息 + 退货商品 / 退款金额，对齐桌面端 OrderRefundSheet */
+function openRefundDrawer(no, amount){
+  const appShell = document.getElementById('app-shell');
+  document.getElementById('refund-drawer')?.remove();
+  const drawer = document.createElement('div');
+  drawer.id = 'refund-drawer';
+  drawer.className = 'absolute inset-y-0 right-0 z-40 flex w-[720px] max-w-[74%] flex-col border-l border-[#e4e4e7] bg-white shadow-[-16px_0_48px_rgba(0,0,0,.12)]';
+  drawer.innerHTML = `
+    <div class="flex h-[52px] shrink-0 items-center gap-2 border-b border-[#e4e4e7] px-3">
+      <button class="btn btn-sm btn-ghost" onclick="document.getElementById('refund-drawer')?.remove()"><i data-lucide="x" class="h-4 w-4"></i></button>
+      <span class="text-[13px] font-semibold">退货</span>
+      <span class="badge tnum">${no}</span>
+    </div>
+    <div class="min-h-0 flex-1 overflow-y-auto p-4">
+      ${orderInfoBlock(no, amount)}
+      <p class="mb-2 mt-4 text-[12px] font-semibold">退货商品</p>
+      <div class="overflow-x-auto rounded-xl border border-[#e4e4e7]">
+        <table class="table">
+          <thead><tr><th>款号</th><th>条码</th><th>吊牌价</th><th>实付金额</th><th>可退数量</th><th>退货数量</th></tr></thead>
+          <tbody>
+            <tr><td><p class="font-medium">DB-2026-1088</p><p class="text-[11px] text-[#71717a]">小童纯棉针织开衫</p></td><td><p class="tnum text-[12px]">6941496121586</p><p class="text-[11px] text-[#71717a]">[奶白 / 110]</p></td><td class="tnum">¥399.00</td><td class="tnum font-medium">¥359.00</td><td class="tnum">1</td><td><input class="input h-8 w-[64px] tnum" value="1" /></td></tr>
+            <tr><td><p class="font-medium">DB-2026-0932</p><p class="text-[11px] text-[#71717a]">女童格纹连衣裙</p></td><td><p class="tnum text-[12px]">6941496121593</p><p class="text-[11px] text-[#71717a]">[红格 / 120]</p></td><td class="tnum">¥459.00</td><td class="tnum font-medium">¥459.00</td><td class="tnum">2</td><td><input class="input h-8 w-[64px] tnum" value="0" /></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-4 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-[#e4e4e7] bg-[#e4e4e7] text-[11px]">
+        ${[['退款金额','¥359.00'],['退回余额','¥0.00'],['退回积分','0']].map(([l,v])=>`
+        <div class="bg-white px-3 py-2"><p class="text-[#71717a]">${l}</p><p class="mt-1 tnum text-[13px] font-semibold">${v}</p></div>`).join('')}
+      </div>
+    </div>
+    <div class="flex shrink-0 items-center justify-end gap-2 border-t border-[#e4e4e7] p-3">
+      <button class="btn btn-sm" onclick="document.getElementById('refund-drawer')?.remove()">关闭</button>
+      <button class="btn btn-sm btn-primary" onclick="document.getElementById('refund-drawer')?.remove();showToast('退货成功，已生成退货单')">确认退货</button>
+    </div>`;
+  appShell.appendChild(drawer);
+  lucide.createIcons();
+}
+
+/** 换货抽屉：订单信息 + 换出 / 换入商品与差价，对齐桌面端 OrderExchangeSheet */
+function openExchangeDrawer(no, amount){
+  const appShell = document.getElementById('app-shell');
+  document.getElementById('exchange-drawer')?.remove();
+  const drawer = document.createElement('div');
+  drawer.id = 'exchange-drawer';
+  drawer.className = 'absolute inset-y-0 right-0 z-40 flex w-[720px] max-w-[74%] flex-col border-l border-[#e4e4e7] bg-white shadow-[-16px_0_48px_rgba(0,0,0,.12)]';
+  drawer.innerHTML = `
+    <div class="flex h-[52px] shrink-0 items-center gap-2 border-b border-[#e4e4e7] px-3">
+      <button class="btn btn-sm btn-ghost" onclick="document.getElementById('exchange-drawer')?.remove()"><i data-lucide="x" class="h-4 w-4"></i></button>
+      <span class="text-[13px] font-semibold">换货</span>
+      <span class="badge tnum">${no}</span>
+    </div>
+    <div class="min-h-0 flex-1 overflow-y-auto p-4">
+      ${orderInfoBlock(no, amount)}
+      <p class="mb-2 mt-4 text-[12px] font-semibold">换出商品</p>
+      <div class="overflow-x-auto rounded-xl border border-[#e4e4e7]">
+        <table class="table">
+          <thead><tr><th>款号</th><th>条码</th><th>实付金额</th><th>可换数量</th><th>换货数量</th></tr></thead>
+          <tbody><tr><td><p class="font-medium">DB-2026-0932</p><p class="text-[11px] text-[#71717a]">女童格纹连衣裙</p></td><td><p class="tnum text-[12px]">6941496121647</p><p class="text-[11px] text-[#71717a]">[黑 / 150]</p></td><td class="tnum font-medium">¥349.00</td><td class="tnum">1</td><td><input class="input h-8 w-[64px] tnum" value="1" /></td></tr></tbody>
+        </table>
+      </div>
+      <p class="mb-2 mt-4 text-[12px] font-semibold">换入商品</p>
+      <div class="flex items-center gap-2 text-[12px]">
+        <input class="input h-8 w-[200px] text-xs tnum" placeholder="输入换入商品条码" />
+        <button class="btn btn-sm btn-primary" onclick="showToast('已加入换入商品')"><i data-lucide="search" class="h-3.5 w-3.5"></i>查询</button>
+      </div>
+      <div class="mt-4 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-[#e4e4e7] bg-[#e4e4e7] text-[11px]">
+        ${[['换出金额','¥349.00'],['换入金额','¥399.00'],['应补差价','¥50.00']].map(([l,v])=>`
+        <div class="bg-white px-3 py-2"><p class="text-[#71717a]">${l}</p><p class="mt-1 tnum text-[13px] font-semibold">${v}</p></div>`).join('')}
+      </div>
+    </div>
+    <div class="flex shrink-0 items-center justify-end gap-2 border-t border-[#e4e4e7] p-3">
+      <button class="btn btn-sm" onclick="document.getElementById('exchange-drawer')?.remove()">关闭</button>
+      <button class="btn btn-sm btn-primary" onclick="document.getElementById('exchange-drawer')?.remove();showToast('换货成功，已生成换货单')">确认换货</button>
+    </div>`;
+  appShell.appendChild(drawer);
+  lucide.createIcons();
+}
+
+/** 小票打印：静默打印到系统默认打印机，无打印机时给出明确提示 */
+function printReceipt(){
+  showToast('小票已发送到默认打印机');
+}
+
+/* ---------- 订单对账 ---------- */
+const RECON = [
+  { no:'DB202610230042', amount:'¥1,556.00', pay:'微信', member:'15906536862', done:true, printed:'已打印', hidden:false },
+  { no:'DB202610230041', amount:'¥798.00', pay:'支付宝', member:'18906531234', done:true, printed:'已打印', hidden:false },
+  { no:'DB202610230039', amount:'¥1,197.00', pay:'微信', member:'15006539876', done:true, printed:'未打印', hidden:false },
+  { no:'DB202610230038', amount:'¥658.00', pay:'银行卡', member:'', done:false, printed:'已打印', hidden:false },
+  { no:'DB202610230037', amount:'¥2,096.00', pay:'微信', member:'13606532109', done:false, printed:'未打印', hidden:false },
+  { no:'DB202610230036', amount:'¥459.00', pay:'现金', member:'', done:false, printed:'未打印', hidden:true },
+];
+
+function reconNum(s){ return Number(s.replace(/[¥,]/g,'')); }
+
+function renderReconcile(){
+  const paid = RECON.filter(r=>r.done);
+  const pending = RECON.filter(r=>!r.done);
+  const paidSum = paid.reduce((s,r)=>s+reconNum(r.amount),0);
+  const pendingSum = pending.reduce((s,r)=>s+reconNum(r.amount),0);
+  return `
+    <div class="flex h-[52px] shrink-0 items-center gap-2 border-b border-[#e4e4e7] px-3">
+      <button class="btn btn-sm btn-ghost" onclick="document.getElementById('reconcile-drawer')?.remove()"><i data-lucide="x" class="h-4 w-4"></i></button>
+      <span class="text-[13px] font-semibold">订单对账</span>
+      <span class="badge tnum">今日 · ${RECON.length} 单</span>
+    </div>
+    <div class="grid shrink-0 grid-cols-3 gap-2 border-b border-[#e4e4e7] bg-[#fafafa] px-4 py-3 text-center">
+      <div><p class="metric-label">已确认到账</p><p class="mt-0.5 text-[15px] font-semibold tnum">¥${paidSum.toFixed(2)}</p></div>
+      <div><p class="metric-label">待确认</p><p class="mt-0.5 text-[15px] font-semibold tnum text-[#d97706]">¥${pendingSum.toFixed(2)}</p></div>
+      <div><p class="metric-label">待确认单数</p><p class="mt-0.5 text-[15px] font-semibold tnum">${pending.length}</p></div>
+    </div>
+    <div class="min-h-0 flex-1 overflow-y-auto">
+      <table class="table">
+        <thead><tr><th>订单号</th><th>实付金额</th><th>支付方式</th><th>会员</th><th>对账状态</th><th>打印状态</th><th>有效状态</th><th class="text-right">操作</th></tr></thead>
+        <tbody>${RECON.map(r=>`<tr>
+          <td class="font-medium">${r.no}</td>
+          <td class="tnum font-medium text-[#dc2626]">${r.amount}</td>
+          <td>${r.pay}</td>
+          <td class="tnum text-[12px]">${r.member||'—'}</td>
+          <td><span class="badge ${r.done?'badge-success':'badge-warning'}">${r.done?'已对账':'未对账'}</span></td>
+          <td><span class="badge ${r.printed==='已打印'?'badge-success':'badge-warning'}">${r.printed}</span></td>
+          <td><span class="badge ${r.hidden?'badge-danger':'badge-success'}">${r.hidden?'无效':'正常'}</span></td>
+          <td class="text-right whitespace-nowrap"><button class="btn btn-sm btn-ghost text-[#4338ca]" ${r.done?'disabled':''} onclick="confirmReceipt('${r.no}')">确认到账</button><button class="btn btn-sm btn-ghost text-[#4338ca]" onclick="toggleOrderShow('${r.no}')">${r.hidden?'恢复正常':'置为无效'}</button></td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>`;
+}
+
+function toggleOrderShow(no){
+  const r = RECON.find(x=>x.no===no);
+  if(r) r.hidden = !r.hidden;
+  const d = document.getElementById('reconcile-drawer');
+  if(d){ d.innerHTML = renderReconcile(); lucide.createIcons(); }
+  showToast(`${no} 已${r && r.hidden ? '置为无效' : '恢复正常'}`);
+}
+
+function openReconcileDrawer(){
+  const appShell = document.getElementById('app-shell');
+  document.getElementById('reconcile-drawer')?.remove();
+  const drawer = document.createElement('div');
+  drawer.id = 'reconcile-drawer';
+  drawer.className = 'absolute inset-y-0 right-0 z-40 flex w-[980px] max-w-[92%] flex-col border-l border-[#e4e4e7] bg-white shadow-[-16px_0_48px_rgba(0,0,0,.12)]';
+  drawer.innerHTML = renderReconcile();
+  appShell.appendChild(drawer);
+  lucide.createIcons();
+}
+
+function confirmReceipt(no){
+  const r = RECON.find(x=>x.no===no);
+  if(r) r.done = true;
+  const d = document.getElementById('reconcile-drawer');
+  if(d){ d.innerHTML = renderReconcile(); lucide.createIcons(); }
+  showToast(`${no} 已确认到账`);
+}
+
+/* ---------- 订单商品 ---------- */
+const ORDER_GOODS = [
+  { no:'DB202610230042', amount:'¥1,456.00', items:[
+    ['6941496121586',1,'正常','¥399.00','奶白','110','¥359.00'],
+    ['6941496121593',2,'正常','¥459.00','红格','120','¥918.00'],
+    ['6941496121616',1,'有退货','¥239.00','米白','均码','¥239.00'],
+  ]},
+  { no:'DB202610230041', amount:'¥798.00', items:[
+    ['6941496121609',1,'正常','¥299.00','白','28','¥299.00'],
+    ['6941496121623',1,'正常','¥499.00','藏蓝','130','¥499.00'],
+  ]},
+  { no:'DB202610230039', amount:'¥1,147.00', items:[
+    ['6941496121630',2,'正常','¥399.00','雾灰','140','¥798.00'],
+    ['6941496121647',1,'换货追进','¥399.00','黑','150','¥349.00'],
+  ]},
+];
+
+/** 列对齐老系统 OrderItemList：订单号 / 实付金额 / 条码 / 数量·状态 / 尺码·颜色 / 实付金额 */
+function orderGoodsRows(){
+  return ORDER_GOODS.map(o=>o.items.map((it,i)=>`<tr>
+    ${i===0?`<td rowspan="${o.items.length}" class="align-top font-medium tnum">${o.no}</td><td rowspan="${o.items.length}" class="align-top tnum font-medium text-[#dc2626]">${o.amount}</td>`:''}
+    <td class="tnum text-[12px]">${it[0]}</td>
+    <td><p class="tnum">${it[1]}</p><span class="badge ${it[2]==='正常'?'badge-success':it[2]==='有退货'?'badge-danger':'badge-warning'}">${it[2]}</span></td>
+    <td><p class="tnum text-[12px]">吊牌价：${it[3]}</p><p class="text-[11px] text-[#71717a]">[${it[4]} / ${it[5]}]</p></td>
+    <td class="tnum">${it[6]}</td>
+  </tr>`).join('')).join('');
+}
+
+function openOrderGoodsDrawer(){
+  const appShell = document.getElementById('app-shell');
+  document.getElementById('goods-drawer')?.remove();
+  const drawer = document.createElement('div');
+  drawer.id = 'goods-drawer';
+  drawer.className = 'absolute inset-y-0 right-0 z-40 flex w-[720px] max-w-[68%] flex-col border-l border-[#e4e4e7] bg-white shadow-[-16px_0_48px_rgba(0,0,0,.12)]';
+  drawer.innerHTML = `
+    <div class="flex h-[52px] shrink-0 items-center gap-2 border-b border-[#e4e4e7] px-3">
+      <button class="btn btn-sm btn-ghost" onclick="document.getElementById('goods-drawer')?.remove()"><i data-lucide="x" class="h-4 w-4"></i></button>
+      <span class="text-[13px] font-semibold">订单商品</span>
+      <span class="badge tnum">${ORDER_GOODS.length} 单 · ${ORDER_GOODS.reduce((s,o)=>s+o.items.length,0)} 件</span>
+      <div class="ml-auto"><button class="btn btn-sm" onclick="exportOrderGoods()"><i data-lucide="download" class="h-3.5 w-3.5"></i>导出</button></div>
+    </div>
+    <div class="relative shrink-0 border-b border-[#e4e4e7] px-4 py-3">
+      <div class="flex items-center gap-2">
+        <button class="btn btn-sm" onclick="document.getElementById('og-popover').classList.toggle('hidden')">
+          <i data-lucide="calendar-range" class="h-3.5 w-3.5"></i><span id="og-label" class="tnum">2026-10-17 → 2026-10-23</span><i data-lucide="chevron-down" class="h-3 w-3 text-[#71717a]"></i>
+        </button>
+        <button class="btn btn-sm" onclick="showToast('已按日期区间查询订单商品')"><i data-lucide="search" class="h-3.5 w-3.5"></i>查询</button>
+      </div>
+      <div id="og-popover" class="absolute left-4 top-[52px] z-50 hidden w-[320px] rounded-xl border border-[#e4e4e7] bg-white p-3 shadow-xl">
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="mb-1 block text-[11px] text-[#71717a]">开始日期</label><input type="date" id="og-start" class="input h-8 text-xs tnum" value="2026-10-17" /></div>
+          <div><label class="mb-1 block text-[11px] text-[#71717a]">结束日期</label><input type="date" id="og-end" class="input h-8 text-xs tnum" value="2026-10-23" /></div>
+        </div>
+        <div class="mt-3 flex justify-end gap-2">
+          <button class="btn btn-sm" onclick="document.getElementById('og-popover').classList.add('hidden')">取消</button>
+          <button class="btn btn-sm btn-primary" onclick="applyOGRange()">确定</button>
+        </div>
+      </div>
+    </div>
+    <div class="min-h-0 flex-1 overflow-y-auto">
+      <table class="table">
+        <thead><tr><th>订单号</th><th>实付金额</th><th>条码</th><th>数量 / 状态</th><th>尺码 / 颜色</th><th>实付金额</th></tr></thead>
+        <tbody>${orderGoodsRows()}</tbody>
+      </table>
+    </div>
+    <div class="flex shrink-0 items-center justify-between border-t border-[#e4e4e7] px-3 py-2.5 text-[12px] text-[#71717a]">
+      <span>共 ${ORDER_GOODS.length} 单 · ${ORDER_GOODS.reduce((s,o)=>s+o.items.length,0)} 件商品</span>
+      <span>导出内容与当前日期区间一致</span>
+    </div>`;
+  appShell.appendChild(drawer);
+  lucide.createIcons();
+}
+
+function applyOGRange(){
+  const s = document.getElementById('og-start')?.value;
+  const e = document.getElementById('og-end')?.value;
+  const label = document.getElementById('og-label');
+  if(label && s && e) label.textContent = `${s} → ${e}`;
+  document.getElementById('og-popover')?.classList.add('hidden');
+  showToast('已应用日期区间');
+}
+
+function exportOrderGoods(){
+  const s = document.getElementById('og-start')?.value || '2026-10-01';
+  const e = document.getElementById('og-end')?.value || '2026-10-23';
+  showToast(`已导出 订单商品[${s}~${e}].xlsx`);
+}
+
+/* ---------- 库存 ---------- */
+// 列对齐老系统 Inventory/columns：款号（含名称/图片预览）、条码、名称、颜色、尺码、吊牌价、成本价、库存、销量、操作
+const INVENTORY = [
+  { styleNo:'DB-2026-1088', sku:'DB-2026-1088-110-WH', name:'小童纯棉针织开衫', color:'奶白', size:'110', counts:46, originalPrice:'¥399', costPrice:'¥168', saleCounts:128, colorHex:'#d4a373' },
+  { styleNo:'DB-2026-0932', sku:'DB-2026-0932-120-RD', name:'女童格纹连衣裙', color:'红格', size:'120', counts:3,  originalPrice:'¥459', costPrice:'¥196', saleCounts:96,  colorHex:'#b91c1c' },
+  { styleNo:'DB-2026-0755', sku:'DB-2026-0755-28-WH',  name:'儿童软底运动鞋', color:'白',  size:'28',  counts:0,  originalPrice:'¥299', costPrice:'¥112', saleCounts:210, colorHex:'#0f766e' },
+  { styleNo:'DB-2026-0611', sku:'DB-2026-0611-130-BL', name:'男童摇粒绒外套', color:'藏蓝', size:'130', counts:28, originalPrice:'¥459', costPrice:'¥205', saleCounts:74,  colorHex:'#1e3a8a' },
+  { styleNo:'DB-2026-0598', sku:'DB-2026-0598-140-GR', name:'女童毛衣裙',   color:'雾灰', size:'140', counts:12, originalPrice:'¥399', costPrice:'¥158', saleCounts:52,  colorHex:'#6b7280' },
+  { styleNo:'DB-2026-0422', sku:'DB-2026-0422-150-BK', name:'儿童羽绒马甲', color:'黑',  size:'150', counts:8,  originalPrice:'¥559', costPrice:'¥246', saleCounts:38,  colorHex:'#111827' },
+];
+
+/** 库存数量配色：0 危险、低于 10 警告，其余正文色 */
+function stockCell(n){
+  const cls = n===0 ? 'text-[#dc2626] font-semibold' : n<10 ? 'text-[#d97706] font-medium' : '';
+  return `<span class="tnum ${cls}">${n}</span>`;
+}
+
+/** 表头点击排序：同步服务端 orderby 并重新渲染列表 */
+const INVENTORY_SORT = { key:'', order:'' };
+function sortInventory(key){
+  if(INVENTORY_SORT.key !== key){ INVENTORY_SORT.key = key; INVENTORY_SORT.order = 'asc'; }
+  else if(INVENTORY_SORT.order === 'asc'){ INVENTORY_SORT.order = 'desc'; }
+  else { INVENTORY_SORT.key = ''; INVENTORY_SORT.order = ''; }
+  go('inventory');
+  showToast(INVENTORY_SORT.key ? `按${key==='counts'?'库存':'销量'}${INVENTORY_SORT.order==='asc'?'升序':'降序'}` : '已恢复默认排序');
+}
+
+function inventoryPage(){
+  return `
+  <div class="flex h-full flex-col gap-3">
+    <div class="grid grid-cols-4 gap-3">
+      ${[['款式总数','486','layers'],['库存总量','6,284','boxes'],['已售总数','1,846','shirt'],['断码款数','12','triangle-alert']].map(([l,v,i])=>`
+      <div class="card p-4"><div class="flex items-center justify-between"><p class="metric-label">${l}</p><i data-lucide="${i}" class="h-4 w-4 text-[#a1a1aa]"></i></div><p class="metric-value mt-1">${v}</p></div>`).join('')}
+    </div>
+    <div class="card flex flex-wrap items-end gap-2 p-3">
+      <div class="seg mr-1"><button class="on">全部库存</button><button>断码 <span class="text-[#dc2626]">12</span></button><button>热销</button></div>
+      <div><label class="mb-1 block text-[11px] text-[#71717a]">条码</label><input class="input h-8 w-[130px] text-xs" placeholder="输入条码" /></div>
+      <div><label class="mb-1 block text-[11px] text-[#71717a]">款号 / 商品名称</label><input class="input h-8 w-[180px] text-xs" placeholder="输入款号或商品名称" /></div>
+      <button class="btn btn-sm btn-primary" onclick="showToast('已按条件查询库存')"><i data-lucide="search" class="h-3.5 w-3.5"></i>查询</button>
+      <button class="btn btn-sm" onclick="showToast('已重置查询条件')">重置</button>
+      <div class="ml-auto flex items-center gap-2">
+        <button class="btn btn-sm" onclick="openFlowDrawer()"><i data-lucide="history" class="h-3.5 w-3.5"></i>商品流水</button>
+        <div class="relative">
+          <button class="btn btn-sm" onclick="toggleBatchMenu()"><i data-lucide="package" class="h-3.5 w-3.5"></i>批量操作<i data-lucide="chevron-down" class="h-3 w-3 text-[#71717a]"></i></button>
+          <div id="batch-menu" class="absolute right-0 top-9 z-50 hidden w-[150px] overflow-hidden rounded-xl border border-[#e4e4e7] bg-white p-1 shadow-xl">
+            <button class="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-xs hover:bg-[#f4f4f5]" onclick="batchAction('批量入库')"><i data-lucide="package-plus" class="h-3.5 w-3.5 text-[#71717a]"></i>批量入库</button>
+            <button class="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-xs hover:bg-[#f4f4f5]" onclick="batchAction('批量退库')"><i data-lucide="package-minus" class="h-3.5 w-3.5 text-[#71717a]"></i>批量退库</button>
+            <button class="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-xs hover:bg-[#f4f4f5]" onclick="document.getElementById('batch-menu').classList.add('hidden');openSingleStockDialog()"><i data-lucide="plus" class="h-3.5 w-3.5 text-[#71717a]"></i>单件新增</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card min-h-0 flex-1 overflow-auto">
+      <table class="table">
+        <thead><tr><th>款号</th><th>条码</th><th>名称</th><th>颜色</th><th>尺码</th><th>吊牌价</th><th>成本价</th><th><button class="inline-flex items-center gap-1 hover:text-[#18181b]" onclick="sortInventory('counts')">库存<i data-lucide="chevrons-up-down" class="h-3 w-3 opacity-40"></i></button></th><th><button class="inline-flex items-center gap-1 hover:text-[#18181b]" onclick="sortInventory('saleCounts')">销量<i data-lucide="chevrons-up-down" class="h-3 w-3 opacity-40"></i></button></th><th class="text-right">操作</th></tr></thead>
+        <tbody>${INVENTORY.map((r,i)=>`<tr>
+          <td><div class="flex items-center gap-2.5">
+            <button class="group relative flex h-[34px] w-[34px] shrink-0 items-center justify-center overflow-hidden rounded-lg text-[12px] font-semibold text-white/90 transition-opacity hover:opacity-80" style="background:${r.colorHex}" title="预览 ${r.styleNo} 图片" onclick="openProductImage('${r.styleNo}')">${r.name.slice(0,1)}<span class="absolute inset-x-0 bottom-0 hidden h-3.5 items-center justify-center bg-black/45 group-hover:flex"><i data-lucide="image" class="h-2.5 w-2.5"></i></span></button>
+            <div class="min-w-0"><p class="font-medium">${r.styleNo}</p><p class="mt-0.5 text-[11px] text-[#71717a]">${r.name}</p></div>
+          </div></td>
+          <td class="tnum text-[12px]">${r.sku}</td>
+          <td>${r.name}</td><td>${r.color}</td><td>${r.size}</td>
+          <td class="tnum">${r.originalPrice}</td><td class="tnum text-[#71717a]">${r.costPrice}</td>
+          <td>${stockCell(r.counts)}</td><td class="tnum">${r.saleCounts}</td>
+          <td><div class="flex items-center justify-end gap-1">
+            <button class="btn btn-sm btn-ghost text-[#4f46e5]" onclick="openInventoryDetail(${i})">详情</button>
+            <button class="btn btn-sm btn-ghost text-[#4f46e5]" onclick="openInventoryEdit(${i})">编辑</button>
+          </div></td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>
+    <div class="flex items-center justify-between text-[12px] text-[#71717a]"><span>共 1,842 条</span><div class="flex gap-1"><button class="btn btn-sm">上一页</button><button class="btn btn-sm btn-primary">1</button><button class="btn btn-sm">2</button><button class="btn btn-sm">3</button><button class="btn btn-sm">下一页</button></div></div>
+  </div>`;
+}
+
+/** 库存详情抽屉：对齐桌面端 InventoryDetailSheet */
+function openInventoryDetail(idx){
+  const r = INVENTORY[idx];
+  const appShell = document.getElementById('app-shell');
+  document.getElementById('inventory-detail')?.remove();
+  const drawer = document.createElement('div');
+  drawer.id = 'inventory-detail';
+  drawer.className = 'absolute inset-y-0 right-0 z-40 flex w-[720px] max-w-[80%] flex-col border-l border-[#e4e4e7] bg-white shadow-[-16px_0_48px_rgba(0,0,0,.12)]';
+  drawer.innerHTML = `
+    <div class="flex h-[52px] shrink-0 items-center gap-2 border-b border-[#e4e4e7] px-3">
+      <button class="btn btn-sm btn-ghost" onclick="document.getElementById('inventory-detail')?.remove()"><i data-lucide="x" class="h-4 w-4"></i></button>
+      <span class="text-[13px] font-semibold">库存详情</span>
+      <span class="badge tnum">${r.styleNo} · ${r.sku}</span>
+    </div>
+    <div class="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
+      <div class="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-[#e4e4e7] bg-[#e4e4e7] text-[11px]">
+        ${[['商品名称',r.name],['品牌','DaveBella'],['款号',r.styleNo],['条码',r.sku],['颜色',r.color],['尺码',r.size],['吊牌价',r.originalPrice],['成本价',r.costPrice],['库存',String(r.counts)],['销量',String(r.saleCounts)]].map(([l,v])=>`
+        <div class="flex bg-white"><span class="w-[76px] shrink-0 bg-[#fafafa] px-3 py-2 text-[#71717a]">${l}</span><span class="min-w-0 flex-1 truncate px-3 py-2">${v}</span></div>`).join('')}
+      </div>
+      <p class="text-[12px] font-semibold">商品流水</p>
+      <div class="overflow-hidden rounded-xl border border-[#e4e4e7]">
+        <table class="w-full text-[12px]">
+          <thead class="bg-[#fafafa] text-[11px] text-[#71717a]"><tr><th class="px-3 py-2 text-left">商品</th><th class="px-3 py-2 text-left">变动类型</th><th class="px-3 py-2 text-left">变动数量</th><th class="px-3 py-2 text-left">变动明细</th><th class="px-3 py-2 text-left">变动时间</th></tr></thead>
+          <tbody>${[
+            [r.sku,'售出',-1,`订单 DB202610230042 出库`,'2026-10-23 19:50:14'],
+            [r.sku,'采购',12,'采购入库','2026-10-20 10:12:03'],
+            [r.sku,'人工调整',-2,'盘点差异调整','2026-10-18 16:04:41'],
+          ].map(([sku,type,qty,detail,time])=>`<tr class="border-t border-[#f4f4f5]">
+            <td class="px-3 py-2 tnum font-medium">${sku}</td>
+            <td class="px-3 py-2">${type}</td>
+            <td class="px-3 py-2 tnum font-medium ${qty>=0?'text-[#16a34a]':'text-[#dc2626]'}">${qty>=0?'+'+qty:qty}</td>
+            <td class="px-3 py-2 text-[#71717a]">${detail}</td>
+            <td class="px-3 py-2 tnum text-[#71717a]">${time}</td>
+          </tr>`).join('')}</tbody>
+        </table>
+      </div>
+      <p class="text-[12px] font-semibold">该款下 SKU 列表</p>
+      <div class="overflow-hidden rounded-xl border border-[#e4e4e7]">
+        <table class="w-full text-[12px]">
+          <thead class="bg-[#fafafa] text-[11px] text-[#71717a]"><tr><th class="px-3 py-2 text-left">条码</th><th class="px-3 py-2 text-left">颜色</th><th class="px-3 py-2 text-left">尺码</th><th class="px-3 py-2 text-left">库存</th><th class="px-3 py-2 text-left">销量</th></tr></thead>
+          <tbody>${styleSkus(r).map(s=>`<tr class="border-t border-[#f4f4f5]"><td class="px-3 py-2 tnum">${s.sku}</td><td class="px-3 py-2">${s.color}</td><td class="px-3 py-2">${s.size}</td><td class="px-3 py-2">${stockCell(s.counts)}</td><td class="px-3 py-2 tnum">${s.saleCounts}</td></tr>`).join('')}</tbody>
+        </table>
+      </div>
+    </div>`;
+  appShell.appendChild(drawer);
+  lucide.createIcons();
+}
+
+/** 该款下 SKU 示例：以当前行为基础派生同款其他尺码 */
+function styleSkus(r){
+  const sizes = ['S','M','L','XL'];
+  return sizes.map((size, i) => ({
+    sku: `${r.sku.slice(0, -2)}${String(i + 1).padStart(2, '0')}`,
+    color: r.color,
+    size,
+    counts: Math.max(0, r.counts - i * 3),
+    saleCounts: Math.max(0, r.saleCounts - i * 2)
+  }));
+}
+
+/** 商品流水抽屉：条码满 13 位自动查询，输入中按回车也可查询 */
+function autoQueryFlow(input){
+  if(input.value.trim().length === 13) showToast(`已自动查询条码 ${input.value.trim()}`);
+}
+
+/** 商品流水抽屉：对齐老系统 Inventory/SkuRecord，条码自动查询 + 变动明细 */
+function openFlowDrawer(){
+  const appShell = document.getElementById('app-shell');
+  document.getElementById('flow-drawer')?.remove();
+  const drawer = document.createElement('div');
+  drawer.id = 'flow-drawer';
+  drawer.className = 'absolute inset-y-0 right-0 z-40 flex w-[720px] max-w-[80%] flex-col border-l border-[#e4e4e7] bg-white shadow-[-16px_0_48px_rgba(0,0,0,.12)]';
+  const flows = [
+    ['DB20261023001','售出',-1,'订单 DB202610230042 出库','2026-10-23 19:50:14'],
+    ['DB20261023001','采购',12,'采购入库','2026-10-20 10:12:03'],
+    ['DB20261023001','人工调整',-2,'盘点差异调整','2026-10-18 16:04:41'],
+  ];
+  drawer.innerHTML = `
+    <div class="flex h-[52px] shrink-0 items-center gap-2 border-b border-[#e4e4e7] px-3">
+      <button class="btn btn-sm btn-ghost" onclick="document.getElementById('flow-drawer')?.remove()"><i data-lucide="x" class="h-4 w-4"></i></button>
+      <span class="text-[13px] font-semibold">商品流水</span>
+    </div>
+    <div class="flex shrink-0 items-center gap-2 border-b border-[#e4e4e7] px-4 py-3">
+      <input id="flow-sku" class="input h-8 w-[220px] text-xs tnum" placeholder="输入条码（满 13 位自动查询）" oninput="autoQueryFlow(this)" />
+    </div>
+    <div class="min-h-0 flex-1 overflow-auto">
+      <table class="table">
+        <thead><tr><th>商品</th><th>变动类型</th><th>变动数量</th><th>变动明细</th><th>变动时间</th></tr></thead>
+        <tbody>${flows.map(([sku,type,qty,detail,time])=>`<tr>
+          <td class="tnum font-medium">${sku}</td>
+          <td>${type}</td>
+          <td class="tnum font-medium ${qty>=0?'text-[#16a34a]':'text-[#dc2626]'}">${qty>=0?'+'+qty:qty}</td>
+          <td class="text-[#71717a]">${detail}</td>
+          <td class="tnum text-[#71717a]">${time}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>`;
+  appShell.appendChild(drawer);
+  lucide.createIcons();
+}
+
+/** 编辑库存弹窗：仅库存可编辑，其余只读，对齐桌面端 InventoryEditorDialog */
+function openInventoryEdit(idx){
+  const r = INVENTORY[idx];
+  const appShell = document.getElementById('app-shell');
+  document.getElementById('inventory-edit-dialog')?.remove();
+  const dialog = document.createElement('div');
+  dialog.id = 'inventory-edit-dialog';
+  dialog.className = 'absolute inset-0 z-50 flex items-center justify-center bg-black/30';
+  const readonly = [['条码',r.sku],['商品名称',r.name],['品牌','DaveBella'],['颜色',r.color],['尺码',r.size]];
+  dialog.innerHTML = `
+    <div class="w-[520px] rounded-xl bg-white p-5 shadow-2xl">
+      <div class="flex items-center gap-3">
+        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"><i data-lucide="package-open" class="h-5 w-5"></i></span>
+        <div class="min-w-0">
+          <p class="text-[14px] font-semibold">编辑库存</p>
+          <p class="text-[11px] text-[#71717a]">除库存外，其余字段由商品基础资料维护</p>
+        </div>
+        <button class="btn btn-sm btn-ghost ml-auto" onclick="document.getElementById('inventory-edit-dialog')?.remove()"><i data-lucide="x" class="h-4 w-4"></i></button>
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-3 rounded-xl border border-[#e4e4e7] p-3 text-[12px]">
+        ${readonly.map(([l,v])=>`<div><p class="mb-1 text-[11px] text-[#71717a]">${l}</p><p class="truncate rounded-md bg-[#fafafa] px-3 py-2 text-[#52525b]">${v}</p></div>`).join('')}
+        <div><p class="mb-1 text-[11px] text-[#71717a]">当前库存</p><p class="truncate rounded-md bg-[#fafafa] px-3 py-2 text-[#52525b] tnum">${r.counts}</p></div>
+      </div>
+      <div class="mt-4 text-[12px]">
+        <p class="mb-1 text-[11px] text-[#71717a]">调整后库存 <span class="text-[#dc2626]">*</span></p>
+        <input class="input h-9 tnum" value="${r.counts}" />
+      </div>
+      <div class="mt-4 flex justify-end gap-2"><button class="btn btn-sm" onclick="document.getElementById('inventory-edit-dialog')?.remove()">关闭</button><button class="btn btn-sm btn-primary" onclick="document.getElementById('inventory-edit-dialog')?.remove();showToast('库存已更新')">确定</button></div>
+    </div>`;
+  appShell.appendChild(dialog);
+  lucide.createIcons();
+}
+
+/** 商品图片预览：对齐桌面端 ProductImageDialog（按款号取图，无图给提示） */
+function openProductImage(styleNo){
+  const appShell = document.getElementById('app-shell');
+  document.getElementById('product-image-dialog')?.remove();
+  const dialog = document.createElement('div');
+  dialog.id = 'product-image-dialog';
+  dialog.className = 'absolute inset-0 z-50 flex items-center justify-center bg-black/30';
+  dialog.innerHTML = `
+    <div class="w-[420px] rounded-xl bg-white p-4 shadow-2xl">
+      <div class="flex items-center justify-between"><span class="text-[13px] font-semibold">商品图片</span><button class="btn btn-sm btn-ghost" onclick="document.getElementById('product-image-dialog')?.remove()"><i data-lucide="x" class="h-4 w-4"></i></button></div>
+      <div class="mt-3 flex h-[300px] flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-[#e4e4e7] bg-[#fafafa] text-[12px] text-[#a1a1aa]">
+        <i data-lucide="image-off" class="h-8 w-8"></i>
+        <span>该款号暂无图片（${styleNo}）</span>
+      </div>
+    </div>`;
+  appShell.appendChild(dialog);
+  lucide.createIcons();
+}
+
+/* ---------- 会员 ---------- */
+function toggleBatchMenu(){
+  document.getElementById('batch-menu')?.classList.toggle('hidden');
+}
+
+function batchAction(name){
+  document.getElementById('batch-menu')?.classList.add('hidden');
+  const isIn = name === '批量入库';
+  document.getElementById('batch-stock-dialog')?.remove();
+  const dialog = document.createElement('div');
+  dialog.id = 'batch-stock-dialog';
+  dialog.className = 'absolute inset-0 z-50 flex items-center justify-center bg-black/30';
+  dialog.innerHTML = `
+    <div class="w-[520px] rounded-xl bg-white p-5 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <span class="text-[13px] font-semibold">${name}</span>
+        <button class="btn btn-sm btn-ghost" onclick="document.getElementById('batch-stock-dialog')?.remove()"><i data-lucide="x" class="h-4 w-4"></i></button>
+      </div>
+      <div class="mt-3 space-y-3 text-[12px]">
+        <div>
+          <p class="mb-1 text-[11px] text-[#71717a]">${isIn ? '入库单号' : '退货单号'} <span class="text-[#dc2626]">*</span></p>
+          <input id="batch-bill-no" class="input h-9 tnum" placeholder="${isIn ? '请输入入库单号' : '请输入退货单号'}" />
+        </div>
+        <div>
+          <p class="mb-1 text-[11px] text-[#71717a]">Excel 文件</p>
+          <div class="flex h-[96px] items-center justify-center rounded-xl border border-dashed border-[#e4e4e7] bg-[#fafafa] text-[11px] text-[#a1a1aa]"><i data-lucide="upload" class="h-5 w-5"></i><span class="ml-1">拖入或点击上传 .xlsx（5MB 以内）</span></div>
+        </div>
+      </div>
+      <div class="mt-4 flex justify-end gap-2">
+        <button class="btn btn-sm" onclick="document.getElementById('batch-stock-dialog')?.remove()">关闭</button>
+        <button class="btn btn-sm btn-primary" onclick="submitBatchStock('${name}')">${isIn ? '执行入库' : '执行退库'}</button>
+      </div>
+    </div>`;
+  document.getElementById('app-shell').appendChild(dialog);
+  lucide.createIcons();
+}
+
+/** 批量入库 / 退库：单号必填，未填写时给 toast 提示 */
+function submitBatchStock(name){
+  const input = document.getElementById('batch-bill-no');
+  if(!input || !input.value.trim()){
+    showToast(name === '批量入库' ? '请输入入库单号' : '请输入退货单号');
+    return;
+  }
+  document.getElementById('batch-stock-dialog')?.remove();
+  showToast(`${name}成功`);
+}
+
+/** 单件新增：字段与老系统 SingleStock 一致，款号/名称/品牌/条码/颜色/尺码/吊牌价/成本价/库存 */
+function openSingleStockDialog(){
+  document.getElementById('single-stock-dialog')?.remove();
+  const dialog = document.createElement('div');
+  dialog.id = 'single-stock-dialog';
+  dialog.className = 'absolute inset-0 z-50 flex items-center justify-center bg-black/30';
+  const fields = [['款号','输入款号'],['名称','输入商品名称'],['品牌','输入品牌'],['条码','输入条码'],['颜色','输入颜色'],['尺码','输入尺码'],['吊牌价','输入吊牌价'],['成本价','输入成本价'],['库存','输入库存']];
+  dialog.innerHTML = `
+    <div class="w-[520px] rounded-xl bg-white p-5 shadow-2xl text-[12px]">
+      <div class="flex items-center gap-3">
+        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"><i data-lucide="package-plus" class="h-5 w-5"></i></span>
+        <div class="min-w-0"><p class="text-[14px] font-semibold">新增单件商品</p><p class="text-[11px] text-[#71717a]">新增商品后立即写入库存与商品流水</p></div>
+        <button class="btn btn-sm btn-ghost ml-auto" onclick="document.getElementById('single-stock-dialog')?.remove()"><i data-lucide="x" class="h-4 w-4"></i></button>
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        ${fields.map(([label, placeholder]) => `<div><p class="mb-1 text-[11px] text-[#71717a]">${label} <span class="text-[#dc2626]">*</span></p><input class="input h-8 text-xs" placeholder="${placeholder}" /></div>`).join('')}
+      </div>
+      <div class="mt-4 flex items-center justify-end gap-2">
+        <button class="btn btn-sm" onclick="document.getElementById('single-stock-dialog')?.remove()">关闭</button>
+        <button class="btn btn-sm btn-primary" onclick="document.getElementById('single-stock-dialog')?.remove(); showToast('新增入库成功')">确定</button>
+      </div>
+    </div>`;
+  document.getElementById('app-shell').appendChild(dialog);
+  lucide.createIcons();
+}
+
+const MEMBERS = [
+  { name:'陈女士', phone:'13812346688', level:'金卡会员', points:'2,680', balance:'¥860.00', totalSpent:'¥28,460.00', couponCount:'2', createdAt:'2021-06-12 10:20', lastVisit:'10/18', colorHex:'#4f46e5' },
+  { name:'王先生', phone:'13956782211', level:'银卡会员', points:'860', balance:'¥120.00', totalSpent:'¥8,920.00', couponCount:'1', createdAt:'2022-03-08 09:12', lastVisit:'10/23', colorHex:'#0f766e' },
+  { name:'李女士', phone:'13688229090', level:'金卡会员', points:'5,120', balance:'¥1,260.00', totalSpent:'¥42,180.00', couponCount:'3', createdAt:'2020-11-24 15:40', lastVisit:'10/21', colorHex:'#b45309' },
+  { name:'张女士', phone:'13766773344', level:'普通会员', points:'210', balance:'¥0.00', totalSpent:'¥1,860.00', couponCount:'0', createdAt:'2024-01-19 11:05', lastVisit:'09/28', colorHex:'#6b7280' },
+  { name:'刘先生', phone:'13511227788', level:'银卡会员', points:'1,460', balance:'¥300.00', totalSpent:'¥12,640.00', couponCount:'1', createdAt:'2023-05-30 17:22', lastVisit:'10/22', colorHex:'#1e3a8a' },
+];
+
+/** 会员等级徽标色，对齐桌面端 MEMBER_LEVEL */
+function memberBadge(level){
+  return level==='金卡会员' ? 'badge-warning' : level==='银卡会员' ? 'badge-brand' : level==='超级会员' ? 'badge-success' : '';
+}
+
+function openMemberDrawer(idx){
+  const r = MEMBERS[idx];
+  const appShell = document.getElementById('app-shell');
+  document.getElementById('member-drawer')?.remove();
+  const drawer = document.createElement('div');
+  drawer.id = 'member-drawer';
+  drawer.className = 'absolute inset-y-0 right-0 z-40 flex w-[480px] max-w-[54%] flex-col border-l border-[#e4e4e7] bg-white shadow-[-16px_0_48px_rgba(0,0,0,.12)]';
+  drawer.innerHTML = `
+    <div class="flex h-[52px] shrink-0 items-center gap-2 border-b border-[#e4e4e7] px-3">
+      <button class="btn btn-sm btn-ghost" onclick="document.getElementById('member-drawer')?.remove()"><i data-lucide="x" class="h-4 w-4"></i></button>
+      <span class="text-[13px] font-semibold">会员详情</span>
+      <span class="badge">${r.name}</span>
+    </div>
+    <div class="min-h-0 flex-1 overflow-y-auto p-4">
+      <div class="flex items-center gap-3">
+        <span class="flex h-12 w-12 items-center justify-center rounded-full text-[16px] font-semibold text-white" style="background:${r.colorHex}">${r.name.slice(0,1)}</span>
+        <div><p class="text-[16px] font-semibold">${r.name}</p><p class="mt-0.5 flex items-center gap-1.5 text-[11px] text-[#71717a]"><span class="badge ${memberBadge(r.level)}">${r.level}</span>${r.createdAt.slice(0,10)} 加入</p></div>
+      </div>
+      <p class="mb-2 mt-4 text-[12px] font-semibold">基础信息</p>
+      <div class="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-[#e4e4e7] bg-[#e4e4e7] text-[11px]">
+        ${[['手机号',r.phone],['姓名',r.name],['会员等级',r.level],['加入时间',r.createdAt]].map(([l,v])=>`
+        <div class="flex bg-white"><span class="w-[76px] shrink-0 bg-[#fafafa] px-3 py-2 text-[#71717a]">${l}</span><span class="min-w-0 flex-1 truncate px-3 py-2">${v}</span></div>`).join('')}
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-2">
+        <div class="rounded-lg bg-[#fafafa] p-3"><p class="metric-label">积分</p><p class="mt-0.5 text-[20px] font-semibold tnum">${r.points}</p></div>
+        <div class="rounded-lg bg-[#fafafa] p-3"><p class="metric-label">余额</p><p class="mt-0.5 text-[20px] font-semibold tnum">${r.balance}</p></div>
+        <div class="rounded-lg bg-[#fafafa] p-3"><p class="metric-label">实付</p><p class="mt-0.5 text-[20px] font-semibold tnum">${r.totalSpent}</p></div>
+        <div class="rounded-lg bg-[#fafafa] p-3"><p class="metric-label">优惠券</p><p class="mt-0.5 text-[20px] font-semibold tnum">${r.couponCount}</p></div>
+      </div>
+      <div class="seg mt-4 w-full"><button class="on flex-1">订单</button><button class="flex-1">积分</button><button class="flex-1">余额</button><button class="flex-1">优惠券</button></div>
+      <div class="mt-3 space-y-2">
+        ${[['DB202610230042','10-23 21:18 · 3 件','¥1,556.00'],['DB202610180021','10-18 15:40 · 2 件','¥798.00'],['DB202610020008','10-02 11:20 · 4 件','¥1,197.00']].map(o=>`
+          <div class="flex items-center justify-between rounded-lg border border-[#e4e4e7] px-3 py-2.5"><div><p class="text-[12px] font-medium">${o[0]}</p><p class="mt-0.5 text-[11px] text-[#71717a]">${o[1]}</p></div><span class="text-[13px] font-medium tnum">${o[2]}</span></div>`).join('')}
+      </div>
+    </div>`;
+  appShell.appendChild(drawer);
+  lucide.createIcons();
+}
+
+/** 会员充值弹窗：对齐老系统 IncomeBalance（充值/赠送金额、赠送类型、变动原因、成单导购员、支付方式） */
+function openMemberRecharge(idx){
+  const r = MEMBERS[idx];
+  const appShell = document.getElementById('app-shell');
+  document.getElementById('member-recharge-dialog')?.remove();
+  const dialog = document.createElement('div');
+  dialog.id = 'member-recharge-dialog';
+  dialog.className = 'absolute inset-0 z-50 flex items-center justify-center bg-black/30';
+  dialog.innerHTML = `
+    <div class="w-[480px] rounded-xl bg-white p-5 shadow-2xl text-[12px]">
+      <div class="flex items-center gap-3">
+        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eef2ff] text-[#4f46e5]"><i data-lucide="badge-dollar-sign" class="h-5 w-5"></i></span>
+        <div class="min-w-0">
+          <p class="text-[14px] font-semibold">会员充值</p>
+          <p class="text-[11px] text-[#71717a]">${r.name} · ${r.phone} · 当前余额 ${r.balance}</p>
+        </div>
+        <button class="btn btn-sm btn-ghost ml-auto" onclick="document.getElementById('member-recharge-dialog')?.remove()"><i data-lucide="x" class="h-4 w-4"></i></button>
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div><p class="mb-1 text-[#71717a]">充值金额</p><input class="input h-8 w-full tnum" placeholder="0" /></div>
+        <div><p class="mb-1 text-[#71717a]">赠送金额</p><input class="input h-8 w-full tnum" placeholder="选填" /></div>
+        <div><p class="mb-1 text-[#71717a]">赠送类型</p><select class="input h-8 w-full"><option>现金余额</option><option>商品吊牌价值</option></select></div>
+        <div><p class="mb-1 text-[#71717a]">支付方式</p><select class="input h-8 w-full"><option>微信</option><option>支付宝</option><option>现金</option><option>银行卡</option><option>其他</option></select></div>
+      </div>
+      <div class="mt-3"><p class="mb-1 text-[#71717a]">变动原因</p><input class="input h-8 w-full" placeholder="输入变动原因" /></div>
+      <div class="mt-3"><p class="mb-1 text-[#71717a]">成单导购员</p><select class="input h-8 w-full"><option>请选择成单导购员</option><option>林晓</option><option>周敏</option><option>陈静</option></select></div>
+      <div class="mt-4 flex justify-end gap-2"><button class="btn btn-sm" onclick="document.getElementById('member-recharge-dialog')?.remove()">取消</button><button class="btn btn-sm btn-primary" onclick="document.getElementById('member-recharge-dialog')?.remove();showToast('会员充值成功')">确定</button></div>
+    </div>`;
+  appShell.appendChild(dialog);
+  lucide.createIcons();
+}
+
+/** 会员编辑抽屉：对齐老系统会员编辑，含基本信息 / 积分 / 余额三段 */
+function openMemberEditDrawer(idx){
+  const r = MEMBERS[idx];
+  const appShell = document.getElementById('app-shell');
+  document.getElementById('member-edit-drawer')?.remove();
+  const drawer = document.createElement('div');
+  drawer.id = 'member-edit-drawer';
+  drawer.className = 'absolute inset-y-0 right-0 z-40 flex w-[640px] max-w-[72%] flex-col border-l border-[#e4e4e7] bg-white shadow-[-16px_0_48px_rgba(0,0,0,.12)]';
+  drawer.innerHTML = `
+    <div class="flex h-[52px] shrink-0 items-center gap-2 border-b border-[#e4e4e7] px-3">
+      <button class="btn btn-sm btn-ghost" onclick="document.getElementById('member-edit-drawer')?.remove()"><i data-lucide="x" class="h-4 w-4"></i></button>
+      <span class="text-[13px] font-semibold">编辑会员</span>
+      <span class="badge tnum">${r.phone}</span>
+    </div>
+    <div class="min-h-0 flex-1 space-y-4 overflow-y-auto p-4 text-[12px]">
+      <div>
+        <p class="mb-2 text-[12px] font-semibold">基本信息</p>
+        <div class="grid grid-cols-2 gap-3">
+          <div><p class="mb-1 text-[11px] text-[#71717a]">手机号</p><input class="input h-9 tnum" value="${r.phone}" readonly /></div>
+          <div><p class="mb-1 text-[11px] text-[#71717a]">姓名</p><input class="input h-9" value="${r.name}" /></div>
+          <div><p class="mb-1 text-[11px] text-[#71717a]">生日</p><div class="relative"><input class="input h-9 tnum pr-9" value="1990-03-12" readonly /><i data-lucide="calendar" class="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#a1a1aa]"></i></div></div>
+        </div>
+      </div>
+      <div class="border-t border-[#e4e4e7] pt-4">
+        <p class="mb-2 text-[12px] font-semibold">积分</p>
+        <div class="grid grid-cols-2 gap-3">
+          <div><p class="mb-1 text-[11px] text-[#71717a]">当前积分</p><input class="input h-9 tnum" value="${r.points}" readonly /></div>
+          <div><p class="mb-1 text-[11px] text-[#71717a]">变动积分</p><input class="input h-9 tnum" placeholder="输入变动积分" /></div>
+          <div><p class="mb-1 text-[11px] text-[#71717a]">变动类型</p><select class="input h-9"><option>手动增加</option><option>手动减少</option></select></div>
+          <div><p class="mb-1 text-[11px] text-[#71717a]">变动原因</p><input class="input h-9" placeholder="输入变动原因" /></div>
+        </div>
+      </div>
+      <div class="border-t border-[#e4e4e7] pt-4">
+        <p class="mb-2 text-[12px] font-semibold">余额</p>
+        <div class="grid grid-cols-2 gap-3">
+          <div><p class="mb-1 text-[11px] text-[#71717a]">当前余额</p><input class="input h-9 tnum" value="${r.balance}" readonly /></div>
+          <div><p class="mb-1 text-[11px] text-[#71717a]">变动金额</p><input class="input h-9 tnum" placeholder="输入变动金额" /></div>
+          <div><p class="mb-1 text-[11px] text-[#71717a]">变动类型</p><select class="input h-9"><option>手动增加</option><option>手动减少</option></select></div>
+          <div><p class="mb-1 text-[11px] text-[#71717a]">变动原因</p><input class="input h-9" placeholder="输入变动原因" /></div>
+        </div>
+      </div>
+    </div>
+    <div class="flex shrink-0 justify-end gap-2 border-t border-[#e4e4e7] px-3 py-2.5">
+      <button class="btn btn-sm" onclick="document.getElementById('member-edit-drawer')?.remove()">关闭</button>
+      <button class="btn btn-sm btn-primary" onclick="document.getElementById('member-edit-drawer')?.remove();showToast('会员信息已更新')">确定</button>
+    </div>`;
+  appShell.appendChild(drawer);
+  lucide.createIcons();
+}
+
+/** 会员表头点击排序：同步服务端 orderby 并重新渲染 */
+const MEMBER_SORT = { key:'', order:'' };
+function sortMembers(key){
+  if(MEMBER_SORT.key !== key){ MEMBER_SORT.key = key; MEMBER_SORT.order = 'asc'; }
+  else if(MEMBER_SORT.order === 'asc'){ MEMBER_SORT.order = 'desc'; }
+  else { MEMBER_SORT.key = ''; MEMBER_SORT.order = ''; }
+  go('members');
+  showToast(MEMBER_SORT.key ? `按${key==='point'?'积分':'余额'}${MEMBER_SORT.order==='asc'?'升序':'降序'}` : '已恢复默认排序');
+}
+
+function membersPage(){
+  const rows = MEMBERS;
+  return `
+  <div class="flex h-full flex-col gap-3">
+    <div class="grid grid-cols-3 gap-3">
+      ${[['会员总数','1,286','users'],['超级会员','86','crown'],['会员余额','¥86,420','wallet']].map(([l,v,i])=>`
+      <div class="card p-4"><div class="flex items-center justify-between"><p class="metric-label">${l}</p><i data-lucide="${i}" class="h-4 w-4 text-[#a1a1aa]"></i></div><p class="metric-value mt-1">${v}</p></div>`).join('')}
+    </div>
+    <div class="card relative flex flex-wrap items-end gap-2 p-3">
+      <div><label class="mb-1 block text-[11px] text-[#71717a]">创建时间</label><button class="btn btn-sm" onclick="toggleRangePopup('members')"><i data-lucide="calendar-range" class="h-3.5 w-3.5"></i><span id="range-label-members" class="tnum">${rangeLabel('members')}</span><i data-lucide="chevron-down" class="h-3 w-3 text-[#71717a]"></i></button></div>
+      <div><label class="mb-1 block text-[11px] text-[#71717a]">手机号</label><input class="input h-8 w-[140px] text-xs" placeholder="输入会员手机号" /></div>
+      <div><label class="mb-1 block text-[11px] text-[#71717a]">等级</label><select class="input h-8 w-[124px] text-xs"><option>全部</option><option>普通会员</option><option>超级会员</option></select></div>
+      <div><label class="mb-1 block text-[11px] text-[#71717a]">本月生日</label><select class="input h-8 w-[100px] text-xs"><option>全部</option><option>是</option><option>否</option></select></div>
+      <button class="btn btn-sm btn-primary" onclick="showToast('已按条件查询会员')"><i data-lucide="search" class="h-3.5 w-3.5"></i>查询</button>
+      <button class="btn btn-sm" onclick="showToast('已重置查询条件')">重置</button>
+      <div class="ml-auto"><button class="btn btn-sm btn-primary" onclick="showToast('已打开新增会员')"><i data-lucide="user-plus" class="h-3.5 w-3.5"></i>新增会员</button></div>
+      <div id="range-popover" data-scope="members" class="absolute left-3 top-[52px] z-50 hidden w-[520px] rounded-xl border border-[#e4e4e7] bg-white p-4 shadow-xl"></div>
+    </div>
+    <div class="card min-h-0 flex-1 overflow-auto">
+      <table class="table">
+        <thead><tr><th>手机号</th><th>姓名</th><th>实付</th><th><button class="inline-flex items-center gap-1 hover:text-[#18181b]" onclick="sortMembers('point')">积分<i data-lucide="chevrons-up-down" class="h-3 w-3 opacity-40"></i></button></th><th><button class="inline-flex items-center gap-1 hover:text-[#18181b]" onclick="sortMembers('balance')">余额<i data-lucide="chevrons-up-down" class="h-3 w-3 opacity-40"></i></button></th><th>优惠券</th><th>等级</th><th>创建时间</th><th class="text-right">操作</th></tr></thead>
+        <tbody>${rows.map((r,idx)=>`<tr>
+          <td><span class="inline-flex items-center gap-1"><span class="tnum">${r.phone}</span><button class="text-[#a1a1aa] hover:text-[#18181b]" title="复制手机号" onclick="showToast('已复制手机号')"><i data-lucide="copy" class="h-3 w-3"></i></button></span></td>
+          <td class="font-medium">${r.name}</td>
+          <td class="tnum">${r.totalSpent}</td><td class="tnum">${r.points}</td><td class="tnum">${r.balance}</td><td class="tnum">${r.couponCount}</td>
+          <td><span class="badge ${memberBadge(r.level)}">${r.level}</span></td><td class="text-[#71717a]">${r.createdAt}</td>
+          <td class="whitespace-nowrap text-right"><button class="btn btn-sm btn-ghost text-[#4f46e5]" onclick="openMemberDrawer(${idx})">详情</button><button class="btn btn-sm btn-ghost text-[#4f46e5]" onclick="openMemberEditDrawer(${idx})">编辑</button><button class="btn btn-sm btn-ghost text-[#71717a]" onclick="openMemberRecharge(${idx})">充值</button></td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>
+    <div class="flex items-center justify-between text-[12px] text-[#71717a]"><span>共 1,286 条</span><div class="flex gap-1"><button class="btn btn-sm">上一页</button><button class="btn btn-sm btn-primary">1</button><button class="btn btn-sm">2</button><button class="btn btn-sm">3</button><button class="btn btn-sm">下一页</button></div></div>
+  </div>`;
+}
+
+/* ---------- 营销 ---------- */
+// 列与文案对齐老系统 Marketing/columns：活动名称/活动描述/活动类型/开始时间/结束时间/状态/参与/核销/带动销售/操作
+const CAMPAIGNS = [
+  { name:'秋冬焕新 · 满 800 减 100', desc:'全场满 800 减 100', type:'满减活动', start:'2026-10-15 00:00', end:'2026-10-31 23:59', status:'进行中', tone:'badge-success' },
+  { name:'会员生日礼 · 8 折券', desc:'会员生日当月赠 8 折券', type:'买赠活动', start:'2026-01-01 00:00', end:'2026-12-31 23:59', status:'进行中', tone:'badge-success' },
+  { name:'双十一预售 · 定金翻倍', desc:'定金翻倍，尾款再减', type:'满送活动', start:'2026-11-01 00:00', end:'2026-11-11 23:59', status:'未开始', tone:'badge-brand' },
+  { name:'国庆亲子专场', desc:'亲子系列满 500 送礼品', type:'满送活动', start:'2026-09-28 00:00', end:'2026-10-07 23:59', status:'已结束', tone:'badge-danger' },
+  { name:'老客唤醒 · 50 元无门槛', desc:'沉睡会员 50 元无门槛券', type:'买赠活动', start:'2026-09-01 00:00', end:'2026-09-20 23:59', status:'已下线', tone:'badge' },
+];
+
+/** 新建 / 编辑营销活动：右侧抽屉，信息较多需要更大布局 */
+function openMarketingDrawer(mode, idx){
+  const appShell = document.getElementById('app-shell');
+  const isEdit = mode === 'edit';
+  const c = isEdit ? CAMPAIGNS[idx] : { name:'', desc:'', type:'满减活动', start:'', end:'' };
+  document.getElementById('marketing-drawer')?.remove();
+  const drawer = document.createElement('div');
+  drawer.id = 'marketing-drawer';
+  drawer.className = 'absolute inset-y-0 right-0 z-40 flex w-[640px] max-w-[72%] flex-col border-l border-[#e4e4e7] bg-white shadow-[-16px_0_48px_rgba(0,0,0,.12)]';
+  drawer.innerHTML = `
+    <div class="flex h-[52px] shrink-0 items-center gap-2 border-b border-[#e4e4e7] px-3">
+      <button class="btn btn-sm btn-ghost" onclick="document.getElementById('marketing-drawer')?.remove()"><i data-lucide="x" class="h-4 w-4"></i></button>
+      <span class="text-[13px] font-semibold">${isEdit?'修改营销活动':'新增营销活动'}</span>
+      <span class="badge">${isEdit?c.name:'按活动内容生成对应的店铺优惠券'}</span>
+    </div>
+    <div class="min-h-0 flex-1 space-y-3 overflow-y-auto p-4 text-[12px]">
+      <div><p class="mb-1 text-[11px] text-[#71717a]">活动名称 <span class="text-[#dc2626]">*</span></p><input class="input h-9" placeholder="输入活动名称" value="${c.name}" /></div>
+      <div><p class="mb-1 text-[11px] text-[#71717a]">活动描述 <span class="text-[#dc2626]">*</span></p><input class="input h-9" placeholder="输入活动描述" value="${c.desc}" /></div>
+      <div><p class="mb-1 text-[11px] text-[#71717a]">活动时间 <span class="text-[#dc2626]">*</span></p>
+        <div class="flex h-9 items-center gap-2 rounded-lg border border-[#e4e4e7] bg-white px-3">
+          <i data-lucide="calendar-range" class="h-3.5 w-3.5 text-[#71717a]"></i>
+          <input type="date" class="h-8 w-[122px] border-0 bg-transparent text-[12px] tnum outline-none" value="${isEdit ? (c.start||'').slice(0,10) : '2026-10-23'}" />
+          <span class="text-[#a1a1aa]">→</span>
+          <input type="date" class="h-8 w-[122px] border-0 bg-transparent text-[12px] tnum outline-none" value="${isEdit ? (c.end||'').slice(0,10) : '2026-10-23'}" />
+        </div>
+      </div>
+      <div><p class="mb-1 text-[11px] text-[#71717a]">活动类型 <span class="text-[#dc2626]">*</span></p><select class="input h-9" ${isEdit?'disabled':''}><option ${c.type==='满减活动'?'selected':''}>满减活动</option><option ${c.type==='满送活动'?'selected':''}>满送活动</option><option ${c.type==='买赠活动'?'selected':''}>买赠活动</option></select><p class="mt-1 text-[11px] text-[#a1a1aa]">${isEdit?'活动类型创建后不可修改':'满减 / 满送活动会按活动内容生成店铺优惠券'}</p></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><p class="mb-1 text-[11px] text-[#71717a]">活动主图</p><div class="flex h-[120px] items-center justify-center rounded-xl border border-dashed border-[#e4e4e7] bg-[#fafafa] text-[11px] text-[#a1a1aa]"><i data-lucide="image-plus" class="h-5 w-5"></i><span class="ml-1">上传主图</span></div></div>
+        <div><p class="mb-1 text-[11px] text-[#71717a]">内容图</p><div class="flex h-[120px] items-center justify-center rounded-xl border border-dashed border-[#e4e4e7] bg-[#fafafa] text-[11px] text-[#a1a1aa]"><i data-lucide="image-plus" class="h-5 w-5"></i><span class="ml-1">上传内容图</span></div></div>
+      </div>
+      <div><p class="mb-1 text-[11px] text-[#71717a]">活动内容</p>
+        <div class="rounded-xl border border-[#e4e4e7] p-3">
+          <div class="flex items-center gap-2"><input class="input h-8 w-[120px] tnum" placeholder="满" /><input class="input h-8 w-[120px] tnum" placeholder="减" /><button class="btn btn-sm"><i data-lucide="plus" class="h-3.5 w-3.5"></i>添加规则</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="flex shrink-0 justify-end gap-2 border-t border-[#e4e4e7] px-3 py-2.5">
+      <button class="btn btn-sm" onclick="document.getElementById('marketing-drawer')?.remove()">关闭</button>
+      <button class="btn btn-sm btn-primary" onclick="document.getElementById('marketing-drawer')?.remove();showToast('${isEdit?'更新营销活动成功':'新增营销活动成功'}')">确定</button>
+    </div>`;
+  appShell.appendChild(drawer);
+  lucide.createIcons();
+}
+
+/** 活动详情抽屉：对齐老系统活动详情，基本信息用栅格展示 */
+function openMarketingDetailDrawer(idx){
+  const c = CAMPAIGNS[idx];
+  const appShell = document.getElementById('app-shell');
+  document.getElementById('marketing-detail-drawer')?.remove();
+  const drawer = document.createElement('div');
+  drawer.id = 'marketing-detail-drawer';
+  drawer.className = 'absolute inset-y-0 right-0 z-40 flex w-[640px] max-w-[72%] flex-col border-l border-[#e4e4e7] bg-white shadow-[-16px_0_48px_rgba(0,0,0,.12)]';
+  drawer.innerHTML = `
+    <div class="flex h-[52px] shrink-0 items-center gap-2 border-b border-[#e4e4e7] px-3">
+      <button class="btn btn-sm btn-ghost" onclick="document.getElementById('marketing-detail-drawer')?.remove()"><i data-lucide="x" class="h-4 w-4"></i></button>
+      <span class="text-[13px] font-semibold">活动详情</span>
+      <span class="badge">${c.name}</span>
+    </div>
+    <div class="min-h-0 flex-1 space-y-3 overflow-y-auto p-4">
+      <div class="flex items-center justify-between">
+        <p class="text-[12px] font-semibold">基本信息</p>
+        <span class="badge ${c.tone}">${c.status}</span>
+      </div>
+      <div class="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-[#e4e4e7] bg-[#e4e4e7] text-[11px]">
+        ${[['活动名称',c.name],['活动类型',c.type],['开始时间',c.start],['结束时间',c.end],['活动描述',c.desc]].map(([l,v])=>`
+        <div class="flex bg-white"><span class="w-[76px] shrink-0 bg-[#fafafa] px-3 py-2 text-[#71717a]">${l}</span><span class="min-w-0 flex-1 truncate px-3 py-2">${v}</span></div>`).join('')}
+      </div>
+    </div>`;
+  appShell.appendChild(drawer);
+  lucide.createIcons();
+}
+
+function marketingPage(){
+  return `
+  <div class="flex h-full flex-col gap-3">
+    <div class="grid grid-cols-3 gap-3">
+      ${[['进行中活动','2','megaphone',''],['带动销售额','¥0','trending-up','旧库暂无核销数据'],['本月核销','0','ticket-check','旧库暂无核销数据']].map(([l,v,i,h])=>`
+      <div class="card p-4"><div class="flex items-center justify-between"><p class="metric-label">${l}</p><i data-lucide="${i}" class="h-4 w-4 text-[#a1a1aa]"></i></div><p class="metric-value mt-1">${v}</p>${h?`<p class="mt-1 text-[11px] text-[#a1a1aa]">${h}</p>`:''}</div>`).join('')}
+    </div>
+    <div class="card relative flex flex-wrap items-end gap-2 p-3">
+      <div><label class="mb-1 block text-[11px] text-[#71717a]">活动时间</label><button class="btn btn-sm" onclick="toggleRangePopup('marketing')"><i data-lucide="calendar-range" class="h-3.5 w-3.5"></i><span id="range-label-marketing" class="tnum">${rangeLabel('marketing')}</span><i data-lucide="chevron-down" class="h-3 w-3 text-[#71717a]"></i></button></div>
+      <div><label class="mb-1 block text-[11px] text-[#71717a]">活动名称</label><input class="input h-8 w-[180px] text-xs" placeholder="输入活动名称" /></div>
+      <div><label class="mb-1 block text-[11px] text-[#71717a]">类型</label><select class="input h-8 w-[132px] text-xs"><option>全部</option><option>满减活动</option><option>满送活动</option><option>买赠活动</option></select></div>
+      <button class="btn btn-sm btn-primary" onclick="showToast('已按条件查询活动')"><i data-lucide="search" class="h-3.5 w-3.5"></i>查询</button>
+      <button class="btn btn-sm" onclick="showToast('已重置查询条件')">重置</button>
+      <div class="ml-auto flex items-center gap-2">
+        <button class="btn btn-sm" onclick="openDrawQuery()"><i data-lucide="dices" class="h-3.5 w-3.5"></i>抽奖查询</button>
+        <button class="btn btn-sm btn-primary" onclick="openMarketingDrawer('create')"><i data-lucide="plus" class="h-3.5 w-3.5"></i>新建活动</button>
+      </div>
+      <div id="range-popover" data-scope="marketing" class="absolute left-3 top-[52px] z-50 hidden w-[520px] rounded-xl border border-[#e4e4e7] bg-white p-4 shadow-xl"></div>
+    </div>
+    <div class="card min-h-0 flex-1 overflow-auto">
+      <table class="table">
+        <thead><tr><th>活动名称</th><th>活动描述</th><th>活动类型</th><th>开始时间</th><th>结束时间</th><th>状态</th><th>参与</th><th>核销</th><th>带动销售</th><th class="text-right">操作</th></tr></thead>
+        <tbody>
+          ${CAMPAIGNS.map(c=>`<tr>
+            <td class="font-medium">${c.name}</td>
+            <td class="max-w-[220px] truncate text-[12px] text-[#71717a]">${c.desc}</td>
+            <td><span class="badge badge-brand">${c.type}</span></td>
+            <td class="text-[12px] text-[#71717a]">${c.start}</td>
+            <td class="text-[12px] text-[#71717a]">${c.end}</td>
+            <td><span class="badge ${c.tone}">${c.status}</span></td>
+            <td class="tnum text-[#a1a1aa]">—</td>
+            <td class="tnum text-[#a1a1aa]">—</td>
+            <td class="tnum text-[#a1a1aa]">—</td>
+            <td class="whitespace-nowrap text-right">
+              <button class="btn btn-sm btn-ghost text-[#4f46e5]" onclick="openMarketingDetailDrawer(${CAMPAIGNS.indexOf(c)})">详情</button>
+              <button class="btn btn-sm btn-ghost text-[#4f46e5]" onclick="openMarketingDrawer('edit', ${CAMPAIGNS.indexOf(c)})">编辑</button>
+              <button class="btn btn-sm btn-ghost text-[#71717a]" onclick="showToast('${c.status==='已结束'?'活动已上线':'活动已下线'}')">${c.status==='已结束'?'上线':'下线'}</button>
+              <button class="btn btn-sm btn-ghost text-[#dc2626]" onclick="showToast('活动已删除')">删除</button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="flex items-center justify-between text-[12px] text-[#71717a]"><span>共 5 个活动</span><div class="flex gap-1"><button class="btn btn-sm btn-primary">1</button></div></div>
+  </div>`;
+}
+
+/** 抽奖查询：手机号查会员资产 + 抽奖记录，对齐桌面端 DrawQueryDialog */
+function openDrawQuery(){
+  const appShell = document.getElementById('app-shell');
+  document.getElementById('draw-query-dialog')?.remove();
+  const dialog = document.createElement('div');
+  dialog.id = 'draw-query-dialog';
+  dialog.className = 'absolute inset-0 z-50 flex items-center justify-center bg-black/30';
+  dialog.innerHTML = `
+    <div class="w-[680px] rounded-xl bg-white p-4 shadow-2xl">
+      <div class="flex items-center justify-between"><span class="text-[13px] font-semibold">抽奖查询</span><button class="btn btn-sm btn-ghost" onclick="document.getElementById('draw-query-dialog')?.remove()"><i data-lucide="x" class="h-4 w-4"></i></button></div>
+      <div class="mt-3 flex items-end gap-2">
+        <div><label class="mb-1 block text-[11px] text-[#71717a]">会员手机号</label><input class="input h-8 w-[180px] text-xs tnum" placeholder="输入手机号" /></div>
+        <button class="btn btn-sm btn-primary" onclick="showToast('已查询抽奖记录')"><i data-lucide="search" class="h-3.5 w-3.5"></i>查询</button>
+      </div>
+      <div class="mt-3 max-h-[240px] overflow-auto rounded-xl border border-[#e4e4e7]">
+        <table class="table">
+          <thead><tr><th>抽奖时间</th><th>活动</th><th>奖品</th><th>状态</th></tr></thead>
+          <tbody><tr><td colspan="4" class="py-10 text-center text-[12px] text-[#a1a1aa]">输入手机号后查询该会员的抽奖记录</td></tr></tbody>
+        </table>
+      </div>
+    </div>`;
+  appShell.appendChild(dialog);
+  lucide.createIcons();
+}
+
+/* ---------- 数据 ---------- */
+const STORE_MONTH = [
+  ['2025-11','23.6','15.2','35.6'],['2025-12','31.8','20.4','35.8'],['2026-01','26.4','17.1','35.2'],
+  ['2026-02','19.8','12.9','34.8'],['2026-03','24.2','15.8','34.7'],['2026-04','27.6','17.6','36.2'],
+  ['2026-05','29.4','18.9','35.7'],['2026-06','33.2','21.4','35.5'],['2026-07','35.8','22.6','36.9'],
+  ['2026-08','34.6','22.1','36.1'],['2026-09','36.2','23.4','35.4'],['2026-10','28.6','18.0','37.1'],
+];
+const STORE_DAILY = [8.2,9.6,7.4,10.8,12.4,11.2,6.9,9.8,10.4,8.6,11.8,13.2,9.4,7.8,10.2,12.6,11.4,9.2,8.8,10.6,12.2,13.8,9.6,8.4,10.8,11.6,12.8,9.2,7.6,10.4];
+let dataView = { mode:'month', month:null };
+
+function setDataPreset(kind){
+  const r = DATE_RANGES.data;
+  const days = kind==='today' ? 1 : kind==='7' ? 7 : 30;
+  const end = new Date(2026, 9, 23);
+  const start = new Date(2026, 9, 23 - (days - 1));
+  r.start = `${start.getFullYear()}-${pad2(start.getMonth()+1)}-${pad2(start.getDate())}`;
+  r.end = `${end.getFullYear()}-${pad2(end.getMonth()+1)}-${pad2(end.getDate())}`;
+  go('data');
+  showToast(`已筛选 ${rangeLabel('data')}`);
+}
+
+function openStoreMonth(m){
+  dataView = { mode:'day', month:m };
+  go('data');
+}
+
+function backStoreMonth(){
+  dataView = { mode:'month', month:null };
+  go('data');
+}
+
+function monthlyChart(){
+  const max = 40;
+  return STORE_MONTH.map(([m,s,c,p])=>`
+    <div class="group flex flex-1 cursor-pointer flex-col items-center gap-1" onclick="openStoreMonth('${m}')" title="${m} 销售额 ¥${s}万 · 成本 ¥${c}万 · 利润率 ${p}%">
+      <div class="flex h-[210px] w-full items-end justify-center gap-1 px-1">
+        <div class="w-1/2 rounded-t bg-[#4f46e5]/85 group-hover:bg-[#4f46e5]" style="height:${Number(s)/max*100}%"></div>
+        <div class="w-2/5 rounded-t bg-[#c7d2fe] group-hover:bg-[#a5b4fc]" style="height:${Number(c)/max*100}%"></div>
+      </div>
+      <span class="text-[9px] text-[#a1a1aa]">${m.slice(5)}</span>
+      <span class="text-[9px] font-medium text-[#16a34a] tnum">${p}%</span>
+    </div>`).join('');
+}
+
+function dailyChart(month){
+  const max = 16;
+  return STORE_DAILY.map((v,i)=>`
+    <div class="flex flex-1 flex-col items-center gap-1" title="10-${pad2(i+1)} ¥${v.toFixed(1)}k">
+      <div class="w-full rounded-t bg-[#4f46e5]/80 hover:bg-[#4f46e5]" style="height:${v/max*210}px"></div>
+      <span class="text-[9px] text-[#a1a1aa]">${i%5===0?pad2(i+1):''}</span>
+    </div>`).join('');
+}
+
+function dataPage(){
+  const isDay = dataView.mode==='day';
+  return `
+  <div class="relative flex h-full flex-col gap-3">
+    <div class="flex items-center gap-3">
+      <div class="seg"><button onclick="setDataPreset('today')">今天</button><button onclick="setDataPreset('7')">近 7 天</button><button class="on" onclick="setDataPreset('30')">近 30 天</button><button onclick="toggleRangePopup('data')">自定义</button></div>
+      <span class="text-[11px] text-[#71717a]"><span id="range-label-data" class="tnum">${rangeLabel('data')}</span> · 数据截止 21:35</span>
+      <div class="ml-auto flex items-center gap-2"><span class="badge"><i data-lucide="info" class="h-3 w-3"></i>数据中心仅呈现事实数据</span></div>
+      <div id="range-popover" data-scope="data" class="absolute right-3 top-[52px] z-50 hidden w-[520px] rounded-xl border border-[#e4e4e7] bg-white p-4 shadow-xl"></div>
+    </div>
+    <div class="grid grid-cols-6 gap-3">
+      ${[['订单金额(CNY)','¥286,420','wallet'],['余额消耗','¥12,860','credit-card'],['订单数量','968','receipt-text'],['售出商品','1,846','shirt'],['商品库存','3,284','package'],['会员余额(CNY)','¥86,420','badge-dollar-sign']].map(([l,v,i])=>`
+      <div class="card p-3.5"><div class="flex items-center justify-between"><p class="metric-label">${l}</p><i data-lucide="${i}" class="h-4 w-4 text-[#a1a1aa]"></i></div><p class="metric-value mt-1 text-[18px]">${v}</p></div>`).join('')}
+    </div>
+    <div class="card flex min-h-0 flex-1 flex-col p-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <p class="text-[13px] font-semibold">${isDay ? `${dataView.month} 店铺营业额` : '店铺营业额（CNY）'}</p>
+          ${isDay?`<button class="btn btn-sm btn-ghost" onclick="backStoreMonth()"><i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>返回按月</button>`:`<span class="text-[11px] text-[#a1a1aa]">点击柱状图查看该月按天数据</span>`}
+        </div>
+        <div class="flex items-center gap-3 text-[11px] text-[#71717a]">
+          <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-sm bg-[#4f46e5]"></span>销售额</span>
+          <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-sm bg-[#c7d2fe]"></span>成本</span>
+          <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-[#16a34a]"></span>利润率</span>
+        </div>
+      </div>
+      ${isDay
+        ? `<div class="mt-4 flex h-[240px] items-end gap-1.5">${dailyChart(dataView.month)}</div>
+           <div class="mt-auto grid grid-cols-3 gap-2 border-t border-[#f1f1f3] pt-3"><div><p class="metric-label">销售额</p><p class="mt-0.5 text-[13px] font-medium">¥362,000</p></div><div><p class="metric-label">成本</p><p class="mt-0.5 text-[13px] font-medium">¥234,000</p></div><div><p class="metric-label">利润率</p><p class="mt-0.5 text-[13px] font-medium">35.4%</p></div></div>`
+        : `<div class="mt-4 flex min-h-0 flex-1 items-stretch gap-2">${monthlyChart()}</div>
+           <div class="mt-auto grid grid-cols-3 gap-2 border-t border-[#f1f1f3] pt-3"><div><p class="metric-label">最高月销售额</p><p class="mt-0.5 text-[13px] font-medium">09 月 · ¥362,000</p></div><div><p class="metric-label">最低月销售额</p><p class="mt-0.5 text-[13px] font-medium">02 月 · ¥198,000</p></div><div><p class="metric-label">月均利润率</p><p class="mt-0.5 text-[13px] font-medium">35.7%</p></div></div>`}
+    </div>
+  </div>`;
+}
+
+/* ================= 登录 / 注册 ================= */
+let authMode = 'login';
+
+function authField(label, type, id, placeholder, icon){
+  return `<div>
+    <label class="mb-1.5 block text-[12px] font-medium" for="${id}">${label}</label>
+    <div class="relative">
+      <i data-lucide="${icon}" class="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#a1a1aa]"></i>
+      <input id="${id}" type="${type}" class="input h-10 pl-9" placeholder="${placeholder}" />
+    </div>
+  </div>`;
+}
+
+function renderAuth(){
+  const panel = document.getElementById('auth-panel');
+  if(!panel) return;
+  panel.innerHTML = authMode==='login' ? `
+    <div class="fade-in">
+      <h2 class="text-[22px] font-semibold tracking-[-0.02em]">登录 DaveBella</h2>
+      <p class="mt-1.5 text-[12px] text-[#71717a]">使用门店账号登录经营工作台</p>
+      <form class="mt-7 space-y-4" onsubmit="event.preventDefault();doLogin()">
+        ${authField('用户名','text','li-username','请输入用户名','user-round')}
+        ${authField('密码','password','li-password','请输入密码','lock')}
+        <div class="flex items-center justify-between text-[12px]">
+          <label class="flex items-center gap-2 text-[#71717a]"><input type="checkbox" class="h-3.5 w-3.5 rounded border-[#d4d4d8] accent-[#4f46e5]" checked />记住我</label>
+          <button type="button" class="text-[#4f46e5] hover:underline" onclick="showToast('请联系店长重置密码')">忘记密码？</button>
+        </div>
+        <button type="submit" class="btn btn-primary h-10 w-full text-[13px]">登录</button>
+      </form>
+      <p class="mt-5 text-center text-[12px] text-[#71717a]">还没有账号？<button class="font-medium text-[#4f46e5] hover:underline" onclick="setAuthMode('register')">立即注册</button></p>
+      <p class="mt-8 rounded-lg bg-white px-3 py-2 text-center text-[11px] text-[#a1a1aa]">原型演示：已预填账号，直接点击「登录」即可进入</p>
+    </div>` : `
+    <div class="fade-in">
+      <h2 class="text-[22px] font-semibold tracking-[-0.02em]">注册账号</h2>
+      <p class="mt-1.5 text-[12px] text-[#71717a]">创建门店账号，注册后由店长分配角色权限</p>
+      <form class="mt-6 space-y-3" onsubmit="event.preventDefault();doRegister()">
+        ${authField('用户名','text','rg-username','4-20 位字母或数字','user-round')}
+        ${authField('姓名','text','rg-name','请输入真实姓名','id-card')}
+        ${authField('密码','password','rg-password','至少 8 位，建议含字母和数字','lock')}
+        ${authField('确认密码','password','rg-confirm','请再次输入密码','lock-keyhole')}
+        <p id="auth-error" style="display:none" class="rounded-lg bg-[#fef2f2] px-3 py-2 text-[11px] text-[#dc2626]"></p>
+        <button type="submit" class="btn btn-primary h-10 w-full text-[13px]">注册并登录</button>
+      </form>
+      <p class="mt-4 text-center text-[12px] text-[#71717a]">已有账号？<button class="font-medium text-[#4f46e5] hover:underline" onclick="setAuthMode('login')">返回登录</button></p>
+    </div>`;
+  if(authMode==='login'){
+    const u = document.getElementById('li-username');
+    const p = document.getElementById('li-password');
+    if(u) u.value = 'linxiao';
+    if(p) p.value = '12345678';
+  }
+  lucide.createIcons();
+}
+
+function setAuthMode(mode){
+  authMode = mode;
+  renderAuth();
+}
+
+function doLogin(){
+  const user = document.getElementById('li-username');
+  const pwd = document.getElementById('li-password');
+  if(!user || !pwd) return;
+  if(!user.value.trim() || !pwd.value){
+    showToast('请输入用户名和密码');
+    return;
+  }
+  enterApp(`欢迎回来，${user.value.trim()}`);
+}
+
+function doRegister(){
+  const user = document.getElementById('rg-username');
+  const name = document.getElementById('rg-name');
+  const pwd = document.getElementById('rg-password');
+  const confirm = document.getElementById('rg-confirm');
+  const err = document.getElementById('auth-error');
+  if(!user || !name || !pwd || !confirm || !err) return;
+  const fail = msg => {
+    err.textContent = msg;
+    err.style.display = 'block';
+    showToast(msg);
+  };
+  err.style.display = 'none';
+  if(!user.value.trim()) return fail('请输入用户名');
+  if(!name.value.trim()) return fail('请输入姓名');
+  if(pwd.value.length < 8) return fail('密码至少 8 位');
+  if(pwd.value !== confirm.value) return fail('两次输入的密码不一致');
+  enterApp(`注册成功，欢迎你，${name.value.trim()}`);
+}
+
+function enterApp(msg){
+  document.getElementById('auth-screen').classList.add('hidden');
+  go('analysis');
+  showToast(msg);
+}
+
+function logoutToAuth(){
+  authMode = 'login';
+  renderAuth();
+  document.getElementById('auth-screen').classList.remove('hidden');
+}
+
+/* ================= Dialog ================= */
+/** 操作日志「操作人」旁的设备信息气泡：点击图标显示系统与版本 */
+function toggleDevicePopover(event, trigger, os, version){
+  event.stopPropagation();
+  const anchor = trigger.getBoundingClientRect();
+  const existing = document.getElementById('device-popover');
+  const sameAnchor = existing && existing.dataset.anchor === `${anchor.left}-${anchor.top}`;
+  if(existing) existing.remove();
+  if(sameAnchor) return;
+
+  const card = document.createElement('div');
+  card.id = 'device-popover';
+  card.dataset.anchor = `${anchor.left}-${anchor.top}`;
+  card.className = 'fixed z-[80] w-[208px] rounded-lg border border-[#e4e4e7] bg-white p-3 text-[11px] shadow-xl';
+  card.innerHTML = `
+    <div class="flex items-center justify-between gap-3"><span class="text-[#71717a]">操作系统</span><span class="text-[#18181b]">${os}</span></div>
+    <div class="mt-1.5 flex items-center justify-between gap-3"><span class="text-[#71717a]">客户端版本</span><span class="tnum text-[#18181b]">${version}</span></div>`;
+  document.body.appendChild(card);
+  card.style.left = `${Math.min(anchor.left, window.innerWidth - 216)}px`;
+  card.style.top = `${anchor.bottom + 6}px`;
+  // 点击气泡之外的任意位置关闭
+  setTimeout(() => document.addEventListener('click', () => card.remove(), { once:true }), 0);
+}
+
+function openDialog(name){
+  document.getElementById('user-menu').classList.add('hidden');
+  const mask = document.getElementById('dialog-mask');
+  const box = document.getElementById('dialog');
+  const heads = { oplog:'操作日志', settings:'系统设置', password:'修改密码', logout:'退出登录', paySuccess:'收款成功', restore:'恢复挂单' };
+  const widths = { settings:'880px', oplog:'760px', password:'460px', logout:'420px', paySuccess:'420px', restore:'420px' };
+  box.style.width = widths[name] || '560px';
+
+  const body = ({
+    oplog: `
+      <div class="flex h-[560px] flex-col">
+        <div class="flex items-start justify-between border-b border-[#e4e4e7] px-5 py-4">
+          <div><p class="text-[15px] font-semibold">操作日志</p><p class="mt-0.5 text-[11px] text-[#71717a]">记录关键业务操作，便于审计与追溯</p></div>
+          <button class="btn btn-sm btn-ghost" onclick="closeDialog()"><i data-lucide="x" class="h-4 w-4"></i></button>
+        </div>
+        <div class="relative flex items-end gap-3 border-b border-[#e4e4e7] px-5 py-3">
+          <div><label class="mb-1 block text-[11px] text-[#71717a]">操作时间</label><button class="btn btn-sm" onclick="toggleRangePopup('oplog')"><i data-lucide="calendar-range" class="h-3.5 w-3.5"></i><span id="range-label-oplog" class="tnum">${rangeLabel('oplog')}</span><i data-lucide="chevron-down" class="h-3 w-3 text-[#71717a]"></i></button></div>
+          <div><label class="mb-1 block text-[11px] text-[#71717a]">操作类型</label><select class="input h-8 w-[130px] text-xs"><option>全部</option><option>退货</option><option>换货</option><option>修改订单</option><option>充值</option><option>修改库存</option><option>批量入库</option><option>批量退库</option></select></div>
+          <button class="btn btn-sm btn-primary">查询</button>
+          <button class="btn btn-sm">重置</button>
+          <div id="oplog-range-popover" data-scope="oplog" class="absolute left-5 top-[52px] z-50 hidden w-[520px] rounded-xl border border-[#e4e4e7] bg-white p-4 shadow-xl"></div>
+        </div>
+        <div class="min-h-0 flex-1 overflow-auto px-5 py-3">
+          <table class="table">
+            <thead><tr><th>时间</th><th>类型</th><th>操作人</th><th>详情</th></tr></thead>
+            <tbody>
+              <tr><td class="text-[#71717a]">10-23 21:18</td><td><span class="badge badge-brand">会员充值</span></td><td><span class="flex items-center gap-1"><span>林晓</span><button type="button" aria-label="查看系统与版本" class="rounded p-0.5 text-[#a1a1aa] hover:bg-[#f4f4f5] hover:text-[#18181b]" onclick="toggleDevicePopover(event, this, 'macOS 15.4', '2.3.0')"><i data-lucide="info" class="h-3.5 w-3.5"></i></button></span></td><td class="text-[12px]">陈女士 · 充值 ¥500.00</td></tr>
+              <tr><td class="text-[#71717a]">10-23 20:31</td><td><span class="badge badge-danger">订单退货</span></td><td><span class="flex items-center gap-1"><span>林晓</span><button type="button" aria-label="查看系统与版本" class="rounded p-0.5 text-[#a1a1aa] hover:bg-[#f4f4f5] hover:text-[#18181b]" onclick="toggleDevicePopover(event, this, 'macOS 15.4', '2.3.0')"><i data-lucide="info" class="h-3.5 w-3.5"></i></button></span></td><td class="text-[12px]">订单 DB202610230040 · 退款 ¥299.00</td></tr>
+              <tr><td class="text-[#71717a]">10-23 18:02</td><td><span class="badge badge-warning">修改库存</span></td><td><span class="flex items-center gap-1"><span>周敏</span><button type="button" aria-label="查看系统与版本" class="rounded p-0.5 text-[#a1a1aa] hover:bg-[#f4f4f5] hover:text-[#18181b]" onclick="toggleDevicePopover(event, this, 'Windows 11', '2.3.0')"><i data-lucide="info" class="h-3.5 w-3.5"></i></button></span></td><td class="text-[12px]">DB-2026-1088 库存 45 → 46</td></tr>
+              <tr><td class="text-[#71717a]">10-23 15:20</td><td><span class="badge badge-warning">订单换货</span></td><td><span class="flex items-center gap-1"><span>林晓</span><button type="button" aria-label="查看系统与版本" class="rounded p-0.5 text-[#a1a1aa] hover:bg-[#f4f4f5] hover:text-[#18181b]" onclick="toggleDevicePopover(event, this, 'macOS 15.4', '2.3.0')"><i data-lucide="info" class="h-3.5 w-3.5"></i></button></span></td><td class="text-[12px]">订单 DB202610230038 · 换货 1 件</td></tr>
+              <tr><td class="text-[#71717a]">10-23 11:08</td><td><span class="badge badge-success">批量入库</span></td><td><span class="flex items-center gap-1"><span>周敏</span><button type="button" aria-label="查看系统与版本" class="rounded p-0.5 text-[#a1a1aa] hover:bg-[#f4f4f5] hover:text-[#18181b]" onclick="toggleDevicePopover(event, this, 'Windows 11', '2.2.6')"><i data-lucide="info" class="h-3.5 w-3.5"></i></button></span></td><td class="text-[12px]">导入 12 个 SKU · 共 86 件</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="flex items-center justify-between border-t border-[#e4e4e7] px-5 py-3 text-[12px] text-[#71717a]"><span>共 286 条</span><div class="flex gap-1"><button class="btn btn-sm">上一页</button><button class="btn btn-sm btn-primary">1</button><button class="btn btn-sm">2</button><button class="btn btn-sm">下一页</button></div></div>
+      </div>`,
+    settings: `
+      <div class="flex h-[640px] flex-col">
+        <div class="flex items-start justify-between border-b border-[#e4e4e7] px-5 py-4">
+          <div><p class="text-[15px] font-semibold">设置</p><p class="mt-0.5 text-[11px] text-[#71717a]">配置应用外观、任务、模型与数据连接</p></div>
+          <button class="btn btn-sm btn-ghost" onclick="closeDialog()"><i data-lucide="x" class="h-4 w-4"></i></button>
+        </div>
+        <div class="flex min-h-0 flex-1">
+          <div id="settings-nav" class="w-[200px] shrink-0 border-r border-[#e4e4e7] bg-[#fafafa] p-3">
+            <p class="px-2 pb-2 text-[10px] font-medium uppercase tracking-wider text-[#a1a1aa]">设置</p>
+            <button class="flex w-full items-center gap-2 rounded-lg bg-white px-3 py-2 text-[12px] font-medium shadow-sm" onclick="settingsTab(this,'general')"><i data-lucide="sliders-horizontal" class="h-3.5 w-3.5"></i>通用</button>
+            <button class="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[12px] hover:bg-white" onclick="settingsTab(this,'task')"><i data-lucide="alarm-clock" class="h-3.5 w-3.5"></i>任务</button>
+            <button class="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[12px] hover:bg-white" onclick="settingsTab(this,'model')"><i data-lucide="brain" class="h-3.5 w-3.5"></i>模型</button>
+            <button class="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[12px] hover:bg-white" onclick="settingsTab(this,'data')"><i data-lucide="database" class="h-3.5 w-3.5"></i>数据</button>
+          </div>
+          <div id="settings-body" class="min-h-0 flex-1 overflow-y-auto p-6"></div>
+        </div>
+      </div>`,
+    password: `
+      <div>
+        <div class="flex items-start justify-between border-b border-[#e4e4e7] px-5 py-4"><div><p class="text-[15px] font-semibold">修改密码</p><p class="mt-0.5 text-[11px] text-[#71717a]">修改后需要重新登录</p></div><button class="btn btn-sm btn-ghost" onclick="closeDialog()"><i data-lucide="x" class="h-4 w-4"></i></button></div>
+        <div class="space-y-3 px-5 py-5"><div><label class="mb-1.5 block text-[12px] font-medium">原密码</label><input type="password" class="input" placeholder="请输入原密码" /></div><div><label class="mb-1.5 block text-[12px] font-medium">新密码</label><input type="password" class="input" placeholder="至少 8 位，含字母与数字" /></div><div><label class="mb-1.5 block text-[12px] font-medium">确认新密码</label><input type="password" class="input" placeholder="再次输入新密码" /></div></div>
+        <div class="flex justify-end gap-2 border-t border-[#e4e4e7] px-5 py-3"><button class="btn" onclick="closeDialog()">取消</button><button class="btn btn-primary" onclick="closeDialog();showToast('密码已修改，请重新登录')">确认修改</button></div>
+      </div>`,
+    logout: `
+      <div class="p-5">
+        <div class="flex items-start gap-3"><span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#fee2e2] text-[#dc2626]"><i data-lucide="log-out" class="h-4 w-4"></i></span><div><p class="text-[15px] font-semibold">退出登录</p><p class="mt-1 text-[12px] leading-relaxed text-[#71717a]">退出后需要重新输入账号密码。未提交的单据与经营分析任务会保留在本机。</p></div></div>
+        <div class="mt-5 flex justify-end gap-2"><button class="btn" onclick="closeDialog()">取消</button><button class="btn btn-danger" onclick="closeDialog();logoutToAuth()">退出登录</button></div>
+      </div>`,
+    paySuccess: `
+      <div class="p-6 text-center">
+        <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#dcfce7] text-[#16a34a]"><i data-lucide="check" class="h-6 w-6"></i></span>
+        <p class="mt-3 text-[17px] font-semibold">收款成功</p>
+        <p class="mt-1 text-[12px] text-[#71717a]">订单 DB202610230043 · 微信支付</p>
+        <p class="mt-4 text-[32px] font-semibold tracking-tight tnum">¥1,116.00</p>
+        <div class="mt-4 grid grid-cols-3 gap-2 text-[12px]"><div class="rounded-lg bg-[#fafafa] p-2"><p class="text-[#71717a]">积分</p><p class="mt-0.5 font-medium">+111</p></div><div class="rounded-lg bg-[#fafafa] p-2"><p class="text-[#71717a]">余额</p><p class="mt-0.5 font-medium">¥860.00</p></div><div class="rounded-lg bg-[#fafafa] p-2"><p class="text-[#71717a]">找零</p><p class="mt-0.5 font-medium">¥0.00</p></div></div>
+        <div class="mt-5 flex gap-2"><button class="btn flex-1" onclick="printReceipt()"><i data-lucide="printer" class="h-4 w-4"></i>打印小票</button><button class="btn btn-primary flex-1" onclick="closeDialog()">继续开单</button></div>
+      </div>`,
+    restore: `
+      <div class="p-5">
+        <div class="flex items-start gap-3"><span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#fef3c7] text-[#d97706]"><i data-lucide="rotate-ccw" class="h-4 w-4"></i></span><div><p class="text-[15px] font-semibold">恢复挂单</p><p class="mt-1 text-[12px] leading-relaxed text-[#71717a]">当前待售清单还有 ${CART.length} 款商品，恢复挂单会覆盖当前清单且无法撤销。</p></div></div>
+        <div class="mt-5 flex justify-end gap-2"><button class="btn" onclick="closeDialog()">取消</button><button class="btn btn-primary" onclick="doRestore()">继续恢复</button></div>
+      </div>`
+  })[name];
+
+  box.innerHTML = body;
+  mask.classList.add('open');
+  lucide.createIcons();
+  if(name==='settings') settingsTab(null,'general');
+}
+
+function closeDialog(){ document.getElementById('dialog-mask').classList.remove('open'); }
+
+function pickOption(el){
+  const group = el.closest('[data-group]');
+  if(!group) return;
+  group.querySelectorAll('[data-opt]').forEach(b=>{
+    b.classList.remove('border-[#4f46e5]','bg-[#eef2ff]');
+    b.classList.add('border-[#e4e4e7]');
+  });
+  el.classList.remove('border-[#e4e4e7]');
+  el.classList.add('border-[#4f46e5]','bg-[#eef2ff]');
+  showToast('设置已更新');
+}
+
+function settingsTab(btn, key){
+  const root = document.getElementById('settings-nav');
+  if(btn && root){
+    [...root.querySelectorAll('button')].forEach(b=>{ b.className='mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[12px] hover:bg-white'; });
+    btn.className='flex w-full items-center gap-2 rounded-lg bg-white px-3 py-2 text-[12px] font-medium shadow-sm';
+  }
+  const body = document.getElementById('settings-body');
+  if(!body) return;
+  if(key==='general'){
+    body.innerHTML = `<div class="space-y-7">
+      <section>
+        <p class="text-[13px] font-semibold">外观</p>
+        <p class="mt-0.5 text-[11px] text-[#71717a]">选择 DaveBella 的界面风格</p>
+        <div class="mt-3 grid grid-cols-3 gap-3" data-group>
+          ${[['跟随系统','跟随系统设置自动切换','monitor',false],['亮色','明亮清爽，适合白天使用','sun',true],['暗黑','低亮度，适合夜间使用','moon',false]].map(([l,d,i,on])=>`
+          <button data-opt class="rounded-lg border p-3 text-left transition ${on?'border-[#4f46e5] bg-[#eef2ff]':'border-[#e4e4e7] hover:bg-[#fafafa]'}" onclick="pickOption(this)">
+            <i data-lucide="${i}" class="h-4 w-4 ${on?'text-[#4f46e5]':'text-[#71717a]'}"></i>
+            <p class="mt-2 text-[12px] font-medium">${l}</p>
+            <p class="mt-0.5 text-[10px] text-[#71717a]">${d}</p>
+          </button>`).join('')}
+        </div>
+      </section>
+      <section>
+        <p class="text-[13px] font-semibold">字体大小</p>
+        <p class="mt-0.5 text-[11px] text-[#71717a]">调整界面文字大小，便于远距离查看</p>
+        <div class="mt-3 grid grid-cols-3 gap-3" data-group>
+          ${[['小','14px','text-[14px]',false],['中','16px','text-[18px]',true],['大','18px','text-[22px]',false]].map(([l,px,cls,on])=>`
+          <button data-opt class="rounded-lg border p-3 text-left transition ${on?'border-[#4f46e5] bg-[#eef2ff]':'border-[#e4e4e7] hover:bg-[#fafafa]'}" onclick="pickOption(this)">
+            <span class="${cls} font-semibold leading-none ${on?'text-[#4f46e5]':'text-[#3f3f46]'}">Aa</span>
+            <p class="mt-2 text-[12px] font-medium">${l}</p>
+            <p class="mt-0.5 text-[10px] text-[#71717a]">${px}</p>
+          </button>`).join('')}
+        </div>
+      </section>
+      <section>
+        <p class="text-[13px] font-semibold">启动</p>
+        <p class="mt-0.5 text-[11px] text-[#71717a]">应用启动行为</p>
+        <div class="mt-3">
+          <div class="flex items-center justify-between rounded-lg border border-[#e4e4e7] px-3 py-2.5"><div><p class="text-[12px] font-medium">开机自启</p><p class="mt-0.5 text-[11px] text-[#71717a]">登录系统后自动打开 DaveBella</p></div><button class="h-5 w-9 rounded-full bg-[#4f46e5] p-0.5"><span class="block h-4 w-4 translate-x-4 rounded-full bg-white"></span></button></div>
+        </div>
+      </section>
+    </div>`;
+  } else if(key==='task'){
+    body.innerHTML = `<div class="space-y-7">
+      <div>
+        <p class="text-[13px] font-semibold">任务</p>
+        <p class="mt-0.5 text-[11px] text-[#71717a]">定时经营分析任务的执行时间与完成后的提醒方式</p>
+      </div>
+      <section>
+        <p class="text-[13px] font-semibold">定时任务执行时间</p>
+        <p class="mt-0.5 text-[11px] text-[#71717a]">日报、周报、月报按设定时间自动执行</p>
+        <div class="mt-3 rounded-lg border border-[#e4e4e7] p-3">
+          <div class="mb-2 flex items-center justify-between"><p class="text-[12px] font-medium">执行时间</p><span class="text-[10px] text-[#a1a1aa]">仅管理员可修改</span></div>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between"><span class="text-[11px] text-[#71717a]">店铺经营日报</span><input type="time" class="input h-8 w-[104px] tnum" value="21:20" /></div>
+            <div class="flex items-center justify-between"><span class="text-[11px] text-[#71717a]">店铺经营周报（每周一）</span><input type="time" class="input h-8 w-[104px] tnum" value="10:10" /></div>
+            <div class="flex items-center justify-between"><span class="text-[11px] text-[#71717a]">店铺经营月报（每月 1 号）</span><input type="time" class="input h-8 w-[104px] tnum" value="10:20" /></div>
+          </div>
+        </div>
+      </section>
+      <section>
+        <p class="text-[13px] font-semibold">通知</p>
+        <p class="mt-0.5 text-[11px] text-[#71717a]">经营分析报告生成后的提醒方式</p>
+        <div class="mt-3 space-y-3">
+          <div class="flex items-center justify-between rounded-lg border border-[#e4e4e7] px-3 py-2.5"><div><p class="text-[12px] font-medium">桌面通知</p><p class="mt-0.5 text-[11px] text-[#71717a]">报告生成时在系统通知中心提醒</p></div><button class="h-5 w-9 rounded-full bg-[#4f46e5] p-0.5"><span class="block h-4 w-4 translate-x-4 rounded-full bg-white"></span></button></div>
+          <div class="flex items-center justify-between rounded-lg border border-[#e4e4e7] px-3 py-2.5"><span class="text-[12px]">通知提示音</span><select class="input h-8 w-[160px] text-xs"><option>默认提示音</option><option>清脆</option><option>静音</option></select></div>
+        </div>
+      </section>
+    </div>`;
+  } else if(key==='model'){
+    body.innerHTML = `<div class="space-y-5">
+      <div>
+        <p class="text-[13px] font-semibold">模型</p>
+        <p class="mt-0.5 text-[11px] text-[#71717a]">用于经营分析对话与报告生成，首版仅支持 DeepSeek</p>
+      </div>
+      <div class="rounded-xl border border-[#e4e4e7]">
+        <div class="flex items-center gap-3 border-b border-[#e4e4e7] px-4 py-3">
+          <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-[#eef2ff] text-[14px] font-bold text-[#4338ca]">D</span>
+          <div class="min-w-0 flex-1"><p class="text-[13px] font-medium">DeepSeek</p><p class="mt-0.5 text-[11px] text-[#71717a]">deepseek-flash · deepseek-v4-pro</p></div>
+          <span class="badge badge-success">已启用</span>
+          <button class="h-5 w-9 rounded-full bg-[#4f46e5] p-0.5"><span class="block h-4 w-4 translate-x-4 rounded-full bg-white"></span></button>
+        </div>
+        <div class="grid grid-cols-3 gap-4 p-4">
+          <div><label class="mb-1.5 block text-[12px] font-medium">API Key</label><input type="password" class="input text-xs" value="sk-xxxxxxxxxxxxxxxx" /></div>
+          <div><label class="mb-1.5 block text-[12px] font-medium">Base URL</label><input class="input text-xs" value="https://api.deepseek.com" /></div>
+          <div><label class="mb-1.5 block text-[12px] font-medium">默认模型</label><select class="input text-xs"><option>deepseek-flash（推荐）</option><option>deepseek-v4-pro</option></select></div>
+        </div>
+        <div class="flex items-center justify-between border-t border-[#e4e4e7] px-4 py-2.5">
+          <p class="text-[10px] text-[#a1a1aa]">设置自动保存到 ~/.nova/agent-config.json，API Key 仅保存在本机</p>
+          <div class="flex items-center gap-2"><span class="text-[11px] text-[#16a34a]">上次测试：连接正常</span><button class="btn btn-sm" onclick="showToast('连接成功 · deepseek-flash 可用')"><i data-lucide="plug-zap" class="h-3.5 w-3.5"></i>测试连接</button></div>
+        </div>
+      </div>
+      <div class="flex items-start gap-2 rounded-lg border border-[#e4e4e7] bg-[#fafafa] px-3 py-2.5"><i data-lucide="info" class="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#71717a]"></i><p class="text-[11px] leading-relaxed text-[#71717a]">切换模型后仅对新建会话生效，历史会话保持原模型；API Key 不会同步到服务端。</p></div>
+    </div>`;
+  } else if(key==='data'){
+    body.innerHTML = `<div class="space-y-5">
+      <div><p class="text-[13px] font-semibold">数据连接</p><p class="mt-0.5 text-[11px] text-[#71717a]">业务数据走 POS 服务；经营分析使用只读账号查询数据库</p></div>
+      <section class="rounded-xl border border-[#e4e4e7]">
+        <div class="px-4 py-3 border-b border-[#e4e4e7]">
+          <p class="text-[12px] font-medium">POS 服务</p>
+          <p class="mt-0.5 text-[11px] text-[#71717a]">桌面端业务请求统一使用该地址</p>
+        </div>
+        <div class="p-4"><input class="input" value="http://127.0.0.1:9577" /></div>
+      </section>
+      <section class="rounded-xl border border-[#e4e4e7]">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-[#e4e4e7]">
+          <div>
+            <p class="text-[12px] font-medium">Agent 只读数据库</p>
+            <p class="mt-0.5 text-[11px] text-[#71717a]">Agent 查询经营数据使用；连接信息同时预置在系统提示词中</p>
+          </div>
+          <span class="badge">仅 SELECT</span>
+        </div>
+        <div class="space-y-4 p-4">
+          <div class="grid grid-cols-4 gap-3">
+            <div><label class="mb-1.5 block text-[12px] text-[#71717a]">主机</label><input class="input text-xs" value="127.0.0.1" /></div>
+            <div><label class="mb-1.5 block text-[12px] text-[#71717a]">端口</label><input class="input text-xs tnum" value="3306" /></div>
+            <div><label class="mb-1.5 block text-[12px] text-[#71717a]">库名</label><input class="input text-xs" value="store_pos" /></div>
+            <div><label class="mb-1.5 block text-[12px] text-[#71717a]">只读账号</label><input class="input text-xs" value="readonly" /></div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div><label class="mb-1.5 block text-[12px] text-[#71717a]">密码</label><input type="password" class="input text-xs" value="••••••••" /></div>
+            <div>
+              <label class="mb-1.5 block text-[12px] text-[#71717a]">表结构快照</label>
+              <div class="flex h-[34px] items-center gap-2 rounded-lg border border-[#e4e4e7] px-3 text-[12px] text-[#71717a]"><i data-lucide="info" class="h-3.5 w-3.5 shrink-0"></i>已内置业务表结构与口径</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>`;
+  }
+  lucide.createIcons();
+}
+
+/* ================= 交互 ================= */
+document.getElementById('user-trigger').addEventListener('click', e => {
+  e.stopPropagation();
+  document.getElementById('user-menu').classList.toggle('hidden');
+});
+document.addEventListener('click', () => {
+  document.getElementById('user-menu').classList.add('hidden');
+  document.getElementById('notif-menu')?.classList.add('hidden');
+});
+document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeDialog(); closeArtifact(); } });
+
+let toastTimer;
+function showToast(text){
+  const el = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = text;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 2200);
+}
+
+renderAuth();
+go('analysis');
+</script>
+</body>
+</html>

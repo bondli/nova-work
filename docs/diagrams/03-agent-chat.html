@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent 对话子系统</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Serif:ital@0;1&family=Noto+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@400&family=Noto+Sans+TC:wght@400;500;600&family=Noto+Serif+TC:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper: #f5f5f5;
+      --color-ink: #2d3142;
+      --color-muted: #4f5d75;
+      --color-accent: #bf4520;
+      --font-sans: 'Geist', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+      --font-serif: 'Instrument Serif', 'Noto Serif', 'Songti SC', serif;
+      --font-mono: 'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1200px; width: 100%; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+    .footnote {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      color: var(--color-muted);
+      margin-top: 0.75rem;
+    }
+    svg { width: 100%; min-width: 1000px; display: block; }
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Architecture · Agent Subsystem</p>
+    <h1>Agent 对话子系统分层</h1>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1000 640" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="agent-chat-title agent-chat-desc">
+        <title id="agent-chat-title">Agent 对话子系统分层</title>
+        <desc id="agent-chat-desc">主进程的 Agent Runtime 调用 DeepSeek 与工具，经 IPC 把事件推给渲染进程的分析 store，再由 ChatPanel 与 ArtifactPanel 呈现。</desc>
+        <defs>
+          <marker id="ac-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+        <!-- zones -->
+        <rect x="40" y="96" width="560" height="480" rx="8" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+        <rect x="44" y="100" width="72" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="80" y="109" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.14em">MAIN</text>
+
+        <rect x="680" y="96" width="280" height="480" rx="8" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+        <rect x="684" y="100" width="88" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="728" y="109" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.14em">RENDERER</text>
+
+        <!-- arrows -->
+        <path d="M 284,184 H 320" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#ac-arrow)"/>
+        <path d="M 174,240 V 296" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#ac-arrow)"/>
+        <path d="M 220,240 V 280 Q 220,288 228,288 H 412 Q 420,288 420,296" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#ac-arrow)"/>
+        <path d="M 420,376 V 416" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#ac-arrow)"/>
+        <path d="M 150,144 V 88 Q 150,80 158,80 H 812 Q 820,80 820,88 V 144" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#ac-arrow)"/>
+        <rect x="446" y="72" width="168" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="530" y="84" fill="#4f5d75" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle" letter-spacing="0.06em">INVOKE · EVENT</text>
+        <path d="M 820,216 V 248" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#ac-arrow)"/>
+        <path d="M 820,320 V 352" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#ac-arrow)"/>
+        <path d="M 704,396 H 676 Q 668,396 668,388 V 184 Q 668,176 676,176 H 704" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#ac-arrow)"/>
+        <rect x="610" y="288" width="52" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="658" y="300" fill="#4f5d75" font-size="8" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="end" letter-spacing="0.06em">SEND</text>
+        <path d="M 820,440 V 472" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#ac-arrow)"/>
+
+        <!-- main nodes -->
+        <rect x="64" y="144" width="220" height="96" rx="6" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1.2"/>
+        <text x="174" y="182" fill="#2d3142" font-size="14" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">Agent Runtime</text>
+        <text x="174" y="202" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">pi-agent-core</text>
+        <text x="174" y="218" fill="#5a6580" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">单会话单 run · 串行</text>
+
+        <rect x="320" y="144" width="200" height="80" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+        <text x="420" y="180" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">DeepSeek</text>
+        <text x="420" y="198" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">pi-ai · 唯一 provider</text>
+
+        <rect x="64" y="296" width="200" height="80" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <text x="164" y="332" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">Session Store</text>
+        <text x="164" y="350" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">SQLite · runs</text>
+
+        <rect x="320" y="296" width="200" height="80" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="420" y="332" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">Tool Registry</text>
+        <text x="420" y="350" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">12 个零售工具</text>
+
+        <rect x="320" y="416" width="200" height="72" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <text x="420" y="449" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">MySQL 只读</text>
+        <text x="420" y="467" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">SELECT · 200 · 10s</text>
+
+        <!-- renderer nodes -->
+        <rect x="704" y="144" width="232" height="72" rx="6" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1.2"/>
+        <text x="820" y="176" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">IPC Bridge</text>
+        <text x="820" y="194" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">preload · 白名单</text>
+
+        <rect x="704" y="248" width="232" height="72" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+        <text x="820" y="280" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">analysis-store</text>
+        <text x="820" y="298" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">消息 · run · 流式增量</text>
+
+        <rect x="704" y="352" width="232" height="88" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="820" y="386" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">ChatPanel</text>
+        <text x="820" y="406" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">AI Elements 消息流</text>
+        <text x="820" y="422" fill="#5a6580" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">PromptInput 发送</text>
+
+        <rect x="704" y="472" width="232" height="72" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="820" y="504" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">ArtifactPanel</text>
+        <text x="820" y="522" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">Sheet · 产物预览</text>
+      </svg>
+    </div>
+    <p class="footnote">NOVA · AGENT SUBSYSTEM · 2026-10-26</p>
+  </div>
+</body>
+</html>

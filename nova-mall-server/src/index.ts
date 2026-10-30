@@ -1,0 +1,105 @@
+import * as net from 'net';
+import * as fs from 'fs';
+import express from 'express';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import logger from './logger';
+import { sequelize } from './model/index';
+import router from './router/index';
+import { getServerHost, getServerPort, getUploadConfig, MALL_CONFIG_FILE, shouldSyncDatabase } from './config';
+
+const PORT = getServerPort();
+const HOST = getServerHost();
+const uploadConfig = getUploadConfig();
+
+// 检查端口是否被占用
+const checkPort = (port: number): Promise<boolean> => {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.once('error', () => {
+      resolve(false);
+    });
+    server.once('listening', () => {
+      server.close();
+      resolve(true);
+    });
+    server.listen(port, HOST);
+  });
+};
+
+const app = express();
+
+const syncDatabaseIfEnabled = async (): Promise<void> => {
+  if (!shouldSyncDatabase()) return;
+
+  logger.warn('[Mall Server] 数据库结构同步已开启（database.sync=true），仅建议在本地开发使用。');
+  await sequelize.sync();
+};
+
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(bodyParser.json());
+app.use(cors());
+app.options('*', cors());
+
+app.get('/health', (_req, res) => {
+  res.json({ code: 0, data: { status: 'ok', service: 'nova-mall-server' } });
+});
+
+// 上传文件静态访问
+fs.mkdirSync(uploadConfig.dir, { recursive: true });
+app.use(
+  '/files',
+  express.static(uploadConfig.dir, {
+    maxAge: '1y',
+    etag: true,
+    lastModified: true,
+  }),
+);
+
+app.use(router);
+
+app.all('*', (_req, res, next) => {
+  res.header('X-Powered-By', 'MALL-STORE-SERVER');
+  next();
+});
+
+(async () => {
+  try {
+    const portAvailable = await checkPort(PORT);
+    if (!portAvailable) {
+      logger.error(`[Mall Server] Port ${PORT} is already in use.`);
+      process.exit(1);
+    }
+
+    await sequelize.authenticate();
+    logger.info('[Mall Server] Connection has been established successfully.');
+
+    await syncDatabaseIfEnabled();
+
+    const server = app.listen(PORT, HOST, () => {
+      logger.info(`[Mall Server] Server is running on ${HOST}:${PORT}`);
+      logger.info(`[Mall Server] Config file: ${MALL_CONFIG_FILE}`);
+      if (process.send) {
+        process.send({ type: 'server-started', port: PORT });
+      }
+    });
+
+    const shutdown = (): void => {
+      server.close(() => {
+        void sequelize.close().finally(() => process.exit(0));
+      });
+    };
+    process.on('SIGINT', shutdown);
+    process.on('SIGTERM', shutdown);
+  } catch (error) {
+    logger.error('[Mall Server] Error starting server:', error);
+    if (process.send) {
+      process.send({
+        type: 'server-error',
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+    process.exit(1);
+  }
+})();

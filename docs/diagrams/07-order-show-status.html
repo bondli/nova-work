@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>隐藏订单实现流程图</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Serif:ital@0;1&family=Noto+Sans+SC:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper: #f5f5f5;
+      --color-ink: #2d3142;
+      --color-muted: #4f5d75;
+      --color-accent: #bf4520;
+      --font-sans: 'Geist', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+      --font-serif: 'Instrument Serif', 'Noto Serif', 'Songti SC', serif;
+      --font-mono: 'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1200px; width: 100%; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 0.4rem;
+    }
+    .lede {
+      font-size: 0.8125rem;
+      color: var(--color-muted);
+      max-width: 62ch;
+      margin-bottom: 2.25rem;
+    }
+    h2 {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+    .section-note {
+      font-size: 0.75rem;
+      color: var(--color-muted);
+      margin-bottom: 0.9rem;
+    }
+    section + section { margin-top: 2.75rem; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+    .footnote {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      color: var(--color-muted);
+      margin-top: 0.75rem;
+    }
+    svg { width: 100%; min-width: 1120px; display: block; }
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Flowchart · Order Visibility</p>
+    <h1>隐藏订单：开关的会话生命周期与查询口径</h1>
+    <p class="lede">给商场检查用的对账能力：导购把部分订单「置为无效」后，桌面端可通过一个透明开关让订单与报表只统计正常订单，少报营业额以规避额外佣金。</p>
+
+    <section>
+      <h2>A · 开关状态与角色默认</h2>
+      <p class="section-note">状态只有 all / hidden 两个取值，落地在 localStorage 的 orderShowStatus。</p>
+      <div class="diagram-container">
+        <svg viewBox="0 0 1200 640" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="visibility-state-title visibility-state-desc">
+          <title id="visibility-state-title">隐藏订单开关的状态与回退</title>
+          <desc id="visibility-state-desc">登录后管理员默认 all、导购员默认 hidden；点击透明按钮在两者间切换并整页刷新；导购切到 all 五分钟后自动回退 hidden。</desc>
+          <defs>
+            <marker id="vs-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+          </defs>
+
+          <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+          <!-- arrows -->
+          <path d="M548,144 V176 Q548,184 540,184 H418 Q410,184 410,192 V300" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#vs-arrow)"/>
+          <path d="M592,144 V176 Q592,184 600,184 H752 Q760,184 760,192 V300" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#vs-arrow)"/>
+          <path d="M520,316 H660" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#vs-arrow)"/>
+          <path d="M660,348 H520" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#vs-arrow)"/>
+          <path d="M770,452 V396" fill="none" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#vs-arrow)"/>
+
+          <!-- labels -->
+          <rect x="456" y="162" width="48" height="16" rx="2" fill="#f5f5f5"/>
+          <text x="480" y="174" fill="#4f5d75" font-size="11" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">管理员</text>
+          <rect x="652" y="162" width="48" height="16" rx="2" fill="#f5f5f5"/>
+          <text x="676" y="174" fill="#4f5d75" font-size="11" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">导购员</text>
+          <rect x="786" y="408" width="56" height="16" rx="2" fill="#f5f5f5"/>
+          <text x="814" y="420" fill="#4f5d75" font-size="11" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">5 分钟</text>
+
+          <!-- 登录 -->
+          <rect x="460" y="64" width="220" height="80" rx="6" fill="rgba(79,93,117,0.10)" stroke="#5a6580" stroke-width="1"/>
+          <text x="472" y="82" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">01</text>
+          <text x="570" y="112" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">登录后初始化</text>
+          <text x="570" y="132" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">AppShell · initForRole</text>
+
+          <!-- all -->
+          <rect x="300" y="300" width="220" height="96" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+          <text x="312" y="320" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">02 · STATE</text>
+          <text x="410" y="352" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">全部订单</text>
+          <text x="410" y="372" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">all</text>
+
+          <!-- hidden -->
+          <rect x="660" y="300" width="220" height="96" rx="6" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1.2"/>
+          <text x="672" y="320" fill="#bf4520" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">03 · STATE</text>
+          <text x="770" y="352" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">隐藏订单</text>
+          <text x="770" y="372" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">hidden · showStatus</text>
+
+          <!-- timer -->
+          <rect x="660" y="452" width="220" height="80" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+          <text x="672" y="470" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">04</text>
+          <text x="770" y="500" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">5 分钟定时器</text>
+          <text x="770" y="520" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">revertAt 缓存续挂</text>
+
+          <!-- annotations -->
+          <text x="48" y="352" fill="#4f5d75" font-size="14" font-family="'Instrument Serif', 'Noto Serif', 'Songti SC', serif" font-style="italic">点击 = 写缓存 →</text>
+          <text x="48" y="374" fill="#4f5d75" font-size="14" font-family="'Instrument Serif', 'Noto Serif', 'Songti SC', serif" font-style="italic">整页刷新</text>
+          <text x="48" y="416" fill="#4f5d75" font-size="14" font-family="'Instrument Serif', 'Noto Serif', 'Songti SC', serif" font-style="italic">管理员默认 all</text>
+          <text x="48" y="438" fill="#4f5d75" font-size="14" font-family="'Instrument Serif', 'Noto Serif', 'Songti SC', serif" font-style="italic">导购默认 hidden</text>
+
+          <!-- legend -->
+          <line x1="48" y1="588" x2="80" y2="588" stroke="#4f5d75" stroke-width="1.2"/>
+          <text x="88" y="592" fill="#4f5d75" font-size="11" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif">登录默认 / 点击切换</text>
+          <line x1="230" y1="588" x2="262" y2="588" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4"/>
+          <text x="270" y="592" fill="#4f5d75" font-size="11" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif">超时自动回退</text>
+          <text x="410" y="592" fill="#4f5d75" font-size="11" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif">刷新会销毁定时器，因此同时把回退时间点写进缓存，启动时按剩余时间续挂。</text>
+        </svg>
+      </div>
+    </section>
+
+    <section>
+      <h2>B · 查询如何带上隐藏口径</h2>
+      <p class="section-note">只有 hidden 才传参数，all 时请求与原来完全一致。</p>
+      <div class="diagram-container">
+        <svg viewBox="0 0 1200 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="visibility-query-title visibility-query-desc">
+          <title id="visibility-query-title">隐藏订单如何影响订单与报表查询</title>
+          <desc id="visibility-query-desc">订单与数据访问层读取开关值，hidden 时给列表、汇总与报表接口加 showStatus=hidden，服务端只保留 showStatus=normal 的订单，页面数字随之下降。</desc>
+          <defs>
+            <marker id="vq-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+          </defs>
+
+          <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+          <!-- arrows -->
+          <path d="M232,264 H264" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#vq-arrow)"/>
+          <path d="M448,252 H464 Q472,252 472,244 V184 Q472,176 480,176 H488" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#vq-arrow)"/>
+          <path d="M448,276 H464 Q472,276 472,284 V348 Q472,356 480,356 H488" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#vq-arrow)"/>
+          <path d="M672,176 H696 Q704,176 704,184 V244 Q704,252 712,252 H720" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#vq-arrow)"/>
+          <path d="M672,356 H696 Q704,356 704,348 V284 Q704,276 712,276 H720" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#vq-arrow)"/>
+          <path d="M904,264 H952" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#vq-arrow)"/>
+
+          <!-- 01 -->
+          <rect x="48" y="220" width="184" height="88" rx="6" fill="rgba(79,93,117,0.10)" stroke="#5a6580" stroke-width="1"/>
+          <text x="60" y="238" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">01</text>
+          <text x="140" y="268" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">订单可见范围</text>
+          <text x="140" y="290" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">localStorage</text>
+
+          <!-- 02 -->
+          <rect x="264" y="220" width="184" height="88" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+          <text x="276" y="238" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">02</text>
+          <text x="356" y="268" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">拼装查询参数</text>
+          <text x="356" y="290" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">hidden 时才传</text>
+
+          <!-- 03 订单域 -->
+          <rect x="488" y="132" width="184" height="88" rx="6" fill="#ffffff" stroke="#2e5aa8" stroke-width="1"/>
+          <text x="500" y="150" fill="#2e5aa8" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">03</text>
+          <text x="580" y="180" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">订单域请求</text>
+          <text x="580" y="202" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">列表 · 汇总 · 环比</text>
+
+          <!-- 04 数据域 -->
+          <rect x="488" y="308" width="184" height="88" rx="6" fill="#ffffff" stroke="#2e5aa8" stroke-width="1"/>
+          <text x="500" y="326" fill="#2e5aa8" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">04</text>
+          <text x="580" y="356" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">数据域请求</text>
+          <text x="580" y="378" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">指标 · 月 / 日图表</text>
+
+          <!-- 05 服务端 -->
+          <rect x="720" y="220" width="184" height="88" rx="6" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1.2"/>
+          <text x="732" y="238" fill="#bf4520" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">05</text>
+          <text x="812" y="268" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">服务端过滤</text>
+          <text x="812" y="290" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">showStatus = normal</text>
+
+          <!-- 06 结果 -->
+          <rect x="952" y="220" width="184" height="88" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+          <text x="964" y="238" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">06</text>
+          <text x="1044" y="268" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">页面展示</text>
+          <text x="1044" y="290" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">订单数 / 营业额下降</text>
+
+          <!-- annotations -->
+          <text x="48" y="460" fill="#4f5d75" font-size="14" font-family="'Instrument Serif', 'Noto Serif', 'Songti SC', serif" font-style="italic">对账抽屉不传参数，导购仍能看到全部订单去「置为无效」；</text>
+          <text x="48" y="482" fill="#4f5d75" font-size="14" font-family="'Instrument Serif', 'Noto Serif', 'Songti SC', serif" font-style="italic">按订单号 / 会员手机号精确查询时，服务端会清空该条件。</text>
+
+          <!-- legend -->
+          <line x1="48" y1="520" x2="80" y2="520" stroke="#4f5d75" stroke-width="1.2"/>
+          <text x="88" y="524" fill="#4f5d75" font-size="11" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif">查询链路</text>
+          <text x="190" y="524" fill="#4f5d75" font-size="11" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif">开关为 all 时，以上请求与原实现完全一致（不带 showStatus）。</text>
+        </svg>
+      </div>
+    </section>
+
+    <p class="footnote">NOVA · ORDER SHOW STATUS · 2026-10-28</p>
+  </div>
+</body>
+</html>

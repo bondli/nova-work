@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>nova-mobile 架构与时序图</title>
+<style>
+  :root{
+    --paper:#f6f6f8; --paper-2:#eef0f4; --card:#ffffff;
+    --ink:#1f2233; --muted:#5b6172; --soft:#7b8093;
+    --rule:rgba(31,34,51,.12); --rule-solid:#c9ccd8;
+    --accent:#6366f1; --accent-tint:rgba(99,102,241,.09);
+    --link:#4361b4;
+    --sans:"PingFang SC","Helvetica Neue",Arial,sans-serif;
+    --mono:"SFMono-Regular",Menlo,monospace;
+    --serif:"Songti SC","Songti SC Bold",Georgia,serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.6}
+  .page{max-width:1080px;margin:0 auto;padding:56px 32px 96px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--soft)}
+  h1{font-family:var(--serif);font-size:46px;line-height:1.1;font-weight:400;margin:12px 0 8px}
+  .lede{color:var(--muted);font-size:15px;max-width:760px;margin:0 0 8px}
+  .meta{font-family:var(--mono);font-size:11px;color:var(--soft);margin-top:18px;display:flex;gap:20px;flex-wrap:wrap}
+  section{margin-top:48px}
+  .section-head{display:flex;align-items:baseline;gap:14px;border-top:1px solid var(--rule);padding-top:18px;margin-bottom:8px}
+  .section-num{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.08em}
+  h2{font-family:var(--serif);font-size:26px;font-weight:400;margin:0}
+  .section-note{color:var(--muted);font-size:13px;margin:6px 0 18px;max-width:820px}
+  .card{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:24px 26px 18px;margin-top:18px}
+  .card h3{margin:0;font-size:15px;font-weight:600}
+  .card .cap{color:var(--soft);font-size:12.5px;margin:4px 0 14px}
+  .diagram{overflow-x:auto}
+  .diagram svg{display:block;min-width:100%}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;border-top:1px solid var(--rule);margin-top:12px;padding-top:10px;font-family:var(--mono);font-size:10px;color:var(--soft)}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+  .kv{border-left:2px solid var(--accent);padding-left:12px}
+  .kv b{font-weight:600;font-size:13px}
+  .kv span{display:block;color:var(--muted);font-size:12.5px}
+  code{font-family:var(--mono);font-size:12px;background:var(--paper-2);padding:1px 5px;border-radius:3px}
+  footer{margin-top:56px;border-top:1px solid var(--rule);padding-top:16px;font-family:var(--mono);font-size:10.5px;color:var(--soft)}
+  @media (max-width:760px){ .page{padding:32px 18px 64px} h1{font-size:34px} .grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="eyebrow">nova-mobile · 技术文档 · 可视化版</div>
+  <h1>从冷启动到订单落单</h1>
+  <p class="lede">手机端启动、登录、订单首页加载的完整时序，以及买单 / 修改订单 / 退货 / 换货四个关键流程的交互逻辑图。详细文字版见同目录 <code>nova-mobile-architecture.md</code>。</p>
+  <div class="meta"><span>React Native · Expo 58</span><span>expo-router</span><span>Zustand + TanStack Query</span><span>nova-pos-server</span></div>
+
+  <section>
+    <div class="section-head"><span class="section-num">01</span><h2>启动 → 登录 → 订单首页</h2></div>
+    <p class="section-note">根布局先用 SecureStore 恢复会话；无 token 时进入登录分支，登录成功后写回会话并跳转订单页；订单页并行拉取列表与统计。</p>
+    <div class="card">
+      <h3>冷启动与会话恢复时序</h3>
+      <p class="cap">时段自上而下；虚线为返回消息，紫色为登录成功的会话返回，蓝色为 HTTP 调用。</p>
+      <div class="diagram">
+        <svg viewBox="0 0 980 700" role="img" aria-labelledby="seq-title seq-desc" width="980">
+          <title id="seq-title">手机端冷启动、登录与订单首页加载时序</title>
+          <desc id="seq-desc">App 根布局、认证 store、SecureStore 与 API 之间的消息顺序，包含无 token 时的登录分支和订单列表、统计请求。</desc>
+          <defs>
+            <marker id="seq-arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0,0 L9,3.5 L0,7 Z" fill="#5b6172"/></marker>
+            <marker id="seq-arrow-link" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0,0 L9,3.5 L0,7 Z" fill="#4361b4"/></marker>
+            <marker id="seq-arrow-accent" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0,0 L9,3.5 L0,7 Z" fill="#6366f1"/></marker>
+          </defs>
+
+          <!-- lifelines -->
+          <line x1="120" y1="66" x2="120" y2="640" stroke="rgba(31,34,51,.20)" stroke-width="1" stroke-dasharray="3,3"/>
+          <line x1="380" y1="66" x2="380" y2="640" stroke="rgba(31,34,51,.20)" stroke-width="1" stroke-dasharray="3,3"/>
+          <line x1="600" y1="66" x2="600" y2="640" stroke="rgba(31,34,51,.20)" stroke-width="1" stroke-dasharray="3,3"/>
+          <line x1="850" y1="66" x2="850" y2="640" stroke="rgba(31,34,51,.20)" stroke-width="1" stroke-dasharray="3,3"/>
+
+          <!-- messages -->
+          <line x1="120" y1="108" x2="372" y2="108" stroke="#5b6172" stroke-width="1.1" marker-end="url(#seq-arrow)"/>
+          <line x1="380" y1="148" x2="592" y2="148" stroke="#5b6172" stroke-width="1.1" marker-end="url(#seq-arrow)"/>
+          <line x1="600" y1="188" x2="388" y2="188" stroke="#5b6172" stroke-width="1.1" stroke-dasharray="5,4" marker-end="url(#seq-arrow)"/>
+          <line x1="380" y1="228" x2="128" y2="228" stroke="#5b6172" stroke-width="1.1" stroke-dasharray="5,4" marker-end="url(#seq-arrow)"/>
+          <line x1="120" y1="320" x2="842" y2="320" stroke="#4361b4" stroke-width="1.2" marker-end="url(#seq-arrow-link)"/>
+          <line x1="850" y1="360" x2="128" y2="360" stroke="#6366f1" stroke-width="1.4" marker-end="url(#seq-arrow-accent)"/>
+          <line x1="120" y1="400" x2="592" y2="400" stroke="#5b6172" stroke-width="1.1" marker-end="url(#seq-arrow)"/>
+          <line x1="120" y1="436" x2="372" y2="436" stroke="#5b6172" stroke-width="1.1" marker-end="url(#seq-arrow)"/>
+          <line x1="120" y1="492" x2="842" y2="492" stroke="#4361b4" stroke-width="1.2" marker-end="url(#seq-arrow-link)"/>
+          <line x1="850" y1="532" x2="128" y2="532" stroke="#5b6172" stroke-width="1.1" stroke-dasharray="5,4" marker-end="url(#seq-arrow)"/>
+          <line x1="120" y1="572" x2="842" y2="572" stroke="#4361b4" stroke-width="1.2" marker-end="url(#seq-arrow-link)"/>
+          <line x1="850" y1="612" x2="128" y2="612" stroke="#5b6172" stroke-width="1.1" stroke-dasharray="5,4" marker-end="url(#seq-arrow)"/>
+
+          <!-- alt frame -->
+          <rect x="24" y="252" width="932" height="196" rx="4" fill="rgba(31,34,51,.02)" stroke="rgba(31,34,51,.22)" stroke-width="1"/>
+          <rect x="24" y="252" width="44" height="16" rx="2" fill="#ffffff" stroke="rgba(31,34,51,.22)" stroke-width="1"/>
+          <text x="46" y="264" fill="#5b6172" font-size="8" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle" letter-spacing="0.12em">ALT</text>
+          <text x="36" y="292" fill="#5b6172" font-size="9" font-family="SFMono-Regular, Menlo, monospace">[无 token]</text>
+
+          <!-- label masks + labels -->
+          <rect x="205" y="86" width="96" height="16" fill="#ffffff"/>
+          <text x="253" y="98" fill="#5b6172" font-size="10" text-anchor="middle">hydrate()</text>
+          <rect x="436" y="126" width="102" height="16" fill="#ffffff"/>
+          <text x="487" y="138" fill="#5b6172" font-size="10" text-anchor="middle">loadSession()</text>
+          <rect x="446" y="166" width="104" height="16" fill="#ffffff"/>
+          <text x="498" y="178" fill="#5b6172" font-size="10" text-anchor="middle">已有会话 / 空</text>
+          <rect x="215" y="206" width="86" height="16" fill="#ffffff"/>
+          <text x="258" y="218" fill="#5b6172" font-size="10" text-anchor="middle">ready = true</text>
+          <rect x="398" y="298" width="158" height="16" fill="#ffffff"/>
+          <text x="477" y="310" fill="#4361b4" font-size="10" text-anchor="middle">POST /auth/mobile-login</text>
+          <rect x="436" y="338" width="90" height="16" fill="#ffffff"/>
+          <text x="481" y="350" fill="#6366f1" font-size="10" text-anchor="middle">token + user</text>
+          <rect x="292" y="378" width="104" height="16" fill="#ffffff"/>
+          <text x="344" y="390" fill="#5b6172" font-size="10" text-anchor="middle">saveSession()</text>
+          <rect x="177" y="414" width="146" height="16" fill="#ffffff"/>
+          <text x="250" y="426" fill="#5b6172" font-size="10" text-anchor="middle">configureApi(token)</text>
+          <rect x="420" y="470" width="150" height="16" fill="#ffffff"/>
+          <text x="495" y="482" fill="#4361b4" font-size="10" text-anchor="middle">GET /order/queryList</text>
+          <rect x="420" y="510" width="140" height="16" fill="#ffffff"/>
+          <text x="490" y="522" fill="#5b6172" font-size="10" text-anchor="middle">分页订单数据</text>
+          <rect x="386" y="550" width="196" height="16" fill="#ffffff"/>
+          <text x="484" y="562" fill="#4361b4" font-size="10" text-anchor="middle">GET 统计（含上一区间）</text>
+          <rect x="446" y="590" width="76" height="16" fill="#ffffff"/>
+          <text x="484" y="602" fill="#5b6172" font-size="10" text-anchor="middle">统计结果</text>
+
+          <!-- actors -->
+          <rect x="45" y="20" width="150" height="46" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="120" y="41" fill="#1f2233" font-size="12" font-weight="600" text-anchor="middle">App / 登录页</text>
+          <text x="120" y="57" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">app/_layout · login</text>
+          <rect x="305" y="20" width="150" height="46" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="380" y="41" fill="#1f2233" font-size="12" font-weight="600" text-anchor="middle">useAuthStore</text>
+          <text x="380" y="57" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">hydrate / login</text>
+          <rect x="525" y="20" width="150" height="46" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="600" y="41" fill="#1f2233" font-size="12" font-weight="600" text-anchor="middle">SecureStore</text>
+          <text x="600" y="57" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">nova.token / user</text>
+          <rect x="775" y="20" width="150" height="46" rx="6" fill="#ffffff" stroke="#6366f1" stroke-width="1.2"/>
+          <text x="850" y="41" fill="#1f2233" font-size="12" font-weight="600" text-anchor="middle">API → POS 服务端</text>
+          <text x="850" y="57" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">fetch + Bearer token</text>
+
+          <text x="40" y="672" fill="#7b8093" font-size="10" font-family="SFMono-Regular, Menlo, monospace">渲染：统计卡 + 订单卡片；点击卡片按需拉取 order-detail / order-items</text>
+        </svg>
+      </div>
+      <div class="legend"><span><i style="background:#5b6172"></i>内部调用</span><span><i style="background:#4361b4"></i>HTTP</span><span><i style="background:#6366f1"></i>登录成功返回</span></div>
+    </div>
+
+    <div class="card">
+      <h3>启动与鉴权分支</h3>
+      <p class="cap">登录只发生在「无 token」分支；登录接口返回 401 时不触发全局登出，避免死循环。</p>
+      <div class="diagram">
+        <svg viewBox="0 0 880 700" role="img" aria-labelledby="auth-title auth-desc" width="880">
+          <title id="auth-title">手机端启动与登录鉴权分支流程</title>
+          <desc id="auth-desc">冷启动后恢复会话；已登录直接进入订单页，未登录跳转登录页并请求登录接口，失败则提示重试。</desc>
+          <defs><marker id="auth-arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0,0 L9,3.5 L0,7 Z" fill="#5b6172"/></marker><marker id="auth-arrow-accent" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0,0 L9,3.5 L0,7 Z" fill="#6366f1"/></marker></defs>
+          <!-- edges first -->
+          <line x1="430" y1="72" x2="430" y2="96" stroke="#5b6172" stroke-width="1.1" marker-end="url(#auth-arrow)"/>
+          <line x1="430" y1="154" x2="430" y2="176" stroke="#5b6172" stroke-width="1.1" marker-end="url(#auth-arrow)"/>
+          <line x1="570" y1="235" x2="636" y2="235" stroke="#6366f1" stroke-width="1.3" marker-end="url(#auth-arrow-accent)"/>
+          <line x1="430" y1="290" x2="430" y2="336" stroke="#5b6172" stroke-width="1.1" marker-end="url(#auth-arrow)"/>
+          <line x1="430" y1="394" x2="430" y2="416" stroke="#5b6172" stroke-width="1.1" marker-end="url(#auth-arrow)"/>
+          <line x1="430" y1="474" x2="430" y2="496" stroke="#5b6172" stroke-width="1.1" marker-end="url(#auth-arrow)"/>
+          <line x1="550" y1="550" x2="636" y2="550" stroke="#5b6172" stroke-width="1.1" marker-end="url(#auth-arrow)"/>
+          <line x1="430" y1="600" x2="430" y2="616" stroke="#5b6172" stroke-width="1.1" marker-end="url(#auth-arrow)"/>
+
+          <rect x="586" y="224" width="44" height="16" fill="#ffffff"/>
+          <text x="608" y="236" fill="#6366f1" font-size="10" text-anchor="middle">已登录</text>
+          <rect x="436" y="300" width="66" height="16" fill="#ffffff"/>
+          <text x="469" y="312" fill="#5b6172" font-size="10" text-anchor="middle">无 token</text>
+          <rect x="583" y="539" width="44" height="16" fill="#ffffff"/>
+          <text x="605" y="551" fill="#5b6172" font-size="10" text-anchor="middle">成功</text>
+          <rect x="436" y="582" width="44" height="16" fill="#ffffff"/>
+          <text x="458" y="594" fill="#5b6172" font-size="10" text-anchor="middle">失败</text>
+
+          <!-- nodes -->
+          <rect x="330" y="28" width="200" height="44" rx="22" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="430" y="55" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">App 冷启动</text>
+
+          <rect x="310" y="100" width="240" height="54" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="430" y="123" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">根布局 hydrate()</text>
+          <text x="430" y="141" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">ready 前显示启动页</text>
+
+          <polygon points="430,180 570,235 430,290 290,235" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="430" y="240" fill="#1f2233" font-size="12" font-weight="600" text-anchor="middle">是否已登录？</text>
+
+          <rect x="640" y="212" width="200" height="48" rx="6" fill="#ffffff" stroke="#6366f1" stroke-width="1.2"/>
+          <text x="740" y="233" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">订单首页加载</text>
+          <text x="740" y="249" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">/(tabs)/orders</text>
+
+          <rect x="310" y="340" width="240" height="54" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="430" y="363" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">跳转 /login</text>
+          <text x="430" y="381" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">tabs 同样做 token 守卫</text>
+
+          <rect x="310" y="420" width="240" height="54" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="430" y="443" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">POST /auth/mobile-login</text>
+          <text x="430" y="461" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">baseUrl + username + password</text>
+
+          <polygon points="430,500 550,550 430,600 310,550" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="430" y="555" fill="#1f2233" font-size="12" font-weight="600" text-anchor="middle">返回会话？</text>
+
+          <rect x="640" y="526" width="200" height="48" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="740" y="547" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">保存会话并跳订单页</text>
+          <text x="740" y="563" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">saveSession + replace</text>
+
+          <rect x="330" y="616" width="200" height="48" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="430" y="637" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">Toast 登录失败</text>
+          <text x="430" y="653" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">停留在登录页可重试</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">02</span><h2>买单：从加购到落单</h2></div>
+    <p class="section-note">购物车状态由 Zustand 持有，价格全部由纯函数 <code>calculatePricing</code> 推导；提交后服务端事务写入订单、库存流水与会员资产。</p>
+    <div class="card">
+      <h3>买单主链路</h3>
+      <p class="cap">紫色为最终落单请求；失败统一走 Toast，不再在页面内渲染红字。</p>
+      <div class="diagram">
+        <svg viewBox="0 86 980 314" role="img" aria-labelledby="buy-title buy-desc" width="980">
+          <title id="buy-title">手机端买单流程</title>
+          <desc id="buy-desc">从扫码加购、会员与优惠、价格计算到提交订单和服务端事务处理，并说明失败与缓存失效。</desc>
+          <defs><marker id="buy-arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0,0 L9,3.5 L0,7 Z" fill="#5b6172"/></marker><marker id="buy-arrow-accent" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0,0 L9,3.5 L0,7 Z" fill="#6366f1"/></marker></defs>
+          <!-- edges -->
+          <line x1="181" y1="151" x2="206" y2="151" stroke="#5b6172" stroke-width="1.1" marker-end="url(#buy-arrow)"/>
+          <line x1="377" y1="151" x2="402" y2="151" stroke="#5b6172" stroke-width="1.1" marker-end="url(#buy-arrow)"/>
+          <line x1="573" y1="151" x2="598" y2="151" stroke="#5b6172" stroke-width="1.1" marker-end="url(#buy-arrow)"/>
+          <line x1="769" y1="151" x2="794" y2="151" stroke="#6366f1" stroke-width="1.3" marker-end="url(#buy-arrow-accent)"/>
+          <!-- nodes -->
+          <rect x="15" y="110" width="166" height="82" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="98" y="141" fill="#1f2233" font-size="12" font-weight="600" text-anchor="middle">扫码 / 输入条码</text>
+          <text x="98" y="160" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">queryInventoryDetail</text>
+          <text x="98" y="176" fill="#5b6172" font-size="9.5" text-anchor="middle">13 位自动查询</text>
+
+          <rect x="211" y="110" width="166" height="82" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="294" y="141" fill="#1f2233" font-size="12" font-weight="600" text-anchor="middle">购物车与折扣</text>
+          <text x="294" y="160" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">useCartStore</text>
+          <text x="294" y="176" fill="#5b6172" font-size="9.5" text-anchor="middle">默认 6 折 · 数量可到 0</text>
+
+          <rect x="407" y="110" width="166" height="82" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="490" y="141" fill="#1f2233" font-size="12" font-weight="600" text-anchor="middle">价格计算</text>
+          <text x="490" y="160" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">calculatePricing()</text>
+          <text x="490" y="176" fill="#5b6172" font-size="9.5" text-anchor="middle">券 → 积分 → 余额</text>
+
+          <rect x="603" y="110" width="166" height="82" rx="6" fill="#ffffff" stroke="#6366f1" stroke-width="1.2"/>
+          <text x="686" y="141" fill="#1f2233" font-size="12" font-weight="600" text-anchor="middle">提交订单</text>
+          <text x="686" y="160" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">POST /buy/submit</text>
+          <text x="686" y="176" fill="#5b6172" font-size="9.5" text-anchor="middle">saving 锁防重复提交</text>
+
+          <rect x="799" y="110" width="166" height="82" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="882" y="141" fill="#1f2233" font-size="12" font-weight="600" text-anchor="middle">服务端事务</text>
+          <text x="882" y="160" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">buy-controller</text>
+          <text x="882" y="176" fill="#5b6172" font-size="9.5" text-anchor="middle">订单 / 库存 / 会员 / 日志</text>
+
+          <text x="294" y="222" fill="#7b8093" font-size="9.5" text-anchor="middle">会员券 / 店铺券 / 积分 100 分 = ¥1 / 余额</text>
+          <text x="882" y="222" fill="#7b8093" font-size="9.5" text-anchor="middle">扣库存 + 写流水 + 更新会员实付</text>
+
+          <line x1="686" y1="192" x2="686" y2="262" stroke="#5b6172" stroke-width="1" stroke-dasharray="4,3"/>
+          <rect x="600" y="252" width="172" height="16" fill="#ffffff"/>
+          <text x="686" y="264" fill="#5b6172" font-size="10" text-anchor="middle">失败 → Toast(error)</text>
+
+          <rect x="15" y="300" width="950" height="76" rx="6" fill="rgba(99,102,241,.09)" stroke="rgba(99,102,241,.35)" stroke-width="1"/>
+          <text x="36" y="326" fill="#1f2233" font-size="12" font-weight="600">成功后</text>
+          <text x="36" y="348" fill="#5b6172" font-size="11" font-family="SFMono-Regular, Menlo, monospace">invalidate ['orders'] · ['order-stats']</text>
+          <text x="36" y="366" fill="#5b6172" font-size="11" font-family="SFMono-Regular, Menlo, monospace">清空购物车 · 展示收款回执（PaymentReceipt）</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">03</span><h2>修改订单 / 退货 / 换货</h2></div>
+    <p class="section-note">三者都从订单详情进入；写操作成功后统一失效订单相关缓存并返回列表。已对账（<code>orderStatus = checked</code>）订单只允许修改备注。</p>
+
+    <div class="card">
+      <h3>修改订单</h3>
+      <p class="cap">管理员可选导购；非管理员固定原导购。金额与手机号在锁定态下不可编辑。</p>
+      <div class="diagram">
+        <svg viewBox="0 0 880 600" role="img" aria-labelledby="edit-title edit-desc" width="880">
+          <title id="edit-title">手机端修改订单流程</title>
+          <desc id="edit-desc">根据订单是否已对账决定可编辑范围，校验后提交修改接口并刷新缓存。</desc>
+          <defs><marker id="edit-arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0,0 L9,3.5 L0,7 Z" fill="#5b6172"/></marker><marker id="edit-arrow-accent" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0,0 L9,3.5 L0,7 Z" fill="#6366f1"/></marker></defs>
+          <line x1="430" y1="68" x2="430" y2="112" stroke="#5b6172" stroke-width="1.1" marker-end="url(#edit-arrow)"/>
+          <path d="M540,200 L620,200" stroke="#5b6172" stroke-width="1.1" fill="none"/>
+          <line x1="540" y1="200" x2="616" y2="200" stroke="#5b6172" stroke-width="1.1" marker-end="url(#edit-arrow)"/>
+          <line x1="320" y1="200" x2="264" y2="200" stroke="#5b6172" stroke-width="1.1" marker-end="url(#edit-arrow)"/>
+          <path d="M725,224 L725,347 L556,347" fill="none" stroke="#5b6172" stroke-width="1.1"/>
+          <line x1="725" y1="347" x2="556" y2="347" stroke="#5b6172" stroke-width="1.1" marker-end="url(#edit-arrow)"/>
+          <path d="M145,224 L145,347 L304,347" fill="none" stroke="#5b6172" stroke-width="1.1"/>
+          <line x1="145" y1="347" x2="304" y2="347" stroke="#5b6172" stroke-width="1.1" marker-end="url(#edit-arrow)"/>
+          <line x1="430" y1="374" x2="430" y2="416" stroke="#6366f1" stroke-width="1.3" marker-end="url(#edit-arrow-accent)"/>
+          <line x1="430" y1="474" x2="430" y2="514" stroke="#5b6172" stroke-width="1.1" marker-end="url(#edit-arrow)"/>
+
+          <rect x="560" y="189" width="52" height="16" fill="#ffffff"/>
+          <text x="586" y="201" fill="#5b6172" font-size="10" text-anchor="middle">未对账</text>
+          <rect x="252" y="189" width="64" height="16" fill="#ffffff"/>
+          <text x="284" y="201" fill="#5b6172" font-size="10" text-anchor="middle">已对账</text>
+
+          <rect x="330" y="24" width="200" height="44" rx="22" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="430" y="51" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">订单详情 → 修改订单</text>
+
+          <polygon points="430,112 540,200 430,264 320,200" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="430" y="196" fill="#1f2233" font-size="11.5" font-weight="600" text-anchor="middle">订单已对账？</text>
+          <text x="430" y="214" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">orderStatus = checked</text>
+
+          <rect x="620" y="176" width="210" height="48" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="725" y="197" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">全部字段可编辑</text>
+          <text x="725" y="213" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">金额 / 支付 / 会员 / 导购</text>
+
+          <rect x="30" y="176" width="230" height="48" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="145" y="197" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">仅备注可改</text>
+          <text x="145" y="213" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">其余控件置灰 / pointerEvents none</text>
+
+          <rect x="310" y="320" width="240" height="54" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="430" y="343" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">校验金额与导购</text>
+          <text x="430" y="361" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">Toast(warning) 失败不提交</text>
+
+          <rect x="310" y="420" width="240" height="54" rx="6" fill="#ffffff" stroke="#6366f1" stroke-width="1.2"/>
+          <text x="430" y="443" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">POST /order/modify</text>
+          <text x="430" y="461" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">?orderId=...</text>
+
+          <rect x="310" y="514" width="240" height="48" rx="22" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="430" y="535" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">Toast 成功 + 失效缓存</text>
+          <text x="430" y="551" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">orders / detail / items</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>退货</h3>
+      <p class="cap">可退商品为明细中 <code>counts &gt; 0</code> 的行；退款去向可选原路退回或退回余额。</p>
+      <div class="diagram">
+        <svg viewBox="0 0 880 560" role="img" aria-labelledby="refund-title refund-desc" width="880">
+          <title id="refund-title">手机端退货流程</title>
+          <desc id="refund-desc">选择退货商品与数量、确定退款金额和去向，校验后调用退货接口，服务端置订单为退款并回补库存。</desc>
+          <defs><marker id="refund-arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0,0 L9,3.5 L0,7 Z" fill="#5b6172"/></marker><marker id="refund-arrow-accent" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0,0 L9,3.5 L0,7 Z" fill="#6366f1"/></marker></defs>
+          <line x1="430" y1="64" x2="430" y2="96" stroke="#5b6172" stroke-width="1.1" marker-end="url(#refund-arrow)"/>
+          <line x1="430" y1="154" x2="430" y2="186" stroke="#5b6172" stroke-width="1.1" marker-end="url(#refund-arrow)"/>
+          <line x1="430" y1="244" x2="430" y2="276" stroke="#5b6172" stroke-width="1.1" marker-end="url(#refund-arrow)"/>
+          <line x1="430" y1="376" x2="430" y2="416" stroke="#6366f1" stroke-width="1.3" marker-end="url(#refund-arrow-accent)"/>
+          <line x1="560" y1="330" x2="636" y2="330" stroke="#5b6172" stroke-width="1.1" marker-end="url(#refund-arrow)"/>
+          <line x1="430" y1="474" x2="430" y2="506" stroke="#5b6172" stroke-width="1.1" marker-end="url(#refund-arrow)"/>
+
+          <rect x="583" y="319" width="54" height="16" fill="#ffffff"/>
+          <text x="610" y="331" fill="#5b6172" font-size="10" text-anchor="middle">校验失败</text>
+
+          <rect x="330" y="20" width="200" height="44" rx="22" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="430" y="47" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">勾选退货商品</text>
+
+          <rect x="310" y="96" width="240" height="58" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="430" y="120" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">调整退回数量</text>
+          <text x="430" y="138" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">Stepper 1 .. counts</text>
+
+          <rect x="300" y="186" width="260" height="58" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="430" y="210" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">退款金额与去向</text>
+          <text x="430" y="228" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">amountType: money | balance</text>
+
+          <polygon points="430,276 560,330 430,376 300,330" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="430" y="335" fill="#1f2233" font-size="11.5" font-weight="600" text-anchor="middle">校验通过？</text>
+
+          <rect x="640" y="306" width="190" height="48" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="735" y="327" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">Toast 提示</text>
+          <text x="735" y="343" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">停留在本页</text>
+
+          <rect x="310" y="416" width="240" height="58" rx="6" fill="#ffffff" stroke="#6366f1" stroke-width="1.2"/>
+          <text x="430" y="440" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">POST /order/refundItem</text>
+          <text x="430" y="458" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">refundItems + refundAmount</text>
+
+          <rect x="310" y="506" width="260" height="44" rx="22" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="440" y="527" fill="#1f2233" font-size="12" font-weight="600" text-anchor="middle">退款完成：改单 + 库存回补 + 会员调整</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>换货</h3>
+      <p class="cap">换入商品通过条码查询加入；售价按吊牌价 6 折，差价支持补差 / 退差与退回余额。</p>
+      <div class="diagram">
+        <svg viewBox="0 0 900 660" role="img" aria-labelledby="exchange-title exchange-desc" width="900">
+          <title id="exchange-title">手机端换货流程</title>
+          <desc id="exchange-desc">勾选换出商品、扫码或输入条码添加换入商品、计算差价、校验后提交换货接口，服务端双向调整库存。</desc>
+          <defs><marker id="ex-arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0,0 L9,3.5 L0,7 Z" fill="#5b6172"/></marker><marker id="ex-arrow-accent" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0,0 L9,3.5 L0,7 Z" fill="#6366f1"/></marker></defs>
+          <line x1="440" y1="64" x2="440" y2="96" stroke="#5b6172" stroke-width="1.1" marker-end="url(#ex-arrow)"/>
+          <line x1="440" y1="154" x2="440" y2="186" stroke="#5b6172" stroke-width="1.1" marker-end="url(#ex-arrow)"/>
+          <line x1="440" y1="244" x2="440" y2="276" stroke="#5b6172" stroke-width="1.1" marker-end="url(#ex-arrow)"/>
+          <line x1="440" y1="334" x2="440" y2="366" stroke="#5b6172" stroke-width="1.1" marker-end="url(#ex-arrow)"/>
+          <line x1="440" y1="476" x2="440" y2="516" stroke="#6366f1" stroke-width="1.3" marker-end="url(#ex-arrow-accent)"/>
+          <line x1="570" y1="426" x2="646" y2="426" stroke="#5b6172" stroke-width="1.1" marker-end="url(#ex-arrow)"/>
+          <line x1="440" y1="574" x2="440" y2="606" stroke="#5b6172" stroke-width="1.1" marker-end="url(#ex-arrow)"/>
+
+          <rect x="594" y="415" width="54" height="16" fill="#ffffff"/>
+          <text x="621" y="427" fill="#5b6172" font-size="10" text-anchor="middle">校验失败</text>
+
+          <rect x="320" y="20" width="240" height="44" rx="22" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="440" y="47" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">勾选换出商品 + 数量</text>
+
+          <rect x="320" y="96" width="240" height="58" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="440" y="120" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">扫码 / 13 位条码查询</text>
+          <text x="440" y="138" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">queryInventoryDetail</text>
+
+          <rect x="320" y="186" width="240" height="58" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="440" y="210" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">生成换入商品行</text>
+          <text x="440" y="228" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">售价 = 吊牌价 × 0.6</text>
+
+          <rect x="310" y="276" width="260" height="58" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="440" y="300" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">差价与去向</text>
+          <text x="440" y="318" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">none | add | sub · refundBalance</text>
+
+          <polygon points="440,366 570,426 440,476 310,426" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="440" y="431" fill="#1f2233" font-size="11.5" font-weight="600" text-anchor="middle">校验通过？</text>
+
+          <rect x="650" y="404" width="190" height="48" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="745" y="425" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">Toast 提示</text>
+          <text x="745" y="441" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">停留在本页</text>
+
+          <rect x="310" y="516" width="260" height="58" rx="6" fill="#ffffff" stroke="#6366f1" stroke-width="1.2"/>
+          <text x="440" y="540" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">POST /order/changeItem</text>
+          <text x="440" y="558" fill="#7b8093" font-size="9" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">returnItems + exchangeItems</text>
+
+          <rect x="320" y="606" width="240" height="44" rx="22" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="440" y="627" fill="#1f2233" font-size="12" font-weight="600" text-anchor="middle">改单 + 库存双向 + 会员调整 + 日志</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">04</span><h2>前端分层</h2></div>
+    <p class="section-note">页面只依赖 store、pricing 与 pos 函数；请求细节收敛在 <code>api.ts</code>。主题、Toast 与扫码是横切能力。</p>
+    <div class="card">
+      <h3>模块依赖</h3>
+      <div class="diagram">
+        <svg viewBox="0 0 980 460" role="img" aria-labelledby="layer-title layer-desc" width="980">
+          <title id="layer-title">nova-mobile 前端分层</title>
+          <desc id="layer-desc">页面层、状态层、数据层、接口层与请求层的自上而下依赖关系。</desc>
+          <defs><marker id="layer-arrow" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0,0 L9,3.5 L0,7 Z" fill="#5b6172"/></marker></defs>
+          <line x1="490" y1="118" x2="490" y2="146" stroke="#5b6172" stroke-width="1.1" marker-end="url(#layer-arrow)"/>
+          <line x1="490" y1="198" x2="490" y2="226" stroke="#5b6172" stroke-width="1.1" marker-end="url(#layer-arrow)"/>
+          <line x1="490" y1="278" x2="490" y2="306" stroke="#5b6172" stroke-width="1.1" marker-end="url(#layer-arrow)"/>
+          <line x1="490" y1="358" x2="490" y2="386" stroke="#6366f1" stroke-width="1.3" marker-end="url(#layer-arrow)"/>
+
+          <rect x="190" y="62" width="600" height="56" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="490" y="86" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">页面层</text>
+          <text x="490" y="104" fill="#7b8093" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">orders / buy / edit / refund / exchange / members / data</text>
+
+          <rect x="190" y="146" width="600" height="52" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="490" y="169" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">状态层</text>
+          <text x="490" y="187" fill="#7b8093" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">useCartStore · useAuthStore · useUiStore</text>
+
+          <rect x="190" y="226" width="600" height="52" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="490" y="249" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">数据层</text>
+          <text x="490" y="267" fill="#7b8093" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">TanStack Query：queryKey + invalidateQueries</text>
+
+          <rect x="190" y="306" width="600" height="52" rx="6" fill="#ffffff" stroke="#1f2233" stroke-width="1"/>
+          <text x="490" y="329" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">接口层</text>
+          <text x="490" y="347" fill="#7b8093" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">pos.ts：submitSale / modifyOrder / refundOrder / changeOrder</text>
+
+          <rect x="250" y="386" width="480" height="52" rx="6" fill="#ffffff" stroke="#6366f1" stroke-width="1.2"/>
+          <text x="490" y="409" fill="#1f2233" font-size="12.5" font-weight="600" text-anchor="middle">请求层</text>
+          <text x="490" y="427" fill="#7b8093" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace" text-anchor="middle">api.ts（Bearer token / 401 / ApiError）→ POS 服务端</text>
+
+          <text x="40" y="86" fill="#7b8093" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace">主题 fs() / themedStyles</text>
+          <text x="40" y="106" fill="#7b8093" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace">ToastHost</text>
+          <text x="40" y="126" fill="#7b8093" font-size="9.5" font-family="SFMono-Regular, Menlo, monospace">扫码回调</text>
+          <line x1="150" y1="96" x2="188" y2="96" stroke="rgba(31,34,51,.25)" stroke-width="1" stroke-dasharray="4,3"/>
+        </svg>
+      </div>
+      <div class="legend"><span>横切能力：主题 / 字号、全局 Toast、扫码覆盖层</span></div>
+    </div>
+  </section>
+
+  <footer>nova-mobile · 可视化文档 · 生成于 2026-10-29 · 文字版：nova-mobile-architecture.md</footer>
+</div>
+</body>
+</html>

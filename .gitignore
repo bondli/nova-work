@@ -1,0 +1,110 @@
+# 本文件用于 nova-work 工作区根目录，覆盖各子项目共性的忽略规则
+# 子项目内的 .gitignore 仍然生效，两者互为补充
+
+# ---------- 系统与编辑器 ----------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+!.vscode/extensions.json
+
+# ---------- 依赖安装 ----------
+node_modules/
+.npm/
+.yarn/
+.pnp
+.pnp.*
+bower_components/
+jspm_packages/
+
+# ---------- 构建产物 ----------
+dist/
+build/
+out/
+release/
+coverage/
+*.tsbuildinfo
+.eslintcache
+.stylelintcache
+.cache/
+.turbo/
+.parcel-cache/
+.webpack/
+
+# ---------- 原生工程（由 expo prebuild 生成） ----------
+/android/
+/ios/
+.kotlin/
+*.hprof
+
+# ---------- 安装包与移动端产物 ----------
+*.apk
+*.aab
+*.ipa
+*.app
+*.dSYM.zip
+*.dSYM
+
+# ---------- 桌面端打包产物 ----------
+*.dmg
+*.exe
+*.msi
+*.AppImage
+*.deb
+*.rpm
+*.snap
+*.blockmap
+*.asar
+
+# ---------- 日志与临时文件 ----------
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+tmp/
+temp/
+*.tmp
+*.bak
+
+# 截图、录屏等验收临时文件（docs 下的文档截图不在此列）
+.screenshots/
+.trae-html-share-packages/
+
+# ---------- 环境变量与密钥 ----------
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+*.jks
+*.keystore
+*.p8
+*.p12
+*.mobileprovision
+*.cer
+*.cert
+
+# ---------- 数据库与数据文件 ----------
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+
+# ---------- Expo / React Native ----------
+.expo/
+.expo-shared/
+web-build/
+expo-env.d.ts
+.metro-health-check*

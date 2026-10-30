@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DaveBella 手机端 · 原型</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="./demo.css" />
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+<style>
+  body { background:#e9e9ee; display:flex; align-items:center; justify-content:center; min-height:100vh; padding:24px 16px; overflow:auto; }
+  .phone {
+    width:390px; height:min(844px, calc(100vh - 48px)); border-radius:54px; background:#111;
+    padding:10px; box-shadow:0 30px 80px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.2) inset;
+    flex-shrink:0;
+  }
+  .screen { width:100%; height:100%; border-radius:44px; overflow:hidden; background:#f4f4f5; position:relative; }
+  .statusbar { height:44px; padding:12px 24px 0; display:flex; align-items:center; justify-content:space-between; font-size:12px; font-weight:600; }
+  .content { height:calc(100% - 44px - 74px); overflow-y:auto; }
+  .content.no-tabbar { height:calc(100% - 44px); }
+  .tabbar { height:74px; background:#fff; border-top:1px solid #e4e4e7; display:flex; align-items:flex-start; padding:7px 4px 0; }
+  .tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; font-size:9px; color:#71717a; }
+  .tab svg { width:19px; height:19px; }
+  .tab.on { color:#4f46e5; font-weight:600; }
+  .tabbar.hidden { display:none; }
+  .appbar { height:52px; padding:0 16px; display:flex; align-items:center; gap:10px; background:#fff; border-bottom:1px solid #e4e4e7; }
+  .sheet-mask { position:absolute; inset:0; background:rgba(0,0,0,.42); display:none; align-items:flex-end; z-index:40; }
+  .sheet-mask.open { display:flex; }
+  .sheet { width:100%; max-height:88%; background:#fff; border-radius:20px 20px 0 0; padding:8px 16px 24px; animation:up .2s ease-out; overflow-y:auto; }
+  @keyframes up { from{ transform:translateY(100%);} to{transform:none;} }
+  .pg { display:none; padding:14px 7px 16px; }
+  .pg.on { display:block; }
+  .mobile-card { background:#fff; border:1px solid #e4e4e7; border-radius:14px; }
+  .home-bar { position:absolute; bottom:7px; left:50%; transform:translateX(-50%); width:134px; height:5px; border-radius:3px; background:#18181b; opacity:.8; pointer-events:none; z-index:60; }
+
+  /* Tab 组：连体无间隙，浅灰底容器 + 选中白底浮起（与系统设置页一致） */
+  .tabs { display:flex; padding:3px; border-radius:9px; background:#f4f4f5; gap:0; }
+  .tabs button {
+    flex:1; height:26px; border:1px solid transparent; border-radius:7px; background:transparent;
+    font-size:12px; color:rgba(24,24,27,.6); transition:all .15s; display:flex; align-items:center; justify-content:center; gap:4px;
+  }
+  .tabs button.on { background:#fff; color:#18181b; font-weight:600; box-shadow:0 1px 2px rgba(0,0,0,.08); }
+
+  /* 居中弹窗 */
+  .dialog-mask { position:absolute; inset:0; z-index:70; background:rgba(0,0,0,.42); display:none; align-items:center; justify-content:center; padding:24px; }
+  .dialog-mask.open { display:flex; }
+  .dialog { width:100%; background:#fff; border-radius:18px; padding:18px 16px 14px; animation:pop .16s ease-out; }
+  @keyframes pop { from{ opacity:0; transform:scale(.96);} to{ opacity:1; transform:none;} }
+
+  /* 扫码 */
+  .scanner { position:absolute; inset:0; z-index:75; background:#0b0b0f; display:none; flex-direction:column; }
+  .scanner.open { display:flex; }
+  .scan-frame { position:relative; width:220px; height:220px; }
+  .scan-corner { position:absolute; width:26px; height:26px; border:3px solid #fff; }
+  .scan-line { position:absolute; left:8px; right:8px; height:2px; background:#4f46e5; box-shadow:0 0 12px 2px rgba(79,70,229,.8); animation:scan 2s linear infinite; }
+  @keyframes scan { 0%{ top:12px; } 50%{ top:204px; } 100%{ top:12px; } }
+
+  /* 启动页 */
+  .splash { position:absolute; inset:0; z-index:100; background:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; transition:opacity .35s; }
+  .splash.hide { opacity:0; pointer-events:none; }
+
+  .subhead { display:flex; align-items:center; gap:8px; padding:12px 14px; background:#fff; border-bottom:1px solid #e4e4e7; }
+</style>
+</head>
+<body>
+<div class="flex items-center gap-10">
+  <div class="hidden max-w-[300px] lg:block">
+    <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#4f46e5]">MOBILE · 5 TABS</p>
+    <h1 class="mt-2 text-[26px] font-semibold tracking-tight">门店移动作业</h1>
+    <p class="mt-2 text-[13px] leading-relaxed text-[#52525b]">订单 / 库存 / 买单 / 会员 / 数据。扫码由顶栏统一发起，识别条码后可加入买单或查询库存；详情一律从底部抽屉进入，抽屉内的操作再进新页面。</p>
+    <div class="mt-5 space-y-2 text-[12px] text-[#71717a]">
+      <p class="flex items-center gap-2"><i data-lucide="scan-barcode" class="h-4 w-4"></i>只识别商品条码</p>
+      <p class="flex items-center gap-2"><i data-lucide="panel-bottom" class="h-4 w-4"></i>底部抽屉承载详情，弹窗承载输入</p>
+      <p class="flex items-center gap-2"><i data-lucide="user-round" class="h-4 w-4"></i>导购员 / 管理员两种角色</p>
+    </div>
+  </div>
+
+  <div class="phone">
+    <div class="screen">
+      <div class="statusbar">
+        <span>9:41</span>
+        <div class="flex items-center gap-1.5 text-[#18181b]">
+          <i data-lucide="signal" class="h-3.5 w-3.5"></i>
+          <i data-lucide="wifi" class="h-3.5 w-3.5"></i>
+          <i data-lucide="battery-full" class="h-4 w-4"></i>
+        </div>
+      </div>
+
+      <div class="appbar" id="appbar"></div>
+      <div id="m-content" class="content"></div>
+      <div class="tabbar" id="tabbar"></div>
+      <div class="home-bar"></div>
+
+      <div id="sheet-mask" class="sheet-mask" onclick="if(event.target===this)closeSheet()">
+        <div id="sheet" class="sheet"></div>
+      </div>
+      <div id="dialog-mask" class="dialog-mask" onclick="if(event.target===this)closeDialog()">
+        <div id="dialog" class="dialog"></div>
+      </div>
+      <div id="scanner" class="scanner"></div>
+
+      <div id="splash" class="splash">
+        <svg viewBox="0 0 1024 1024" width="84" height="84" xmlns="http://www.w3.org/2000/svg" aria-label="Dave &amp; Bella">
+          <path fill="#4f46e5" d="M721.419424 204.785372h54.853225c71.309192 0 134.280694 54.633812 142.618384 123.968288l67.579173 561.404472c8.776516 72.771945-46.588672 133.768731-121.335333 133.76873H158.771613C83.878677 1023.926862 28.732902 963.003214 37.43628 890.231269L105.088591 328.387972c8.264553-68.89565 71.455467-123.6026 142.472109-123.6026h54.926362v-0.146275C302.487062 91.641454 396.395783 0 511.953243 0c115.55746 0 209.466181 91.860867 209.466181 204.639097V204.785372z m-352.742804 0h175.676595c24.354832 0 44.101993 19.308335 44.101992 43.151204 0 23.769731-19.747161 43.078066-44.101992 43.078066H368.67662v98.735804a53.317334 53.317334 0 0 1 19.747161 41.395901 54.487537 54.487537 0 0 1-55.072638 53.902435 54.487537 54.487537 0 0 1-55.145775-53.902435c0-18.576959 9.654168-34.959789 24.281694-44.613956V290.941504h-54.926362c-26.329548 0-51.854582 22.014428-54.853225 47.466324L125.055165 900.324263c-2.559817 21.575602 11.702021 37.37333 33.716448 37.37333h706.36326c21.94129 0 36.276266-15.870866 33.643311-37.519606l-67.506035-561.404471c-3.071781-25.817584-28.377402-47.758874-54.926362-47.758874h-54.853225v98.735804a53.317334 53.317334 0 0 1 19.747161 41.395901 54.487537 54.487537 0 0 1-55.072638 53.902435 54.487537 54.487537 0 0 1-55.145775-53.902435c0-18.576959 9.654168-34.959789 24.281694-44.613956V204.56596C655.303004 127.552032 590.941887 64.653668 511.953243 64.653668s-143.349761 62.752089-143.34976 139.985429V204.785372zM293.27172 611.064924c0-1.755303 0-3.510606-1.901578-3.510606a46.296122 46.296122 0 0 1 13.018499-24.793658l126.528105-113.143918a47.027498 47.027498 0 0 1 59.460895 0 34.374688 34.374688 0 0 1 0 53.024784l-52.073994 46.003571h270.828655c24.135419 0 44.613956 17.699307 44.613956 38.909221 0 21.209914-20.478537 38.909221-44.613956 38.90922H334.155657a42.127277 42.127277 0 0 1-27.865438-10.604956c-7.460039-7.09435-13.018499-15.944004-13.018499-24.793658z m460.474538 119.653168c0 1.755303 0 3.510606 1.901578 1.755303a46.296122 46.296122 0 0 1-13.018498 24.793657L616.101233 870.337833a47.027498 47.027498 0 0 1-59.534034 0 34.374688 34.374688 0 0 1 0-53.024784l52.073995-44.248268H337.885677c-24.135419 0-44.613956-17.699307-44.613957-38.909221 0-21.209914 20.478537-38.909221 44.613957-38.90922h374.976644c9.288479 0 20.478537 3.583744 27.865438 10.604956 7.460039 7.09435 13.018499 15.944004 13.018499 24.793658z"></path>
+        </svg>
+        <p class="text-[15px] font-semibold tracking-wide">Dave &amp; Bella</p>
+        <p class="text-[11px] text-[#a1a1aa]">门店移动作业</p>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="toast" class="toast"><i data-lucide="check-circle-2" class="h-4 w-4 text-[#4ade80]"></i><span id="toast-text">已完成</span></div>
+
+<script>
+/* ============================================================
+ * 1. 常量 / 图标
+ * 图标与桌面端导航保持一致：ReceiptText / Package / ScanLine / Users / ChartColumn
+ * ============================================================ */
+const TABS = [
+  { id:'orders', label:'订单', icon:'receipt-text' },
+  { id:'inventory', label:'库存', icon:'package' },
+  { id:'buy', label:'买单', icon:'scan-line' },
+  { id:'members', label:'会员', icon:'users' },
+  { id:'data', label:'数据', icon:'chart-column' },
+];
+
+/** 支付方式：仅 4 种，去掉组合支付；图标 + 语义色 */
+const PAYMENTS = [
+  { id:'wechat', label:'微信', icon:'message-circle', color:'#16a34a', soft:'#dcfce7' },
+  { id:'alipay', label:'支付宝', icon:'wallet', color:'#2563eb', soft:'#dbeafe' },
+  { id:'cash',   label:'现金', icon:'banknote', color:'#d97706', soft:'#fef3c7' },
+  { id:'card',   label:'银行卡', icon:'credit-card', color:'#4f46e5', soft:'#eef2ff' },
+];
+
+const MEMBER_KIND = {
+  super:    { color:'#b45309', soft:'#fef3c7', icon:'crown' },
+  platform: { color:'#4f46e5', soft:'#eef2ff', icon:'user-round' },
+};
+
+const icon = (name, cls) => `<i data-lucide="${name}" class="${cls}"></i>`;
+
+/* ============================================================
+ * 2. 通用组件（未来一一映射到 nova-mobile/src/components）
+ * ============================================================ */
+const fmt = (n) => Number(n).toLocaleString('zh-CN', { minimumFractionDigits:2, maximumFractionDigits:2 });
+const yuan = (n) => `¥${fmt(n)}`;
+
+const ui = {
+  /** 指标卡 + 环比（对应 MetricCard） */
+  metric(label, value, delta) {
+    const up = delta !== undefined && delta >= 0;
+    const deltaHtml = delta === undefined ? '' :
+      `<p class="mt-1 text-[10px] tnum ${up ? 'text-[#16a34a]' : 'text-[#dc2626]'}">${up ? '+' : ''}${delta.toFixed(1)}% <span class="text-[#a1a1aa]">较上期</span></p>`;
+    return `<div class="mobile-card p-3">
+      <p class="text-[10px] text-[#71717a]">${label}</p>
+      <p class="mt-1 text-[17px] font-semibold leading-tight tnum">${value}</p>${deltaHtml}
+    </div>`;
+  },
+
+  /** 状态标签 */
+  tag(text, tone) { return `<span class="badge ${tone || ''}">${text}</span>`; },
+
+  /** 搜索框（无右侧按钮） */
+  search(placeholder, key, value) {
+    return `<div class="relative">
+      ${icon('search','pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-[#a1a1aa]')}
+      <input class="input h-9 pl-9 text-xs" placeholder="${placeholder}" value="${value || ''}"
+        ${key === 'orders' ? 'enterkeyhint="search" onkeydown="if(event.key===\'Enter\')submitOrderSearch(this.value)"' : ''}
+        ${key === 'inventory' ? 'oninput="state.inventory.keyword=this.value"' : ''}
+        ${key === 'members' ? 'oninput="state.members.keyword=this.value"' : ''} />
+    </div>`;
+  },
+
+  /** Tab 组 */
+  tabs(items, active, handler) {
+    return `<div class="tabs">${items.map(t =>
+      `<button class="${t.id === active ? 'on' : ''}" onclick="${handler}('${t.id}')">${t.label}</button>`
+    ).join('')}</div>`;
+  },
+
+  /** 支付方式图标（圆形/方形色块 + 图标） */
+  payIcon(id, size) {
+    const p = PAYMENTS.find(x => x.id === id) || PAYMENTS[0];
+    const s = size || 22;
+    return `<span class="flex shrink-0 items-center justify-center rounded-[7px]" style="width:${s}px;height:${s}px;background:${p.soft};color:${p.color}">${icon(p.icon, 'h-3.5 w-3.5')}</span>`;
+  },
+
+  /** 会员头像：颜色 + 会员图标（超级会员金黄 / 平台会员蓝色） */
+  memberAvatar(kind, size) {
+    const k = MEMBER_KIND[kind] || MEMBER_KIND.platform;
+    const s = size || 36;
+    return `<span class="flex shrink-0 items-center justify-center rounded-full" style="width:${s}px;height:${s}px;background:${k.soft};color:${k.color}">${icon(k.icon, 'h-4 w-4')}</span>`;
+  },
+
+  /** 空态 */
+  empty(text) { return `<div class="py-10 text-center text-[11px] text-[#a1a1aa]">${text}</div>`; },
+};
+
+/* ============================================================
+ * 3. Mock 数据（未来由 POS API 提供）
+ * ============================================================ */
+const MOCK = {
+  orders: [
+    { no:'DB202610230042', time:'21:18', count:4, payment:'wechat', amount:1556.00, reconciled:true, refund:false, member:'13812346688',
+      items:[['小童纯棉针织开衫','奶白 / 110',399,1],['女童格纹连衣裙','红格 / 120',459,2],['儿童软底运动鞋','白 / 28',299,1]] },
+    { no:'DB202610230041', time:'20:56', count:2, payment:'alipay', amount:798.00, reconciled:true, refund:false, member:'',
+      items:[['女童毛衣裙','雾灰 / 140',399,2]] },
+    { no:'DB202610230040', time:'20:31', count:1, payment:'cash', amount:299.00, reconciled:false, refund:true, member:'13766773344',
+      items:[['儿童软底运动鞋','白 / 28',299,1]] },
+    { no:'DB202610230037', time:'17:02', count:5, payment:'wechat', amount:2096.00, reconciled:false, refund:true, member:'13688229090',
+      items:[['男童摇粒绒外套','藏蓝 / 130',459,2],['女童格纹连衣裙','红格 / 120',459,1],['小童纯棉针织开衫','奶白 / 110',399,2]] },
+    { no:'DB202610230031', time:'14:20', count:3, payment:'card', amount:1197.00, reconciled:true, refund:false, member:'13956782211',
+      items:[['小童纯棉针织开衫','奶白 / 110',399,3]] },
+  ],
+  inventory: [
+    { name:'小童纯棉针织开衫', barcode:'6941496198229', attr:'奶白 / 110', stock:46, sold:128, price:399, color:'#d4a373' },
+    { name:'女童格纹连衣裙', barcode:'6941496198236', attr:'红格 / 120', stock:3, sold:212, price:459, color:'#b91c1c' },
+    { name:'儿童软底运动鞋', barcode:'6941496198243', attr:'白 / 28', stock:0, sold:96, price:299, color:'#0f766e' },
+    { name:'男童摇粒绒外套', barcode:'6941496198250', attr:'藏蓝 / 130', stock:28, sold:64, price:459, color:'#1e3a8a' },
+    { name:'女童毛衣裙', barcode:'6941496198267', attr:'雾灰 / 140', stock:12, sold:38, price:399, color:'#6b7280' },
+  ],
+  skus: [
+    { barcode:'6941496198229', color:'奶白', size:'110', stock:46, sold:128 },
+    { barcode:'6941496198212', color:'奶白', size:'120', stock:18, sold:96 },
+    { barcode:'6941496198205', color:'奶白', size:'130', stock:6, sold:42 },
+    { barcode:'6941496198199', color:'藏蓝', size:'110', stock:0, sold:12 },
+  ],
+  flows: [
+    { type:'销售出库', change:-1, detail:'DB202610230042 · 女童格纹连衣裙', time:'2026-10-23 21:18' },
+    { type:'销售出库', change:-2, detail:'DB202610230042 · 女童格纹连衣裙', time:'2026-10-23 21:18' },
+    { type:'采购入库', change:+20, detail:'秋季补货单 CG20261015003', time:'2026-10-15 10:02' },
+    { type:'调拨入库', change:+8, detail:'从万象城店调拨 DB-T20261010002', time:'2026-10-10 16:40' },
+  ],
+  members: [
+    { phone:'13812346688', name:'陈女士', kind:'super', points:2680, balance:860.00, orders:2 },
+    { phone:'13956782211', name:'', kind:'platform', points:860, balance:120.00, orders:1 },
+    { phone:'13688229090', name:'李女士', kind:'super', points:5120, balance:1260.00, orders:3 },
+    { phone:'13766773344', name:'', kind:'platform', points:210, balance:0, orders:0 },
+    { phone:'13511226677', name:'王女士', kind:'platform', points:120, balance:32.50, orders:1 },
+  ],
+  memberOrders: [
+    { no:'DB202610230042', payable:1556.00, paid:1420.00 },
+    { no:'DB202610180021', payable:798.00, paid:798.00 },
+    { no:'DB202610050006', payable:299.00, paid:199.00 },
+  ],
+  pointLogs: [
+    { change:+142, type:'消费积分', reason:'DB202610230042', time:'2026-10-23 21:18' },
+    { change:+79,  type:'消费积分', reason:'DB202610180021', time:'2026-10-18 15:02' },
+    { change:-500, type:'积分抵扣', reason:'DB202610050006', time:'2026-10-05 11:36' },
+  ],
+  balanceLogs: [
+    { change:-240, type:'余额抵扣', reason:'DB202610230042', time:'2026-10-23 21:18' },
+    { change:+500, type:'会员充值', reason:'前台充值', time:'2026-09-28 14:10' },
+  ],
+  coupons: [
+    { name:'满 500 减 50', value:'¥50', status:'有效', tone:'badge-success', expires:'2026-11-30' },
+    { name:'生日券 8 折', value:'8 折', status:'已使用', tone:'', expires:'2026-10-01' },
+  ],
+  logs: [
+    { time:'2026-10-23 21:18', user:'林晓', module:'买单', action:'提交订单 DB202610230042', ip:'192.168.1.24' },
+    { time:'2026-10-23 20:56', user:'林晓', module:'会员', action:'查询会员 13956782211', ip:'192.168.1.24' },
+    { time:'2026-10-23 17:02', user:'王敏', module:'订单', action:'发起换货 DB202610230037', ip:'192.168.1.31' },
+    { time:'2026-10-23 10:12', user:'王敏', module:'库存', action:'查看商品流水 6941496198229', ip:'192.168.1.31' },
+    { time:'2026-10-22 19:40', user:'林晓', module:'数据', action:'导出近 30 天营业额', ip:'192.168.1.24' },
+  ],
+};
+
+/* ============================================================
+ * 4. 全局状态
+ * ============================================================ */
+const state = {
+  loggedIn: false,
+  userName: '林晓',
+  role: (new URLSearchParams(location.search).get('role') === 'admin') ? 'admin' : 'clerk',
+  tab: 'orders',
+  subpage: null,
+  subpageParams: {},
+  sheet: null,
+
+  orders: { range:'today', keyword:'', loaded:1 },
+  inventory: { tab:'all', keyword:'' },
+  members: { keyword:'' },
+  data: { range:'30d' },
+
+  cart: [
+    { barcode:'6941496198229', name:'小童纯棉针织开衫', attr:'奶白 / 110', price:399, qty:1, discount:6 },
+    { barcode:'6941496198236', name:'女童格纹连衣裙', attr:'红格 / 120', price:459, qty:2, discount:6 },
+    { barcode:'6941496198243', name:'儿童软底运动鞋', attr:'白 / 28', price:299, qty:1, discount:6 },
+  ],
+  member: { phone:'13812346688', name:'陈女士', kind:'super', points:2680, balance:860.00 },
+  payment: 'wechat',
+  note: '',
+  receipt: null,
+};
+
+/* ============================================================
+ * 5. 页面（app/(tabs)/*.tsx）
+ * ============================================================ */
+const pages = {
+  /* ------------------------------------------------------------------ 订单 */
+  orders() {
+    const tabs = [
+      { id:'today', label:'今天' },
+      { id:'yesterday', label:'昨天' },
+      { id:'week', label:'近一周' },
+      { id:'month', label:'近一月' },
+    ];
+    const orders = MOCK.orders.concat(MOCK.orders).slice(0, 5 * state.orders.loaded);
+
+    return `<div class="pg on">
+      ${ui.search('手机号 / 订单号', 'orders', state.orders.keyword)}
+      <div class="mt-3">${ui.tabs(tabs, state.orders.range, 'switchOrderRange')}</div>
+
+      <div class="mt-3 grid grid-cols-3 gap-2">
+        ${ui.metric('订单金额', '¥12,860.00', 12.4)}
+        ${ui.metric('订单笔数', '42', 8.1)}
+        ${ui.metric('售出商品', '68', 4.0)}
+      </div>
+
+      <div class="mt-3 space-y-2">
+        ${orders.map(o => orderCard(o)).join('')}
+      </div>
+      <p class="mt-3 text-center text-[10px] text-[#a1a1aa]">上拉加载更多</p>
+    </div>`;
+  },
+
+  /* ------------------------------------------------------------------ 库存 */
+  inventory() {
+    const tabs = [
+      { id:'all', label:'全部 7,418' },
+      { id:'broken', label:'断码 36' },
+      { id:'hot', label:'热销 1,284' },
+    ];
+    const keyword = state.inventory.keyword;
+    const list = MOCK.inventory.filter(p => !keyword || p.barcode.includes(keyword) || p.name.includes(keyword));
+
+    return `<div class="pg on">
+      ${ui.search('条码 / 品名', 'inventory', keyword)}
+      <div class="mt-3">${ui.tabs(tabs, state.inventory.tab, 'switchInventoryTab')}</div>
+      <div class="mt-3 space-y-2">
+        ${list.length ? list.map(p => inventoryCard(p)).join('') : ui.empty('没有匹配的商品')}
+      </div>
+    </div>`;
+  },
+
+  /* ------------------------------------------------------------------ 买单 */
+  buy() {
+    const total = cartPayable();
+    return `<div class="pg on" style="padding-bottom:96px">
+      <button class="flex w-full items-center gap-2 rounded-xl border border-dashed border-[#a5b4fc] bg-[#eef2ff] px-3 py-3 text-left" onclick="openBarcodeDialog()">
+        ${icon('scan-barcode','h-5 w-5 text-[#4f46e5]')}
+        <span class="flex-1 text-[13px] font-medium text-[#4338ca]">扫码或输入条码添加商品</span>
+        ${icon('chevron-right','h-4 w-4 text-[#6366f1]')}
+      </button>
+
+      ${state.member ? memberBlock() : `<button class="mt-3 flex w-full items-center gap-2 rounded-xl border border-dashed border-[#e4e4e7] bg-white px-3 py-3 text-left" onclick="openMemberDialog()">
+        ${icon('user-plus','h-4 w-4 text-[#71717a]')}
+        <span class="flex-1 text-[12px] text-[#71717a]">去添加会员</span>
+        ${icon('chevron-right','h-4 w-4 text-[#a1a1aa]')}
+      </button>`}
+
+      <div class="mt-3 space-y-2">
+        ${state.cart.length ? state.cart.map((item, i) => cartRow(item, i)).join('') : ui.empty('待售商品为空，扫码添加商品')}
+      </div>
+
+      <div class="mobile-card mt-3 divide-y divide-[#f1f1f3] text-[12px]">
+        <div class="flex items-center px-3 py-2.5"><span class="text-[#71717a]">商品件数</span><span class="ml-auto tnum">${cartCount()} 件</span></div>
+        <div class="flex items-center px-3 py-2.5"><span class="text-[#71717a]">商品原价</span><span class="ml-auto tnum">${yuan(cartOriginal())}</span></div>
+        <div class="flex items-center px-3 py-2.5"><span class="text-[#71717a]">商品折扣</span><span class="ml-auto text-[#dc2626] tnum">-${yuan(cartOriginal() - total)}</span></div>
+        <div class="flex items-center px-3 py-2.5"><span class="font-medium">应收</span><span class="ml-auto text-[18px] font-semibold tnum">${yuan(total)}</span></div>
+      </div>
+    </div>`;
+  },
+
+  /* ------------------------------------------------------------------ 会员 */
+  members() {
+    const keyword = state.members.keyword;
+    const list = MOCK.members.filter(m => !keyword || m.phone.includes(keyword));
+    return `<div class="pg on">
+      ${ui.search('手机号', 'members', keyword)}
+      <div class="mt-3 grid grid-cols-3 gap-2">
+        ${ui.metric('会员总数', '1,939')}
+        ${ui.metric('超级会员', '17')}
+        ${ui.metric('会员余额', '¥3,788.00')}
+      </div>
+      <div class="mt-3 space-y-2">
+        ${list.length ? list.map(m => memberCard(m)).join('') : ui.empty('没有匹配的会员')}
+      </div>
+    </div>`;
+  },
+
+  /* ------------------------------------------------------------------ 数据 */
+  data() {
+    const tabs = [
+      { id:'30d', label:'近30天' },
+      { id:'7d', label:'近7天' },
+      { id:'yest', label:'昨天' },
+      { id:'today', label:'今天' },
+    ];
+    return `<div class="pg on">
+      ${ui.tabs(tabs, state.data.range, 'switchDataRange')}
+      <div class="mt-3 grid grid-cols-2 gap-2">
+        ${ui.metric('营业额', '¥286,420.00', 12.4)}
+        ${ui.metric('订单数', '968', 8.1)}
+        ${ui.metric('售出商品', '1,824', 4.0)}
+        ${ui.metric('余额消耗', '¥12,860.00', -3.2)}
+      </div>
+
+      ${storeChart()}
+      ${state.role === 'clerk' ? salerChart() : ''}
+    </div>`;
+  },
+};
+
+/* ============================================================
+ * 6. 页面级卡片（未来拆到 features）
+ * ============================================================ */
+function orderTags(o) {
+  const tags = [];
+  tags.push(o.reconciled ? ui.tag('已完成', 'badge-success') : ui.tag('未对账', 'badge-warning'));
+  if (o.refund) tags.push(ui.tag('有退换', 'badge-danger'));
+  return tags.join('');
+}
+
+function orderCard(o) {
+  return `<button class="mobile-card block w-full p-3 text-left" onclick="openSheet('orderDetail',{no:'${o.no}'})">
+    <div class="flex items-start gap-2">
+      <span class="text-[12px] font-semibold tnum">${o.no}</span>
+      <span class="ml-auto flex shrink-0 gap-1">${orderTags(o)}</span>
+    </div>
+    <div class="mt-1.5 flex items-center gap-1.5 text-[11px] text-[#71717a]">
+      ${ui.payIcon(o.payment, 20)}
+      <span class="tnum">${o.time}</span><span>·</span><span>${o.count} 件</span>
+    </div>
+    <div class="mt-1 flex items-end gap-2">
+      <span class="min-w-0 flex-1 truncate text-[11px]">
+        <span class="text-[#3f3f46] tnum">应付 ${yuan(o.amount)}</span>
+        ${o.member ? `<span class="text-[#a1a1aa]"> · </span><span class="text-[#71717a] tnum">${o.member}</span>` : ''}
+      </span>
+      <p class="shrink-0 text-right tnum"><span class="text-[10px] text-[#a1a1aa]">实收</span> <span class="text-[15px] font-semibold">${yuan(o.amount)}</span></p>
+    </div>
+  </button>`;
+}
+
+function inventoryCard(p) {
+  const stockColor = p.stock === 0 ? 'text-[#dc2626] font-semibold' : p.stock < 10 ? 'text-[#d97706] font-medium' : '';
+  return `<button class="mobile-card flex w-full items-center gap-3 p-3 text-left" onclick="openSheet('stockDetail',{barcode:'${p.barcode}'})">
+    <span class="swatch h-12 w-12 text-[12px]" style="background:${p.color}">${p.name.slice(0,1)}</span>
+    <span class="min-w-0 flex-1">
+      <span class="block truncate text-[13px] font-medium">${p.name}</span>
+      <span class="mt-0.5 block text-[11px] text-[#71717a] tnum">${p.barcode}</span>
+      <span class="mt-1 block text-[11px]">
+        <span class="${stockColor}">库存 ${p.stock}</span>
+        <span class="text-[#a1a1aa]"> · </span>
+        <span class="text-[#71717a]">销量 ${p.sold}</span>
+      </span>
+    </span>
+    <span class="text-[13px] font-semibold tnum">${yuan(p.price)}</span>
+  </button>`;
+}
+
+function memberCard(m) {
+  const kind = MEMBER_KIND[m.kind];
+  const name = (m.name && m.name !== m.phone) ? m.name : '未命名';
+  return `<button class="mobile-card flex w-full items-center gap-3 p-3 text-left" onclick="openSheet('memberDetail',{phone:'${m.phone}'})">
+    ${ui.memberAvatar(m.kind, 36)}
+    <span class="min-w-0 flex-1">
+      <span class="block truncate text-[13px] font-medium">${name}</span>
+      <span class="mt-0.5 block text-[11px] text-[#71717a] tnum">${m.phone}</span>
+    </span>
+    <span class="text-right">
+      <span class="block text-[12px] font-semibold tnum">${yuan(m.balance)}</span>
+      <span class="mt-0.5 block text-[10px] text-[#71717a] tnum">${m.points.toLocaleString('zh-CN')} 积分</span>
+    </span>
+  </button>`;
+}
+
+function memberBlock() {
+  const m = state.member;
+  return `<button class="mt-3 flex w-full items-center gap-2 rounded-xl bg-[#fffbeb] px-3 py-2.5 text-left" onclick="openMemberDialog()">
+    ${ui.memberAvatar(m.kind, 32)}
+    <span class="flex-1">
+      <span class="block text-[12px] font-medium">${m.name || '未命名'}</span>
+      <span class="block text-[10px] text-[#92400e] tnum">${m.phone} · 积分 ${m.points.toLocaleString('zh-CN')} · 余额 ${yuan(m.balance)}</span>
+    </span>
+    ${icon('chevron-right','h-4 w-4 text-[#d97706]')}
+  </button>`;
+}
+
+function cartRow(item, index) {
+  const line = item.price * item.discount / 10 * item.qty;
+  return `<div class="mobile-card p-3">
+    <div class="flex items-start gap-2">
+      <div class="min-w-0 flex-1">
+        <p class="truncate text-[13px] font-medium">${item.name}</p>
+        <p class="mt-0.5 text-[11px] text-[#71717a] tnum">${item.attr} · ${item.barcode}</p>
+      </div>
+      <p class="text-[13px] font-semibold tnum">${yuan(line)}</p>
+    </div>
+    <div class="mt-2 flex items-center gap-2">
+      <span class="text-[10px] text-[#71717a]">单价 ${yuan(item.price)}</span>
+      <span class="ml-auto flex items-center gap-1">
+        <span class="text-[10px] text-[#71717a]">折扣</span>
+        <input class="input h-7 w-10 px-1 text-center text-[11px] tnum" value="${item.discount}"
+          onchange="setDiscount(${index}, this.value)" />
+        <span class="text-[10px] text-[#71717a]">折</span>
+      </span>
+      <span class="ml-1 inline-flex items-center gap-1 rounded-md border border-[#e4e4e7] px-1">
+        <button class="h-6 w-6 text-[#71717a]" onclick="changeQty(${index}, -1)">−</button>
+        <span class="w-3 text-center text-[11px] tnum">${item.qty}</span>
+        <button class="h-6 w-6 text-[#71717a]" onclick="changeQty(${index}, 1)">+</button>
+      </span>
+    </div>
+  </div>`;
+}
+
+/* 数据图表：对齐桌面端 StoreRevenueCard / SalerRevenueCard（近 12 个月柱状） */
+const STORE_MONTHS = [
+  { m:'2025/11', sales:182000, cost:118000, rate:35.2 },
+  { m:'2025/12', sales:226000, cost:146000, rate:35.4 },
+  { m:'2026/01', sales:268000, cost:172000, rate:35.8 },
+  { m:'2026/02', sales:198000, cost:129000, rate:34.8 },
+  { m:'2026/03', sales:214000, cost:138000, rate:35.5 },
+  { m:'2026/04', sales:232000, cost:149000, rate:35.8 },
+  { m:'2026/05', sales:248000, cost:159000, rate:35.9 },
+  { m:'2026/06', sales:236000, cost:152000, rate:35.6 },
+  { m:'2026/07', sales:262000, cost:167000, rate:36.3 },
+  { m:'2026/08', sales:274000, cost:174000, rate:36.5 },
+  { m:'2026/09', sales:258000, cost:164000, rate:36.4 },
+  { m:'2026/10', sales:286420, cost:181000, rate:36.8 },
+];
+const SALER_MONTHS = [
+  { m:'2025/11', sales:32000 }, { m:'2025/12', sales:38000 }, { m:'2026/01', sales:41000 },
+  { m:'2026/02', sales:34000 }, { m:'2026/03', sales:36000 }, { m:'2026/04', sales:39000 },
+  { m:'2026/05', sales:42000 }, { m:'2026/06', sales:40000 }, { m:'2026/07', sales:45000 },
+  { m:'2026/08', sales:47000 }, { m:'2026/09', sales:44000 }, { m:'2026/10', sales:49000 },
+];
+
+function storeChart() {
+  const canViewCost = state.role !== 'clerk';
+  const max = Math.max(...STORE_MONTHS.map(x => x.sales));
+  const bars = STORE_MONTHS.map(x => {
+    const h = Math.round(x.sales / max * 120);
+    const ch = canViewCost ? Math.round(x.cost / max * 120) : 0;
+    return `<div class="flex flex-1 flex-col items-center gap-1">
+      <div class="flex h-[124px] w-full items-end justify-center gap-[2px]">
+        <div class="w-1/2 rounded-t bg-[#4f46e5]" style="height:${h}px"></div>
+        ${canViewCost ? `<div class="w-[40%] rounded-t bg-[#a5b4fc]" style="height:${ch}px"></div>` : ''}
+      </div>
+      <span class="text-[8px] text-[#a1a1aa]">${x.m.slice(5)}</span>
+    </div>`;
+  }).join('');
+
+  return `<div class="mobile-card mt-3 p-3">
+    <div class="flex items-center justify-between">
+      <p class="text-[12px] font-semibold">店铺营业额(CNY)</p>
+      <div class="flex items-center gap-2 text-[9px] text-[#71717a]">
+        <span class="flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-sm bg-[#4f46e5]"></span>销售额</span>
+        ${canViewCost ? `<span class="flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-sm bg-[#a5b4fc]"></span>成本</span>
+        <span class="flex items-center gap-1"><span class="h-1.5 w-1.5 rounded-full bg-[#16a34a]"></span>利润率</span>` : ''}
+      </div>
+    </div>
+    <div class="mt-3 flex items-end gap-1">${bars}</div>
+    ${canViewCost ? `<p class="mt-1 text-right text-[10px] text-[#16a34a] tnum">最新利润率 ${STORE_MONTHS[STORE_MONTHS.length-1].rate}%</p>` : ''}
+  </div>`;
+}
+
+function salerChart() {
+  const max = Math.max(...SALER_MONTHS.map(x => x.sales));
+  const bars = SALER_MONTHS.map(x => {
+    const h = Math.round(x.sales / max * 120);
+    return `<div class="flex flex-1 flex-col items-center gap-1">
+      <div class="flex h-[124px] w-full items-end justify-center">
+        <div class="w-1/2 rounded-t bg-[#4f46e5]" style="height:${h}px"></div>
+      </div>
+      <span class="text-[8px] text-[#a1a1aa]">${x.m.slice(5)}</span>
+    </div>`;
+  }).join('');
+
+  return `<div class="mobile-card mt-3 p-3">
+    <p class="text-[12px] font-semibold">我的营业额(CNY)</p>
+    <div class="mt-3 flex items-end gap-1">${bars}</div>
+  </div>`;
+}
+
+/* ============================================================
+ * 7. 子页面（从抽屉/列表进入的新页面）
+ * ============================================================ */
+const SUBPAGES = {
+  stockFlow: {
+    title: '商品流水',
+    render(params) {
+      const p = MOCK.inventory.find(x => x.barcode === params.barcode) || MOCK.inventory[0];
+      return `<div class="pg on">
+        <div class="mobile-card p-3">
+          <p class="text-[13px] font-medium">${p.name}</p>
+          <p class="mt-0.5 text-[11px] text-[#71717a] tnum">${p.barcode} · ${p.attr}</p>
+          <div class="mt-2 flex items-center gap-4 text-[11px]">
+            <span>库存 <b class="tnum">${p.stock}</b></span>
+            <span>销量 <b class="tnum">${p.sold}</b></span>
+            <span>吊牌价 <b class="tnum">${yuan(p.price)}</b></span>
+          </div>
+        </div>
+        <p class="mt-3 text-[11px] font-medium text-[#71717a]">变动记录</p>
+        <div class="mt-2 space-y-2">
+          ${MOCK.flows.map(f => `<div class="mobile-card p-3">
+            <div class="flex items-center gap-2">
+              <span class="text-[12px] font-medium">${f.type}</span>
+              <span class="ml-auto text-[13px] font-semibold tnum ${f.change > 0 ? 'text-[#16a34a]' : 'text-[#dc2626]'}">${f.change > 0 ? '+' : ''}${f.change}</span>
+            </div>
+            <p class="mt-1 text-[11px] text-[#71717a]">${f.detail}</p>
+            <p class="mt-0.5 text-[10px] text-[#a1a1aa] tnum">${f.time}</p>
+          </div>`).join('')}
+        </div>
+      </div>`;
+    },
+  },
+
+  logs: {
+    title: '操作日志',
+    render() {
+      return `<div class="pg on">
+        ${ui.search('操作人 / 操作内容', 'logs', '')}
+        <div class="mt-3">${ui.tabs([
+          { id:'today', label:'今天' },
+          { id:'week', label:'近 7 天' },
+          { id:'month', label:'近 30 天' },
+        ], 'week', 'switchLogRange')}</div>
+        <div class="mt-3 space-y-2">
+          ${MOCK.logs.map(l => `<div class="mobile-card p-3">
+            <div class="flex items-center gap-2">
+              <span class="badge badge-brand">${l.module}</span>
+              <span class="ml-auto text-[10px] text-[#a1a1aa] tnum">${l.time}</span>
+            </div>
+            <p class="mt-1.5 text-[12px]">${l.action}</p>
+            <p class="mt-0.5 text-[10px] text-[#71717a]">操作人 ${l.user} · IP ${l.ip}</p>
+          </div>`).join('')}
+        </div>
+      </div>`;
+    },
+  },
+
+  settings: {
+    title: '系统设置',
+    render() {
+      return `<div class="pg on space-y-3">
+        <div class="mobile-card p-3">
+          <p class="text-[12px] font-medium">主题设置</p>
+          <div class="mt-2">${ui.tabs([
+            { id:'system', label:'系统' },
+            { id:'light', label:'浅色' },
+            { id:'dark', label:'暗色' },
+          ], 'system', 'noop')}</div>
+        </div>
+        <div class="mobile-card p-3">
+          <p class="text-[12px] font-medium">字号设置</p>
+          <div class="mt-2">${ui.tabs([
+            { id:'12', label:'12px' },
+            { id:'14', label:'14px' },
+            { id:'16', label:'16px' },
+          ], '14', 'noop')}</div>
+        </div>
+        <div class="mobile-card p-3">
+          <p class="text-[12px] font-medium">POS 服务设置</p>
+          <input class="input mt-2 h-9 text-xs" placeholder="https://pos.example.com" value="http://127.0.0.1:9577" />
+          <button class="btn btn-primary mt-2 h-9 w-full text-xs" onclick="showToast('已保存 POS 服务地址')">保存</button>
+        </div>
+      </div>`;
+    },
+  },
+};
+
+/* ============================================================
+ * 8. 底部抽屉（Sheet）
+ * ============================================================ */
+function sheetHeader(title) {
+  return `<div class="mx-auto mb-3 h-1 w-9 rounded-full bg-[#e4e4e7]"></div>
+    <div class="flex items-center"><p class="text-[15px] font-semibold">${title}</p>
+    <button class="ml-auto flex h-7 w-7 items-center justify-center rounded-full text-[#71717a]" onclick="closeSheet()">${icon('x','h-4 w-4')}</button></div>`;
+}
+
+const sheets = {
+  /* ---------------------------------------------------------- 订单详情 */
+  orderDetail(params) {
+    const o = MOCK.orders.find(x => x.no === params.no) || MOCK.orders[0];
+    const payable = o.amount;
+    const paid = o.reconciled ? o.amount : o.amount - 0.0;
+    return `${sheetHeader('订单详情')}
+      <div class="mt-1 flex items-center gap-2">
+        <p class="text-[12px] font-medium tnum">${o.no}</p>
+        <span class="ml-auto flex gap-1">${orderTags(o)}</span>
+      </div>
+      <p class="mt-1 text-[10px] text-[#71717a] tnum">2026-10-23 ${o.time} · 导购 林晓</p>
+
+      <div class="mt-3 space-y-2">
+        <div class="rounded-lg bg-[#fafafa] p-3">
+          <p class="text-[10px] font-medium text-[#71717a]">会员信息</p>
+          <div class="mt-1.5 flex items-center gap-2">
+            ${o.member ? `${ui.memberAvatar('super', 28)}<span class="text-[12px] tnum">${o.member}</span><span class="badge badge-warning">超级会员</span>`
+              : `<span class="text-[12px] text-[#71717a]">无会员</span>`}
+          </div>
+        </div>
+        <div class="rounded-lg bg-[#fafafa] p-3">
+          <p class="text-[10px] font-medium text-[#71717a]">订单备注</p>
+          <p class="mt-1 text-[12px]">${o.member ? '顾客要求改短裙长，已确认' : '无备注'}</p>
+        </div>
+      </div>
+
+      <p class="mt-3 text-[11px] font-medium text-[#71717a]">商品明细</p>
+      <div class="mt-2 space-y-1.5">
+        ${o.items.map(it => `<div class="flex items-center gap-2 rounded-lg bg-[#fafafa] px-3 py-2">
+          <span class="flex-1 truncate text-[12px]">${it[0]}</span>
+          <span class="shrink-0 text-[10px] text-[#71717a]">${it[1]} × ${it[3]}</span>
+          <span class="shrink-0 text-[12px] tnum">${yuan(it[2])}</span>
+        </div>`).join('')}
+      </div>
+
+      <div class="mt-3 flex items-end justify-between border-t border-[#f1f1f3] pt-3">
+        <span class="text-[13px] text-[#71717a] tnum">应付金额：${yuan(payable)}</span>
+        <span class="text-[15px] tnum"><span class="text-[12px] text-[#71717a]">实收</span> <b class="text-[20px] font-semibold">${yuan(paid)}</b></span>
+      </div>
+
+      <div class="mt-3 flex gap-2">
+        <button class="btn flex-1" onclick="showToast('修改订单')">${icon('pencil','h-4 w-4')}修改</button>
+        <button class="btn flex-1" onclick="showToast('发起退货')">退货</button>
+        <button class="btn btn-primary flex-1" onclick="showToast('发起换货')">换货</button>
+      </div>`;
+  },
+
+  /* ---------------------------------------------------------- 库存详情 */
+  stockDetail(params) {
+    const p = MOCK.inventory.find(x => x.barcode === params.barcode) || MOCK.inventory[0];
+    return `${sheetHeader('商品详情')}
+      <div class="mt-2 flex items-center gap-3">
+        <span class="swatch h-14 w-14" style="background:${p.color}">${p.name.slice(0,1)}</span>
+        <div class="min-w-0">
+          <p class="text-[15px] font-semibold">${p.name}</p>
+          <p class="mt-0.5 text-[11px] text-[#71717a] tnum">${p.barcode} · ${p.attr}</p>
+        </div>
+      </div>
+      <div class="mt-3 flex items-center justify-between text-[12px]">
+        <span class="text-[#71717a]">吊牌价</span><span class="tnum">${yuan(p.price)}</span>
+      </div>
+
+      <p class="mt-4 text-[11px] font-medium text-[#71717a]">该款下其他 SKU</p>
+      <div class="mt-2 overflow-hidden rounded-lg border border-[#f1f1f3]">
+        <div class="flex items-center bg-[#fafafa] px-3 py-2 text-[10px] text-[#71717a]">
+          <span class="flex-1">条码</span><span class="w-14 text-center">颜色</span>
+          <span class="w-10 text-center">尺码</span><span class="w-10 text-right">库存</span><span class="w-10 text-right">销量</span>
+        </div>
+        ${MOCK.skus.map(s => `<div class="flex items-center border-t border-[#f1f1f3] px-3 py-2 text-[11px]">
+          <span class="flex-1 tnum">${s.barcode}</span>
+          <span class="w-14 text-center text-[#71717a]">${s.color}</span>
+          <span class="w-10 text-center text-[#71717a]">${s.size}</span>
+          <span class="w-10 text-right tnum ${s.stock === 0 ? 'text-[#dc2626] font-semibold' : ''}">${s.stock}</span>
+          <span class="w-10 text-right text-[#71717a] tnum">${s.sold}</span>
+        </div>`).join('')}
+      </div>
+
+      <button class="btn btn-primary mt-4 w-full" onclick="openPage('stockFlow',{barcode:'${p.barcode}'})">查看商品流水</button>`;
+  },
+
+  /* ---------------------------------------------------------- 会员详情 */
+  memberDetail(params) {
+    const m = MOCK.members.find(x => x.phone === params.phone) || MOCK.members[0];
+    const name = (m.name && m.name !== m.phone) ? m.name : '未命名';
+    const levelLabel = m.kind === 'super' ? '超级会员' : '平台会员';
+    const levelTone = m.kind === 'super' ? 'badge-warning' : 'badge-brand';
+
+    const orderBlock = MOCK.memberOrders.map(o => `<div class="flex items-center py-2.5">
+      <div class="min-w-0 flex-1">
+        <p class="text-[12px] tnum">${o.no}</p>
+        <p class="mt-0.5 text-[10px] text-[#71717a] tnum">应付 ${yuan(o.payable)}</p>
+      </div>
+      <span class="shrink-0 text-[13px] font-semibold tnum">${yuan(o.paid)}</span>
+    </div>`).join('');
+
+    const pointBlock = MOCK.pointLogs.map(r => `<div class="flex items-center py-2.5">
+      <span class="min-w-0 flex-1">
+        <span class="block text-[12px]">${r.type}</span>
+        <span class="mt-0.5 block text-[10px] text-[#71717a]">${r.reason}</span>
+        <span class="mt-0.5 block text-[10px] text-[#a1a1aa] tnum">${r.time}</span>
+      </span>
+      <span class="shrink-0 text-[13px] font-semibold tnum ${r.change > 0 ? 'text-[#16a34a]' : 'text-[#dc2626]'}">${r.change > 0 ? '+' : ''}${r.change}</span>
+    </div>`).join('');
+
+    const balanceBlock = MOCK.balanceLogs.map(r => `<div class="flex items-center py-2.5">
+      <span class="min-w-0 flex-1">
+        <span class="block text-[12px]">${r.type}</span>
+        <span class="mt-0.5 block text-[10px] text-[#71717a]">${r.reason}</span>
+        <span class="mt-0.5 block text-[10px] text-[#a1a1aa] tnum">${r.time}</span>
+      </span>
+      <span class="shrink-0 text-[13px] font-semibold tnum ${r.change > 0 ? 'text-[#16a34a]' : 'text-[#dc2626]'}">${r.change > 0 ? '+' : ''}${yuan(r.change)}</span>
+    </div>`).join('');
+
+    const couponBlock = MOCK.coupons.map(c => `<div class="flex items-center py-2.5">
+      <span class="min-w-0 flex-1"><span class="block text-[12px]">${c.name}</span><span class="block text-[10px] text-[#71717a]">有效期至 ${c.expires}</span></span>
+      <span class="text-[12px] font-medium tnum">${c.value}</span>
+      <span class="badge ${c.tone} ml-2">${c.status}</span>
+    </div>`).join('');
+
+    return `${sheetHeader('会员详情')}
+      <div class="mt-1 flex items-center gap-3">
+        ${ui.memberAvatar(m.kind, 40)}
+        <div class="min-w-0">
+          <p class="flex items-center gap-1.5 text-[15px] font-semibold">${name}<span class="badge ${levelTone}">${levelLabel}</span></p>
+          <p class="mt-0.5 text-[11px] text-[#71717a] tnum">${m.phone}</p>
+        </div>
+      </div>
+
+      <div class="mt-3 grid grid-cols-2 gap-2">
+        ${[['积分', m.points.toLocaleString('zh-CN')], ['余额', yuan(m.balance)], ['累计消费', '¥28,460.00'], ['订单数', '36']].map(s =>
+          `<div class="rounded-lg bg-[#fafafa] p-3"><p class="text-[10px] text-[#71717a]">${s[0]}</p><p class="mt-0.5 text-[15px] font-semibold tnum">${s[1]}</p></div>`).join('')}
+      </div>
+
+      <div class="mt-3">
+        <p class="text-[11px] font-medium text-[#71717a]">订单</p>
+        <div class="mt-1 divide-y divide-[#f1f1f3]">${orderBlock}</div>
+      </div>
+      <div class="mt-3">
+        <p class="text-[11px] font-medium text-[#71717a]">积分记录</p>
+        <div class="mt-1 divide-y divide-[#f1f1f3]">${pointBlock}</div>
+      </div>
+      ${m.balance > 0 ? `<div class="mt-3">
+        <p class="text-[11px] font-medium text-[#71717a]">余额记录</p>
+        <div class="mt-1 divide-y divide-[#f1f1f3]">${balanceBlock}</div>
+      </div>` : ''}
+      <div class="mt-3">
+        <p class="text-[11px] font-medium text-[#71717a]">优惠券记录</p>
+        <div class="mt-1 divide-y divide-[#f1f1f3]">${couponBlock}</div>
+      </div>
+      <p class="mt-4 text-center text-[10px] text-[#a1a1aa]">手机端仅支持查询，修改会员请前往桌面端</p>`;
+  },
+
+  /* ---------------------------------------------------------- 用户中心 */
+  profile() {
+    return `${sheetHeader('我的')}
+      <div class="mt-1 flex items-center gap-3">
+        <span class="flex h-11 w-11 items-center justify-center rounded-full bg-[#eef2ff] text-[#4338ca]">${icon('user-round','h-5 w-5')}</span>
+        <div>
+          <p class="text-[15px] font-semibold">${state.userName}</p>
+          <p class="mt-0.5 text-[11px] text-[#71717a]">${state.role === 'admin' ? '管理员' : '导购员'} · Dave &amp; Bella</p>
+        </div>
+      </div>
+      <div class="mt-2 divide-y divide-[#f1f1f3] text-[13px]">
+        <button class="flex w-full items-center gap-2 py-3" onclick="openPage('settings')">
+          ${icon('settings','h-4 w-4 text-[#71717a]')}<span class="flex-1 text-left">系统设置</span>${icon('chevron-right','h-4 w-4 text-[#a1a1aa]')}
+        </button>
+        <button class="flex w-full items-center gap-2 py-3" onclick="openPage('logs')">
+          ${icon('file-text','h-4 w-4 text-[#71717a]')}<span class="flex-1 text-left">操作日志</span>${icon('chevron-right','h-4 w-4 text-[#a1a1aa]')}
+        </button>
+        <button class="flex w-full items-center gap-2 py-3 text-[#dc2626]" onclick="logout()">
+          ${icon('log-out','h-4 w-4')}<span class="flex-1 text-left">退出登录</span>
+        </button>
+      </div>
+      <p class="mt-3 text-center text-[10px] text-[#a1a1aa]">DaveBella 1.0.0 · Android</p>`;
+  },
+
+  /* ---------------------------------------------------------- 收款 */
+  pay() {
+    const total = cartPayable();
+    return `${sheetHeader('选择支付方式')}
+      <p class="mt-1 text-center text-[26px] font-semibold tnum">${yuan(total)}</p>
+      <div class="mt-4 grid grid-cols-4 gap-2">
+        ${PAYMENTS.map(p => `<button class="rounded-xl border py-3 ${state.payment === p.id ? 'border-[#4f46e5] bg-[#eef2ff]' : 'border-[#e4e4e7] bg-white'}"
+          onclick="pickPayment('${p.id}')">
+          <span class="mx-auto flex h-8 w-8 items-center justify-center rounded-full" style="background:${p.soft};color:${p.color}">${icon(p.icon,'h-4 w-4')}</span>
+          <span class="mt-1 block text-[11px] ${state.payment === p.id ? 'text-[#4338ca] font-medium' : 'text-[#52525b]'}">${p.label}</span>
+        </button>`).join('')}
+      </div>
+
+      <div class="mt-4 flex items-center gap-2">
+        <span class="shrink-0 whitespace-nowrap text-[12px] text-[#71717a]">实收</span>
+        <input class="input h-9 w-auto min-w-0 flex-1 text-right tnum" value="${(total).toFixed(2)}" />
+      </div>
+
+      <div class="mt-3">
+        <p class="text-[10px] text-[#71717a]">订单备注</p>
+        <input class="input mt-1 h-9 text-xs" placeholder="选填" value="${state.note}" oninput="state.note=this.value" />
+      </div>
+
+      <div class="mt-3 flex items-center gap-2 rounded-lg bg-[#fafafa] px-3 py-2 text-[12px]">
+        <span class="text-[#71717a]">成单导购</span>
+        <span class="ml-auto">林晓</span>
+      </div>
+
+      <button class="btn btn-primary mt-4 h-11 w-full" onclick="paySuccess()">确认收款</button>
+      <button class="btn btn-ghost mt-2 w-full" onclick="closeSheet()">取消</button>`;
+  },
+
+  /* ---------------------------------------------------------- 收款成功 */
+  paySuccess() {
+    const r = state.receipt || {};
+    return `<div class="py-4 text-center">
+        <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#dcfce7] text-[#16a34a]">${icon('check','h-7 w-7')}</span>
+        <p class="mt-3 text-[18px] font-semibold">收款成功</p>
+        <p class="mt-1 text-[11px] text-[#71717a] tnum">${r.no || 'DB202610230043'} · ${r.paymentLabel || '微信'}</p>
+        <p class="mt-3 text-[32px] font-semibold tracking-tight tnum">${yuan(r.amount || 0)}</p>
+        <div class="mt-4 grid grid-cols-2 gap-2 text-[12px]">
+          <div class="rounded-lg bg-[#f4f4f5] p-2"><p class="text-[10px] text-[#71717a]">获得积分</p><p class="mt-0.5 font-medium tnum">+${r.points || 0}</p></div>
+          <div class="rounded-lg bg-[#f4f4f5] p-2"><p class="text-[10px] text-[#71717a]">会员余额</p><p class="mt-0.5 font-medium tnum">${yuan(r.balance || 0)}</p></div>
+        </div>
+        <button class="btn btn-primary mt-4 h-11 w-full" onclick="continueOrder()">继续开单</button>
+      </div>`;
+  },
+
+  /* ---------------------------------------------------------- 会员输入 */
+  memberInput() {
+    return `${sheetHeader('添加会员')}
+      <p class="mt-1 text-[11px] text-[#71717a]">输入会员手机号，与桌面端逻辑一致</p>
+      <input id="member-phone" class="input mt-3 h-10 text-xs tnum" inputmode="numeric" maxlength="11" placeholder="请输入 11 位手机号" />
+      <p id="member-error" class="mt-1 hidden text-[10px] text-[#dc2626]">请输入正确的 11 位手机号</p>
+      <button class="btn btn-primary mt-3 h-10 w-full" onclick="confirmMember()">确认</button>
+      <button class="btn btn-ghost mt-2 w-full" onclick="closeSheet()">取消</button>`;
+  },
+
+  /* ---------------------------------------------------------- 条码输入 */
+  barcodeInput() {
+    return `${sheetHeader('扫码添加商品')}
+      <p class="mt-1 text-[11px] text-[#71717a]">扫码由顶栏统一发起，这里可手动补录条码</p>
+      <input id="barcode-input" class="input mt-3 h-10 text-xs tnum" inputmode="numeric" placeholder="请输入商品条码" />
+      <p id="barcode-error" class="mt-1 hidden text-[10px] text-[#dc2626]">未查询到该条码，请重新输入</p>
+      <button class="btn btn-primary mt-3 h-10 w-full" onclick="confirmBarcode()">确认</button>
+      <button class="btn btn-ghost mt-2 w-full" onclick="closeSheet()">取消</button>`;
+  },
+};
+
+/* ============================================================
+ * 9. 运行时：渲染 / 导航 / 交互
+ * ============================================================ */
+function renderAppBar() {
+  const meta = TABS.find(t => t.id === state.tab);
+  const title = state.subpage ? SUBPAGES[state.subpage].title : meta.label;
+  const left = state.subpage
+    ? `<button class="flex h-8 w-8 items-center justify-center rounded-lg text-[#52525b]" onclick="closePage()">${icon('arrow-left','h-5 w-5')}</button>`
+    : `<svg viewBox="0 0 1024 1024" width="24" height="24" xmlns="http://www.w3.org/2000/svg" aria-label="Dave &amp; Bella" class="shrink-0">
+        <path fill="#4f46e5" d="M721.419424 204.785372h54.853225c71.309192 0 134.280694 54.633812 142.618384 123.968288l67.579173 561.404472c8.776516 72.771945-46.588672 133.768731-121.335333 133.76873H158.771613C83.878677 1023.926862 28.732902 963.003214 37.43628 890.231269L105.088591 328.387972c8.264553-68.89565 71.455467-123.6026 142.472109-123.6026h54.926362v-0.146275C302.487062 91.641454 396.395783 0 511.953243 0c115.55746 0 209.466181 91.860867 209.466181 204.639097V204.785372z m-352.742804 0h175.676595c24.354832 0 44.101993 19.308335 44.101992 43.151204 0 23.769731-19.747161 43.078066-44.101992 43.078066H368.67662v98.735804a53.317334 53.317334 0 0 1 19.747161 41.395901 54.487537 54.487537 0 0 1-55.072638 53.902435 54.487537 54.487537 0 0 1-55.145775-53.902435c0-18.576959 9.654168-34.959789 24.281694-44.613956V290.941504h-54.926362c-26.329548 0-51.854582 22.014428-54.853225 47.466324L125.055165 900.324263c-2.559817 21.575602 11.702021 37.37333 33.716448 37.37333h706.36326c21.94129 0 36.276266-15.870866 33.643311-37.519606l-67.506035-561.404471c-3.071781-25.817584-28.377402-47.758874-54.926362-47.758874h-54.853225v98.735804a53.317334 53.317334 0 0 1 19.747161 41.395901 54.487537 54.487537 0 0 1-55.072638 53.902435 54.487537 54.487537 0 0 1-55.145775-53.902435c0-18.576959 9.654168-34.959789 24.281694-44.613956V204.56596C655.303004 127.552032 590.941887 64.653668 511.953243 64.653668s-143.349761 62.752089-143.34976 139.985429V204.785372zM293.27172 611.064924c0-1.755303 0-3.510606-1.901578-3.510606a46.296122 46.296122 0 0 1 13.018499-24.793658l126.528105-113.143918a47.027498 47.027498 0 0 1 59.460895 0 34.374688 34.374688 0 0 1 0 53.024784l-52.073994 46.003571h270.828655c24.135419 0 44.613956 17.699307 44.613956 38.909221 0 21.209914-20.478537 38.909221-44.613956 38.90922H334.155657a42.127277 42.127277 0 0 1-27.865438-10.604956c-7.460039-7.09435-13.018499-15.944004-13.018499-24.793658z m460.474538 119.653168c0 1.755303 0 3.510606 1.901578 1.755303a46.296122 46.296122 0 0 1-13.018498 24.793657L616.101233 870.337833a47.027498 47.027498 0 0 1-59.534034 0 34.374688 34.374688 0 0 1 0-53.024784l52.073995-44.248268H337.885677c-24.135419 0-44.613956-17.699307-44.613957-38.909221 0-21.209914 20.478537-38.909221 44.613957-38.90922h374.976644c9.288479 0 20.478537 3.583744 27.865438 10.604956 7.460039 7.09435 13.018499 15.944004 13.018499 24.793658z"></path>
+      </svg>`;
+
+  document.getElementById('appbar').innerHTML = `
+    ${left}
+    <div class="min-w-0 flex-1">
+      <p id="m-title" class="text-[15px] font-semibold">${title}</p>
+      <p class="text-[10px] text-[#71717a]">${state.userName} · ${state.role === 'admin' ? '管理员' : '导购员'}</p>
+    </div>
+    <button class="flex h-8 w-8 items-center justify-center rounded-lg text-[#52525b]" onclick="openScanner()">${icon('scan-line','h-5 w-5')}</button>
+    <button class="flex h-8 w-8 items-center justify-center rounded-full bg-[#eef2ff] text-[#4338ca]" onclick="openSheet('profile')">${icon('user-round','h-4 w-4')}</button>`;
+}
+
+function renderTabbar() {
+  const el = document.getElementById('tabbar');
+  el.className = `tabbar${state.subpage ? ' hidden' : ''}`;
+  el.innerHTML = TABS.map(t => `<button class="tab ${state.tab === t.id ? 'on' : ''}" onclick="goTab('${t.id}')">
+    ${icon(t.icon)}<span>${t.label}</span>
+  </button>`).join('');
+}
+
+function render() {
+  if (!state.loggedIn) { renderLogin(); return; }
+  document.getElementById('appbar').style.display = '';
+
+  renderAppBar();
+  renderTabbar();
+
+  const content = document.getElementById('m-content');
+  content.className = `content${state.subpage ? ' no-tabbar' : ''}`;
+  content.innerHTML = state.subpage
+    ? SUBPAGES[state.subpage].render(state.subpageParams)
+    : pages[state.tab]();
+
+  renderBuyBar();
+  lucide.createIcons();
+}
+
+/* 买单底部结算条：只保留「去收款」 */
+function renderBuyBar() {
+  let bar = document.getElementById('buy-bar');
+  const show = state.loggedIn && state.tab === 'buy' && !state.subpage;
+  if (!show) { if (bar) bar.remove(); return; }
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'buy-bar';
+    bar.className = 'absolute bottom-[74px] left-0 right-0 z-30 border-t border-[#e4e4e7] bg-white px-4 py-2.5';
+    document.querySelector('.screen').appendChild(bar);
+  }
+  bar.innerHTML = `<button class="btn btn-primary h-10 w-full" onclick="openSheet('pay')">${icon('wallet','h-4 w-4')}去收款</button>`;
+  lucide.createIcons();
+}
+
+/* ---------- 登录页 ---------- */
+/** 复用启动页的 Logo 路径，避免重复维护 */
+function brandSvg(size) {
+  const path = document.querySelector('#splash svg path').getAttribute('d');
+  return `<svg viewBox="0 0 1024 1024" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg" aria-label="Dave &amp; Bella">
+    <path fill="#4f46e5" d="${path}"/></svg>`;
+}
+
+function loginHtml() {
+  return `<div class="flex min-h-full flex-col justify-center px-6 pb-20">
+    <div class="flex flex-col items-center">
+      ${brandSvg(64)}
+      <p class="mt-3 text-[20px] font-semibold tracking-tight">Dave &amp; Bella</p>
+      <p class="mt-1 text-[11px] text-[#71717a]">店内移动作业台</p>
+    </div>
+    <div class="mt-8">
+      <p class="mb-1 text-[11px] text-[#71717a]">用户名</p>
+      <input id="login-username" class="input h-10 text-[13px]" placeholder="请输入员工账号" />
+      <p class="mb-1 mt-3 text-[11px] text-[#71717a]">密码</p>
+      <input id="login-password" type="password" class="input h-10 text-[13px]" placeholder="请输入密码"
+        onkeydown="if(event.key==='Enter')submitLogin()" />
+      <button class="mt-3 flex items-center gap-1 text-[11px] text-[#71717a]" onclick="toggleServerField()">
+        <span id="login-caret">${icon('chevron-right','h-3.5 w-3.5')}</span>服务地址
+      </button>
+      <div id="login-server" class="mt-1 hidden">
+        <input class="input h-10 text-[12px] tnum" value="http://127.0.0.1:9577" />
+        <p class="mt-1 text-[10px] text-[#a1a1aa]">真机需填写电脑的局域网 IP，端口默认 9577</p>
+      </div>
+      <p id="login-error" class="mt-2 hidden text-[11px] text-[#dc2626]">请输入用户名和密码</p>
+      <button class="btn btn-primary mt-4 h-11 w-full text-[14px]" onclick="submitLogin()">登录</button>
+    </div>
+    <p class="mt-8 text-center text-[10px] text-[#a1a1aa]">演示账号：admin / admin</p>
+  </div>`;
+}
+
+function renderLogin() {
+  document.getElementById('appbar').style.display = 'none';
+  document.getElementById('tabbar').className = 'tabbar hidden';
+  const content = document.getElementById('m-content');
+  content.className = 'content no-tabbar';
+  content.innerHTML = loginHtml();
+  renderBuyBar();
+  lucide.createIcons();
+}
+
+function toggleServerField() {
+  const opened = !document.getElementById('login-server').classList.toggle('hidden');
+  document.getElementById('login-caret').innerHTML = icon(opened ? 'chevron-down' : 'chevron-right', 'h-3.5 w-3.5');
+  lucide.createIcons();
+}
+
+function submitLogin() {
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-password').value;
+  const error = document.getElementById('login-error');
+  if (!username || !password) { error.classList.remove('hidden'); return; }
+  state.loggedIn = true;
+  state.userName = username;
+  state.role = username === 'admin' ? 'admin' : 'clerk';
+  state.tab = 'buy';
+  render();
+  showToast(`欢迎回来，${username}`);
+}
+
+function logout() {
+  closeSheet();
+  state.loggedIn = false;
+  state.cart = [];
+  state.member = null;
+  state.subpage = null;
+  render();
+}
+
+/* ---------- 导航 ---------- */
+function goTab(id) {
+  state.tab = id;
+  state.subpage = null;
+  render();
+  document.getElementById('m-content').scrollTop = 0;
+}
+
+function openPage(name, params) {
+  state.subpage = name;
+  state.subpageParams = params || {};
+  closeSheet();
+  render();
+  document.getElementById('m-content').scrollTop = 0;
+}
+
+function closePage() {
+  state.subpage = null;
+  render();
+}
+
+/* ---------- 抽屉 ---------- */
+function openSheet(name, params) {
+  state.sheet = name;
+  document.getElementById('sheet').innerHTML = sheets[name](params || {});
+  document.getElementById('sheet-mask').classList.add('open');
+  lucide.createIcons();
+}
+
+function closeSheet() {
+  state.sheet = null;
+  document.getElementById('sheet-mask').classList.remove('open');
+}
+
+/* ---------- 弹窗 ---------- */
+function openDialog(html) {
+  document.getElementById('dialog').innerHTML = html;
+  document.getElementById('dialog-mask').classList.add('open');
+  lucide.createIcons();
+}
+
+function closeDialog() {
+  document.getElementById('dialog-mask').classList.remove('open');
+}
+
+/* ---------- 订单 ---------- */
+function switchOrderRange(id) { state.orders.range = id; state.orders.loaded = 1; render(); }
+function submitOrderSearch(value) {
+  state.orders.keyword = value.trim();
+  if (!value.trim()) { state.orders.keyword = ''; render(); return; }
+  const isPhone = /^1[3-9]\d{9}$/.test(value.trim());
+  if (isPhone) { state.orders.keyword = value.trim(); showToast(`按手机号查询：${value.trim()}`); }
+  else { state.orders.keyword = value.trim(); showToast(`按订单号查询：${value.trim()}`); }
+}
+
+/* ---------- 库存 ---------- */
+function switchInventoryTab(id) {
+  state.inventory.tab = id;
+  state.inventory.keyword = '';
+  render();
+}
+
+/* ---------- 会员 ---------- */
+/* ---------- 数据 ---------- */
+function switchDataRange(id) { state.data.range = id; render(); }
+function switchLogRange() { showToast('已切换时间范围'); }
+function noop() {}
+
+/* ---------- 买单 ---------- */
+const cartOriginal = () => state.cart.reduce((s, i) => s + i.price * i.qty, 0);
+const cartPayable = () => state.cart.reduce((s, i) => s + i.price * i.discount / 10 * i.qty, 0);
+const cartCount = () => state.cart.reduce((s, i) => s + i.qty, 0);
+
+function changeQty(index, delta) {
+  const item = state.cart[index];
+  item.qty = Math.max(1, item.qty + delta);
+  render();
+}
+
+function setDiscount(index, value) {
+  const n = Number(value);
+  state.cart[index].discount = (n > 0 && n <= 10) ? n : 6;
+  render();
+}
+
+function openBarcodeDialog() { openSheet('barcodeInput'); }
+
+function confirmBarcode() {
+  const input = document.getElementById('barcode-input');
+  const value = input.value.trim();
+  const error = document.getElementById('barcode-error');
+  const hit = MOCK.inventory.find(p => p.barcode === value);
+  if (!hit) { error.classList.remove('hidden'); return; }
+  const existing = state.cart.find(i => i.barcode === hit.barcode);
+  if (existing) existing.qty += 1;
+  else state.cart.push({ barcode: hit.barcode, name: hit.name, attr: hit.attr, price: hit.price, qty: 1, discount: 6 });
+  closeSheet();
+  showToast(`已加入买单：${hit.name}`);
+  render();
+}
+
+function openMemberDialog() { openSheet('memberInput'); }
+
+function confirmMember() {
+  const input = document.getElementById('member-phone');
+  const value = input.value.trim();
+  const error = document.getElementById('member-error');
+  if (!/^1[3-9]\d{9}$/.test(value)) { error.classList.remove('hidden'); return; }
+  const hit = MOCK.members.find(m => m.phone === value);
+  state.member = hit || { phone:value, name:'', kind:'platform', points:0, balance:0 };
+  closeSheet();
+  showToast(hit ? `已绑定会员 ${value}` : `未查询到会员 ${value}，已按新会员开单`);
+  render();
+}
+
+function pickPayment(id) {
+  state.payment = id;
+  openSheet('pay');
+}
+
+function paySuccess() {
+  const payment = PAYMENTS.find(p => p.id === state.payment) || PAYMENTS[0];
+  state.receipt = {
+    no: 'DB' + String(Date.now()).slice(-10),
+    amount: cartPayable(),
+    paymentLabel: payment.label,
+    points: state.member ? Math.round(cartPayable()) : 0,
+    balance: state.member ? state.member.balance : 0,
+  };
+  openSheet('paySuccess');
+}
+
+function continueOrder() {
+  state.cart = [];
+  state.member = null;
+  state.note = '';
+  state.receipt = null;
+  closeSheet();
+  state.tab = 'buy';
+  render();
+  showToast('已清空，可继续开单');
+}
+
+/* ---------- 扫码 ---------- */
+let scanTimer;
+function openScanner() {
+  const el = document.getElementById('scanner');
+  el.classList.add('open');
+  el.innerHTML = `
+    <div class="flex items-center justify-between px-4 pt-14 text-white">
+      <button class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10" onclick="closeScanner()">${icon('x','h-5 w-5')}</button>
+      <p class="text-[14px] font-medium">扫描商品条码</p>
+      <span class="w-8"></span>
+    </div>
+    <div class="flex flex-1 flex-col items-center justify-center gap-6">
+      <div class="scan-frame">
+        <span class="scan-corner left-0 top-0 border-r-0 border-b-0 rounded-tl-md"></span>
+        <span class="scan-corner right-0 top-0 border-l-0 border-b-0 rounded-tr-md"></span>
+        <span class="scan-corner left-0 bottom-0 border-r-0 border-t-0 rounded-bl-md"></span>
+        <span class="scan-corner right-0 bottom-0 border-l-0 border-t-0 rounded-br-md"></span>
+        <span class="scan-line"></span>
+      </div>
+      <p class="text-[12px] text-white/70">将商品条码放入框内，自动识别</p>
+    </div>
+    <div class="pb-16 text-center">
+      <button class="btn h-10 px-6" onclick="simulateScan()">模拟识别</button>
+    </div>`;
+  lucide.createIcons();
+  scanTimer = setTimeout(simulateScan, 1500);
+}
+
+function closeScanner() {
+  clearTimeout(scanTimer);
+  document.getElementById('scanner').classList.remove('open');
+}
+
+function simulateScan() {
+  clearTimeout(scanTimer);
+  const barcode = '6941496198229';
+  closeScanner();
+  const hit = MOCK.inventory.find(p => p.barcode === barcode);
+  openDialog(`
+    <div class="text-center">
+      <span class="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-[#eef2ff] text-[#4f46e5]">${icon('scan-barcode','h-5 w-5')}</span>
+      <p class="mt-2 text-[14px] font-semibold">已识别条码</p>
+      <p class="mt-1 text-[13px] tnum text-[#52525b]">${barcode}</p>
+      ${hit ? `<p class="mt-2 text-[12px] text-[#71717a]">${hit.name} · ${hit.attr}</p>` : ''}
+    </div>
+    <div class="mt-4 grid grid-cols-2 gap-2">
+      <button class="btn h-10" onclick="scanAction('inventory','${barcode}')">查询库存</button>
+      <button class="btn btn-primary h-10" onclick="scanAction('buy','${barcode}')">加入买单</button>
+    </div>
+    <button class="btn btn-ghost mt-2 w-full text-[12px]" onclick="closeDialog()">取消</button>`);
+}
+
+function scanAction(action, barcode) {
+  closeDialog();
+  const hit = MOCK.inventory.find(p => p.barcode === barcode);
+  if (action === 'buy') {
+    if (!hit) { showToast('未查询到该条码'); return; }
+    const existing = state.cart.find(i => i.barcode === hit.barcode);
+    if (existing) existing.qty += 1;
+    else state.cart.push({ barcode: hit.barcode, name: hit.name, attr: hit.attr, price: hit.price, qty: 1, discount: 6 });
+    goTab('buy');
+    showToast(`已加入买单：${hit.name}`);
+    return;
+  }
+  state.tab = 'inventory';
+  state.inventory.keyword = barcode;
+  state.inventory.tab = 'all';
+  state.subpage = null;
+  render();
+  showToast(`已按条码查询：${barcode}`);
+}
+
+/* ---------- Toast ---------- */
+let toastTimer;
+function showToast(text) {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = text;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+/* ---------- 触底加载更多 ---------- */
+document.getElementById('m-content').addEventListener('scroll', function () {
+  if (state.tab !== 'orders' || state.subpage) return;
+  const nearBottom = this.scrollTop + this.clientHeight >= this.scrollHeight - 40;
+  if (!nearBottom) return;
+  if (state.orders.loaded >= 3) return;
+  state.orders.loaded += 1;
+  render();
+  this.scrollTop = this.scrollHeight - this.clientHeight - 60;
+});
+
+/* ---------- 初始化 ---------- */
+render();
+setTimeout(() => document.getElementById('splash').classList.add('hide'), 1200);
+</script>
+</body>
+</html>

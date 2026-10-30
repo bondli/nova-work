@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数据页指标卡环比计算流程</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Serif:ital@0;1&family=Noto+Sans+SC:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper: #f5f5f5;
+      --color-ink: #2d3142;
+      --color-muted: #4f5d75;
+      --color-accent: #bf4520;
+      --font-sans: 'Geist', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+      --font-serif: 'Instrument Serif', 'Noto Serif', 'Songti SC', serif;
+      --font-mono: 'Geist Mono', ui-monospace, monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .frame { max-width: 1200px; width: 100%; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+    .footnote {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      color: var(--color-muted);
+      margin-top: 0.75rem;
+    }
+    svg { width: 100%; min-width: 1120px; display: block; }
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Flowchart · Data Page</p>
+    <h1>数据页指标卡的「较上期」如何算出来</h1>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1200 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="cards-delta-title cards-delta-desc">
+        <title id="cards-delta-title">数据页指标卡环比计算流程</title>
+        <desc id="cards-delta-desc">前端按所选区间推算等长的上一区间，并发两次 getCoreData 取数，汇总为指标后由 buildDelta 计算百分比并渲染到四张指标卡。</desc>
+        <defs>
+          <marker id="cd-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+        <!-- arrows -->
+        <path d="M 216,240 H 240" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#cd-arrow)"/>
+        <path d="M 408,240 H 432" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#cd-arrow)"/>
+        <path d="M 600,240 H 624" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#cd-arrow)"/>
+        <path d="M 792,240 H 816" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#cd-arrow)"/>
+        <path d="M 984,240 H 1008" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#cd-arrow)"/>
+
+        <!-- 01 输入 -->
+        <rect x="48" y="196" width="168" height="88" rx="6" fill="rgba(79,93,117,0.10)" stroke="#5a6580" stroke-width="1"/>
+        <text x="60" y="214" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">01</text>
+        <text x="132" y="242" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">选择日期区间</text>
+        <text x="132" y="262" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">DateRangePicker</text>
+
+        <!-- 02 推算上一区间 -->
+        <rect x="240" y="196" width="168" height="88" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="252" y="214" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">02</text>
+        <text x="324" y="242" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">推算上一区间</text>
+        <text x="324" y="262" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">previousRange()</text>
+
+        <!-- 03 两次查询 -->
+        <rect x="432" y="196" width="168" height="88" rx="6" fill="#ffffff" stroke="#2e5aa8" stroke-width="1"/>
+        <text x="444" y="214" fill="#2e5aa8" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">03</text>
+        <text x="516" y="242" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">两次核心数据查询</text>
+        <text x="516" y="262" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">当前 + 上一 · Promise.all</text>
+
+        <!-- 04 归一到指标 -->
+        <rect x="624" y="196" width="168" height="88" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="636" y="214" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">04</text>
+        <text x="708" y="242" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">归一到指标</text>
+        <text x="708" y="262" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">toSummary()</text>
+
+        <!-- 05 计算环比 -->
+        <rect x="816" y="196" width="168" height="88" rx="6" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1.2"/>
+        <text x="828" y="214" fill="#bf4520" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">05</text>
+        <text x="900" y="242" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">计算环比</text>
+        <text x="900" y="262" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">buildDelta(u, prev)</text>
+
+        <!-- 06 渲染到卡片 -->
+        <rect x="1008" y="196" width="168" height="88" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="1020" y="214" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">06</text>
+        <text x="1092" y="242" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">渲染到卡片</text>
+        <text x="1092" y="262" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">涨绿 · 跌红 · 1 位小数</text>
+
+        <!-- callouts -->
+        <text x="240" y="352" fill="#4f5d75" font-size="14" font-family="'Instrument Serif', 'Noto Serif', 'Songti SC', serif" font-style="italic">上一区间等长且紧邻当前区间。</text>
+        <text x="240" y="374" fill="#4f5d75" font-size="14" font-family="'Instrument Serif', 'Noto Serif', 'Songti SC', serif" font-style="italic">选 10/01–10/07（7 天）对应 09/24–09/30。</text>
+
+        <text x="816" y="352" fill="#4f5d75" font-size="14" font-family="'Instrument Serif', 'Noto Serif', 'Songti SC', serif" font-style="italic">订单金额、余额消耗、订单数量、售出商品</text>
+        <text x="816" y="374" fill="#4f5d75" font-size="14" font-family="'Instrument Serif', 'Noto Serif', 'Songti SC', serif" font-style="italic">参与环比；库存与会员余额是时点快照。</text>
+
+        <!-- legend -->
+        <rect x="48" y="494" width="30" height="14" rx="2" fill="rgba(79,93,117,0.10)" stroke="#5a6580" stroke-width="1"/>
+        <text x="86" y="505" fill="#4f5d75" font-size="11" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif">输入</text>
+        <rect x="150" y="494" width="30" height="14" rx="2" fill="#ffffff" stroke="#2e5aa8" stroke-width="1"/>
+        <text x="188" y="505" fill="#4f5d75" font-size="11" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif">服务端请求</text>
+        <rect x="300" y="494" width="30" height="14" rx="2" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1.2"/>
+        <text x="338" y="505" fill="#4f5d75" font-size="11" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif">关键计算</text>
+        <rect x="432" y="494" width="30" height="14" rx="2" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="470" y="505" fill="#4f5d75" font-size="11" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif">前端步骤</text>
+        <text x="560" y="505" fill="#4f5d75" font-size="11" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif">上期为 0 时显示「— 较上期」，不做除法。</text>
+      </svg>
+    </div>
+    <p class="footnote">NOVA · DATA PAGE DELTA · 2026-10-28</p>
+  </div>
+</body>
+</html>

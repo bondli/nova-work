@@ -1,0 +1,11 @@
+{
+  "startupMs": 652,
+  "loginMs": 274,
+  "nav_analysisMs": 517,
+  "nav_buyMs": 557,
+  "nav_ordersMs": 561,
+  "nav_inventoryMs": 566,
+  "nav_membersMs": 563,
+  "nav_marketingMs": 575,
+  "nav_dataMs": 557
+}

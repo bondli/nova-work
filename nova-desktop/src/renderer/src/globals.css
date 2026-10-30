@@ -1,0 +1,316 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans:
+    Inter, -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+
+  /*
+   * 字号 = demo 基准像素 × 用户字号倍率（--font-scale）。
+   * 只有字号 token 参与缩放，间距（gap / h-* / p-*）与图标尺寸保持原样。
+   */
+  --text-caption: calc(10px * var(--font-scale));
+  --text-caption--line-height: calc(14px * var(--font-scale));
+  --text-meta: calc(11px * var(--font-scale));
+  --text-meta--line-height: calc(16px * var(--font-scale));
+  --text-ui: calc(12px * var(--font-scale));
+  --text-ui--line-height: calc(16px * var(--font-scale));
+  --text-body: calc(13px * var(--font-scale));
+  --text-body--line-height: calc(20px * var(--font-scale));
+  /* AI 对话正文：hero 消息基准 14px，跟随字号设置缩放 */
+  --text-message: calc(14px * var(--font-scale));
+  --text-message--line-height: calc(22px * var(--font-scale));
+  --text-title: calc(15px * var(--font-scale));
+  --text-title--line-height: calc(20px * var(--font-scale));
+  --text-metric: calc(22px * var(--font-scale));
+  --text-metric--line-height: calc(28px * var(--font-scale));
+  /* 数据页 6 卡并排时的小号指标数值，对齐 demo 的 18px */
+  --text-metric-sm: calc(18px * var(--font-scale));
+  --text-metric-sm--line-height: calc(24px * var(--font-scale));
+  /* 登录品牌大字，对齐 demo 的 30px */
+  --text-display: calc(30px * var(--font-scale));
+  --text-display--line-height: calc(40px * var(--font-scale));
+  /* 收款成功等强提示金额，对齐 demo 的 32px */
+  --text-display-lg: calc(32px * var(--font-scale));
+  --text-display-lg--line-height: calc(38px * var(--font-scale));
+  --text-brand: calc(17px * var(--font-scale));
+  --text-brand--line-height: calc(22px * var(--font-scale));
+
+  --color-success: #16a34a;
+  --color-success-soft: #ecfdf5;
+  --color-warning: #d97706;
+  --color-warning-soft: #fffbeb;
+  --color-danger-soft: #fef2f2;
+  --color-surface: #fafafa;
+  --color-subtle: #a1a1aa;
+  --color-frame: #d4d4d8;
+  --color-chart-primary: #4f46e5;
+  --color-chart-secondary: #c7d2fe;
+}
+
+:root {
+  /* 字号倍率：小 12/14、中 1、大 16/14，运行时由 use-font-size-effect 写入 */
+  --font-scale: 1;
+  --background: #f4f4f5;
+  --foreground: #18181b;
+  --card: #ffffff;
+  --card-foreground: #18181b;
+  --popover: #ffffff;
+  --popover-foreground: #18181b;
+  --primary: #4f46e5;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --accent: #eef2ff;
+  --accent-foreground: #4338ca;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #4f46e5;
+  --radius: 0.5rem;
+  --chart-1: #4f46e5;
+  --chart-2: #c7d2fe;
+  --chart-3: #16a34a;
+  --chart-4: #d97706;
+  --chart-5: #dc2626;
+  --surface: #fafafa;
+  --subtle: #a1a1aa;
+  --frame: #d4d4d8;
+}
+
+.dark {
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #18181b;
+  --card-foreground: #fafafa;
+  --popover: #18181b;
+  --popover-foreground: #fafafa;
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
+  --secondary: #27272a;
+  --secondary-foreground: #fafafa;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --accent: #27272a;
+  --accent-foreground: #e0e7ff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #27272a;
+  --input: #3f3f46;
+  --ring: #6366f1;
+  --chart-1: #6366f1;
+  --chart-2: #818cf8;
+  --chart-3: #22c55e;
+  --chart-4: #f59e0b;
+  --chart-5: #ef4444;
+  --surface: #131316;
+  --subtle: #71717a;
+  --frame: #3f3f46;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-surface: var(--surface);
+  --color-subtle: var(--subtle);
+  --color-frame: var(--frame);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: calc(var(--radius) - 1px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    overflow: hidden;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* 滚动条完全隐藏，仍可用滚轮 / 触控板 / 键盘滚动 */
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-thumb,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* 暗黑模式下 type=time 的原生图标默认是深色，反转成浅色避免看不见 */
+  .dark input[type='time']::-webkit-calendar-picker-indicator {
+    filter: invert(1) opacity(0.7);
+  }
+
+  /* 可交互元素统一使用手型光标；禁用态与下拉菜单显式设置的 cursor-default 不受影响 */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+}
+
+@utility tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 窗口拖拽区：标题栏与侧栏空白处可拖动窗口；内部交互元素用 app-no-drag 恢复点击 */
+@utility app-drag {
+  -webkit-app-region: drag;
+}
+
+@utility app-no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* 抽屉打开时整体关闭窗口拖拽区，确保抽屉顶部按钮的点击不会被系统截获 */
+html[data-sheet-open] .app-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* 流式光标与 shimmer：对齐 nexa 的 ai-elements 动效 */
+.agent-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: currentColor;
+  animation: caret-blink 1s step-end infinite;
+}
+
+@keyframes caret-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.markdown-streaming-preview {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.ai-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    currentColor 0%,
+    color-mix(in oklab, currentColor 35%, transparent) 50%,
+    currentColor 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 1.6s linear infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Toast：对齐 antd message —— 卡片宽度随消息内容自适应，浅色/深色两套观感 */
+[data-sonner-toaster] [data-sonner-toast][data-styled='true'] {
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: fit-content;
+  max-width: 100%;
+  padding: 9px 12px;
+  gap: 8px;
+  border: 0;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.5715;
+  box-shadow:
+    0 6px 16px 0 rgb(0 0 0 / 8%),
+    0 3px 6px -4px rgb(0 0 0 / 12%),
+    0 9px 28px 8px rgb(0 0 0 / 5%);
+}
+
+.dark [data-sonner-toaster] [data-sonner-toast][data-styled='true'] {
+  box-shadow:
+    0 6px 16px 0 rgb(0 0 0 / 45%),
+    0 3px 6px -4px rgb(0 0 0 / 35%),
+    0 9px 28px 8px rgb(0 0 0 / 28%);
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-icon] {
+  width: 20px;
+  height: 20px;
+  margin-inline: 0;
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-icon] svg {
+  margin-inline: 0;
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-content] {
+  min-width: 0;
+  gap: 2px;
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-title] {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5715;
+}
+
+[data-sonner-toaster] [data-sonner-toast] [data-description] {
+  font-size: 13px;
+  line-height: 1.5715;
+  opacity: 0.75;
+}
+
+
+

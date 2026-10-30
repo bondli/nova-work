@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 设计令牌：popup（普通 DOM）与浮层（Shadow DOM）共用，:host 让变量继承进影子树 */
+:root,
+:host {
+  --background: 0 0% 100%;
+  --foreground: 231 24% 16%;
+  --border: 240 19% 91%;
+  --muted: 240 17% 97%;
+  --muted-foreground: 228 10% 53%;
+  /* 品牌主色 #4f46e5 */
+  --primary: 243 75% 59%;
+  --primary-foreground: 0 0% 100%;
+  --destructive: 6 63% 46%;
+  --success: 145 64% 34%;
+}
