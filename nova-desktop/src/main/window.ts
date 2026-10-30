@@ -2,12 +2,17 @@
  * 主窗口创建与安全基线配置。
  * 渲染层不直接接触 Node，所有能力通过 preload 白名单暴露。
  */
-import { BrowserWindow, session } from 'electron'
+import { app, BrowserWindow, session } from 'electron'
 import { join } from 'node:path'
 import { isDevelopment } from './env'
 
 /** 创建唯一主窗口，并挂载全部安全限制 */
 export function createMainWindow(): BrowserWindow {
+  // 开发模式 Dock 显示的是 Electron 默认图标，替换为与打包一致的应用图标
+  if (isDevelopment && process.platform === 'darwin') {
+    app.dock?.setIcon(join(__dirname, '../../assets/icon.icns'))
+  }
+
   const window = new BrowserWindow({
     width: 1440,
     height: 900,

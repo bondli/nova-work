@@ -11,6 +11,7 @@ asar: true
 asarUnpack:
   - node_modules/sql.js/dist/*.wasm
 mac:
+  icon: assets/icon.icns
   target:
     - target: dmg
       arch:
@@ -19,6 +20,7 @@ mac:
   identity: null
   hardenedRuntime: false
 win:
+  icon: assets/icon.ico
   target:
     - target: nsis
       arch:
