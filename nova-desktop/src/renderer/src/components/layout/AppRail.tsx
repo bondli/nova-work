@@ -48,9 +48,16 @@ function RailItem({ item }: RailItemProps) {
 /** 应用最左侧导航栏：品牌入口、7 个业务入口、底部设置入口 */
 export function AppRail() {
   const setDialogOpen = useUiStore((state) => state.setDialogOpen)
+  // macOS 顶部是交通灯，Logo 需要下移让位；Windows 无交通灯，Logo 与顶栏文字垂直居中
+  const isMac = window.nova.platform === 'darwin'
 
   return (
-    <aside className="app-drag flex w-[78px] shrink-0 flex-col items-center border-r border-border bg-card pt-9">
+    <aside
+      className={cn(
+        'app-drag flex w-[78px] shrink-0 flex-col items-center border-r border-border bg-card',
+        isMac ? 'pt-9' : 'pt-2.5'
+      )}
+    >
       <NavLink
         to="/analysis"
         title="Dave & Bella"

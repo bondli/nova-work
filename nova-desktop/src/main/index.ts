@@ -2,7 +2,7 @@
  * 主进程入口。
  * 负责：单实例约束、开发环境数据隔离、读取设置、创建窗口、注册 IPC。
  */
-import { BrowserWindow, app } from 'electron'
+import { BrowserWindow, Menu, app } from 'electron'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 import { isDevelopment } from './env'
@@ -40,6 +40,10 @@ if (!hasSingleInstanceLock) {
   app.on('second-instance', focusMainWindow)
 
   void app.whenReady().then(async () => {
+    // macOS 保留系统菜单（Cmd+Q / Cmd+C 等依赖它）；Windows / Linux 去掉默认的
+    // File / Edit / View / Window / Help 菜单栏，窗口内不再出现顶部菜单
+    if (process.platform !== 'darwin') Menu.setApplicationMenu(null)
+
     // 启动前先恢复用户的主题、字号与开机自启设置
     const settings = await getSettings()
     applyTheme(settings.appearance.theme)

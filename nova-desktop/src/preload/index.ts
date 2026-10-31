@@ -39,6 +39,8 @@ import type {
  */
 
 const api = {
+  /** 当前操作系统：渲染层用于平台差异化布局（macOS 需为交通灯让出顶部空间） */
+  platform: process.platform,
   settings: {
     get: () => ipcRenderer.invoke(IPC.settingsGet) as Promise<IpcResult<AppSettings>>,
     set: (settings: AppSettings) =>
