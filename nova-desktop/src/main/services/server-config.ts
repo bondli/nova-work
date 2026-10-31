@@ -35,6 +35,15 @@ export const serverConnectionInputSchema = z.object({
     .transform((value) => value.replace(/\/+$/, ''))
 })
 
+/**
+ * 登录页提交的连接信息。
+ * 内部令牌仅跨机部署时需要（客户端与服务端不共用 ~/.nova/server-config.json），
+ * 与服务端同机部署时留空即可沿用配置文件里已有的令牌。
+ */
+export const serverLoginInputSchema = serverConnectionInputSchema.extend({
+  internalToken: z.string().trim().min(1, '内部令牌不能为空').max(200).optional()
+})
+
 /** 文件结构只做宽松校验，未知字段（jwtSecret、uploadToken、internalToken）原样保留 */
 const storedConfigSchema = z
   .object({
@@ -148,6 +157,18 @@ export async function saveServerConnection(input: ServerConnectionInput): Promis
     }
   }
 
+  await writeJsonFile(SERVER_CONFIG_FILE, next)
+  resetServerConfigCache()
+}
+
+/** 保存内部令牌：跨机部署时需要与服务端 ~/.nova/server-config.json 中的值一致 */
+export async function saveInternalToken(token: string): Promise<void> {
+  const stored = await readStored()
+  const next: StoredConfig = {
+    ...stored,
+    // 只覆盖令牌，baseUrl / 数据库等界面字段保持原值
+    auth: { ...stored.auth, internalToken: token.trim() }
+  }
   await writeJsonFile(SERVER_CONFIG_FILE, next)
   resetServerConfigCache()
 }

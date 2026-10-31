@@ -16,6 +16,7 @@ import type {
   SetSessionModelInput
 } from '../shared/types/analysis'
 import type { IpcResult } from '../shared/types/ipc'
+import type { ServerLoginInput } from '../shared/types/server-config'
 import type { AppNotification } from '../shared/types/notification'
 import type {
   PosExportInput,
@@ -78,6 +79,13 @@ const api = {
     baseUrl: () => ipcRenderer.invoke(IPC.dataConfigBaseUrl) as Promise<IpcResult<string>>,
     set: (input: DataSettingsInput) =>
       ipcRenderer.invoke(IPC.dataConfigSet, input) as Promise<IpcResult<DataSettingsView>>
+  },
+  serverConfig: {
+    /** 登录页读取 POS 服务地址（未登录也可调用） */
+    baseUrl: () => ipcRenderer.invoke(IPC.serverConfigBaseUrl) as Promise<IpcResult<string>>,
+    /** 登录页保存 POS 服务地址与内部令牌，写入 ~/.nova/server-config.json */
+    setBaseUrl: (input: ServerLoginInput) =>
+      ipcRenderer.invoke(IPC.serverConfigSetBaseUrl, input) as Promise<IpcResult<string>>
   },
   modelConfig: {
     get: () => ipcRenderer.invoke(IPC.modelConfigGet) as Promise<IpcResult<ModelConfigView>>,

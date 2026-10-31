@@ -15,7 +15,12 @@ import {
 } from '../agent/config'
 import { getSession } from '../services/auth'
 import { clearPosToken } from '../api/pos-token'
-import { getServerConfig } from '../services/server-config'
+import {
+  getServerConfig,
+  saveInternalToken,
+  saveServerConnection,
+  serverLoginInputSchema
+} from '../services/server-config'
 
 /**
  * 设置与应用级 IPC 处理器。
@@ -67,6 +72,37 @@ export function registerSettingsIpc(getWindow: () => BrowserWindow | null): void
     try {
       const { baseUrl } = await getServerConfig()
       return success(baseUrl)
+    } catch (error) {
+      return internalFailure(error)
+    }
+  })
+
+  // 登录页专用：登录请求本身就依赖该地址，因此不能要求已登录
+  ipcMain.handle(IPC.serverConfigBaseUrl, async () => {
+    try {
+      const { baseUrl } = await getServerConfig()
+      return success(baseUrl)
+    } catch (error) {
+      return internalFailure(error)
+    }
+  })
+
+  ipcMain.handle(IPC.serverConfigSetBaseUrl, async (_event, input: unknown) => {
+    const parsed = serverLoginInputSchema.safeParse(input)
+    if (!parsed.success) {
+      const message = parsed.error.issues[0]?.message ?? '服务端地址不合法'
+      return failure('INVALID_INPUT', message)
+    }
+
+    try {
+      await saveServerConnection({ baseUrl: parsed.data.baseUrl })
+      // 跨机部署时客户端需要与服务端一致；同机部署留空则沿用已有令牌
+      if (parsed.data.internalToken) {
+        await saveInternalToken(parsed.data.internalToken)
+      }
+      // 地址或令牌可能已变化，清空已缓存的 JWT，避免用旧服务的令牌
+      clearPosToken()
+      return success(parsed.data.baseUrl)
     } catch (error) {
       return internalFailure(error)
     }

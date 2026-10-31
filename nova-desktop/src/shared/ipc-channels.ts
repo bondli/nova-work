@@ -11,6 +11,9 @@ export const IPC = {
   dataConfigSet: 'data-config:set',
   // 仅返回 POS 服务地址：商品图片等静态资源需要，导购员也可用
   dataConfigBaseUrl: 'data-config:base-url',
+  // 登录页专用：未登录时也要能读写 POS 服务地址，否则新电脑首次启动无法登录
+  serverConfigBaseUrl: 'server-config:base-url',
+  serverConfigSetBaseUrl: 'server-config:set-base-url',
   modelConfigGet: 'model-config:get',
   modelConfigSet: 'model-config:set',
   modelConfigTest: 'model-config:test',

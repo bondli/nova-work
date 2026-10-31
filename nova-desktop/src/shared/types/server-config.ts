@@ -17,3 +17,8 @@ export interface ServerConfigView {
 export interface ServerConnectionInput {
   baseUrl: string
 }
+
+/** 登录页提交的连接信息；internalToken 仅跨机部署时需要 */
+export interface ServerLoginInput extends ServerConnectionInput {
+  internalToken?: string
+}

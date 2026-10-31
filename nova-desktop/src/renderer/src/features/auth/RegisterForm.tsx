@@ -27,13 +27,15 @@ type RegisterValues = z.infer<typeof registerSchema>
 
 interface RegisterFormProps {
   onSwitchMode: () => void
+  /** 提交前保存登录页修改的服务地址；失败时按注册失败展示 */
+  beforeSubmit?: () => Promise<void>
 }
 
 /**
  * 注册表单：用户名、姓名、密码、确认密码。
  * 校验规则与主进程一致；注册成功后自动登录，新账号默认为导购员。
  */
-export function RegisterForm({ onSwitchMode }: RegisterFormProps) {
+export function RegisterForm({ onSwitchMode, beforeSubmit }: RegisterFormProps) {
   const registerUser = useAuthStore((state) => state.register)
 
   const form = useForm<RegisterValues>({
@@ -43,6 +45,7 @@ export function RegisterForm({ onSwitchMode }: RegisterFormProps) {
 
   const onSubmit = async (values: RegisterValues): Promise<void> => {
     try {
+      await beforeSubmit?.()
       await registerUser({
         username: values.username,
         name: values.name,

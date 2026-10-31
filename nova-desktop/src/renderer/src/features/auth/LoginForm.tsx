@@ -40,13 +40,15 @@ function writeLastUsername(username: string, remember: boolean): void {
 
 interface LoginFormProps {
   onSwitchMode: () => void
+  /** 提交前保存登录页修改的服务地址；失败时按登录失败展示 */
+  beforeSubmit?: () => Promise<void>
 }
 
 /**
  * 登录表单：用户名 + 密码 + 记住我。
  * 登录失败的错误展示在表单顶部的 Alert 中，而不是字段级错误。
  */
-export function LoginForm({ onSwitchMode }: LoginFormProps) {
+export function LoginForm({ onSwitchMode, beforeSubmit }: LoginFormProps) {
   const login = useAuthStore((state) => state.login)
 
   const form = useForm<LoginValues>({
@@ -56,6 +58,7 @@ export function LoginForm({ onSwitchMode }: LoginFormProps) {
 
   const onSubmit = async (values: LoginValues): Promise<void> => {
     try {
+      await beforeSubmit?.()
       await login(values)
       writeLastUsername(values.username.trim(), values.remember)
     } catch (error) {

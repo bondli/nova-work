@@ -84,6 +84,12 @@ async function callPublicAuth(path: string, body: unknown): Promise<Record<strin
     const text = await response.text()
     const payload = (text ? JSON.parse(text) : {}) as Record<string, unknown>
 
+    // 内部令牌校验失败时服务端返回 { code: 401, message: 'Unauthorized' }，
+    // 与账号密码错误的 401 区分开，提示用户检查服务地址与内部令牌
+    if (response.status === 401 && payload.message === 'Unauthorized') {
+      throw new AuthServiceError('FORBIDDEN', '服务端拒绝了连接，请检查服务器地址与内部令牌')
+    }
+
     if (!response.ok) {
       const message =
         typeof payload.error === 'string' ? payload.error : `服务端返回 ${response.status}`
