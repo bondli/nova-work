@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>桌面端首次启动到登录完成</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Serif:ital@0;1&family=Noto+Sans+SC:wght@400;500;600&family=Noto+Serif+SC:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;
+      --color-ink:     #2d3142;
+      --color-muted:   #4f5d75;
+      --color-accent:  #bf4520;
+      --font-sans:     'Geist', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Noto Serif SC', 'Songti SC', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .frame { max-width: 1120px; width: 100%; }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 0.75rem;
+    }
+
+    .lede {
+      max-width: 62ch;
+      font-size: 0.8rem;
+      line-height: 1.7;
+      color: var(--color-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .diagram-container { width: 100%; overflow-x: auto; }
+    svg { width: 100%; min-width: 1000px; display: block; }
+
+    .footnote {
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      line-height: 1.8;
+      color: var(--color-muted);
+      margin-top: 0.9rem;
+      padding-left: 0.75rem;
+      border-left: 2px solid rgba(45, 49, 66, 0.18);
+    }
+
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Flowchart · Desktop Bootstrap</p>
+    <h1>首次启动到登录成功：本地配置文件怎样生成与更新</h1>
+    <p class="lede">桌面安装包首次启动会在本机生成 <code>~/.nova/server-config.json</code>；登录页改动地址或内部令牌时会写回该文件，而登录动作本身只写会话文件，不会把用户信息写进服务配置。</p>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1000 820" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="startup-login-title startup-login-desc">
+        <title id="startup-login-title">桌面端首次启动到登录完成的配置流转</title>
+        <desc id="startup-login-desc">首次启动读取设置并生成默认服务配置，登录页可改服务地址与内部令牌，登录成功只写会话文件后进入工作台。</desc>
+        <defs>
+          <marker id="sl-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+
+        <!-- arrows -->
+        <path d="M440,100 V140" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#sl-arrow)"/>
+        <path d="M440,204 V240" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#sl-arrow)"/>
+        <path d="M440,312 V352" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#sl-arrow)"/>
+        <path d="M440,448 V480" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#sl-arrow)"/>
+        <path d="M544,400 H660" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#sl-arrow)"/>
+        <path d="M808,432 V504 Q808,512 800,512 H600" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#sl-arrow)"/>
+        <path d="M440,544 V576" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#sl-arrow)"/>
+        <path d="M544,624 H660" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#sl-arrow)"/>
+        <path d="M440,672 V696" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#sl-arrow)"/>
+
+        <!-- arrow labels -->
+        <rect x="448" y="456" width="32" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="464" y="468" fill="#4f5d75" font-size="11" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">否</text>
+
+        <rect x="576" y="376" width="48" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="600" y="388" fill="#4f5d75" font-size="11" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">是</text>
+
+        <rect x="672" y="490" width="64" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="704" y="502" fill="#4f5d75" font-size="11" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">保存并登录</text>
+
+        <rect x="576" y="600" width="48" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="600" y="612" fill="#4f5d75" font-size="11" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">否</text>
+
+        <rect x="448" y="676" width="32" height="16" rx="2" fill="#f5f5f5"/>
+        <text x="464" y="688" fill="#4f5d75" font-size="11" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">是</text>
+
+        <!-- start -->
+        <ellipse cx="440" cy="78" rx="120" ry="22" fill="rgba(79,93,117,0.10)" stroke="#5a6580" stroke-width="1"/>
+        <text x="440" y="83" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">安装后首次启动</text>
+
+        <!-- boot -->
+        <rect x="280" y="140" width="320" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="292" y="157" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">01 · STARTUP</text>
+        <text x="440" y="178" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">主进程启动并打开登录页</text>
+        <text x="440" y="195" fill="#4f5d75" font-size="9" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">读 settings.json（缺失用默认，不写盘）；初始化 agent.db</text>
+
+        <!-- server-config -->
+        <rect x="280" y="240" width="320" height="72" rx="6" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1.2"/>
+        <text x="292" y="257" fill="#bf4520" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">02 · FILE</text>
+        <text x="440" y="279" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">生成 server-config.json</text>
+        <text x="440" y="298" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">默认 127.0.0.1:9577 + 随机 internalToken</text>
+
+        <!-- decision 1 -->
+        <path d="M440,352 L544,400 L440,448 L336,400 Z" fill="rgba(45,49,66,0.03)" stroke="#2d3142" stroke-width="1"/>
+        <text x="440" y="405" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">修改地址 / 令牌？</text>
+
+        <!-- write config -->
+        <rect x="660" y="368" width="300" height="64" rx="6" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1.2"/>
+        <text x="672" y="385" fill="#bf4520" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">03 · WRITE</text>
+        <text x="810" y="404" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">登录前写入配置</text>
+        <text x="810" y="421" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">baseUrl + internalToken（可选）</text>
+
+        <!-- login request -->
+        <rect x="280" y="480" width="320" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="292" y="497" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">04 · REQUEST</text>
+        <text x="440" y="518" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">POST /user/login</text>
+        <text x="440" y="535" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">x-nova-token 须与服务端一致</text>
+
+        <!-- decision 2 -->
+        <path d="M440,576 L544,624 L440,672 L336,624 Z" fill="rgba(45,49,66,0.03)" stroke="#2d3142" stroke-width="1"/>
+        <text x="440" y="629" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">校验通过？</text>
+
+        <!-- error -->
+        <rect x="660" y="592" width="300" height="64" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="672" y="609" fill="#5a6580" font-size="7" font-family="'Geist Mono', ui-monospace, monospace" letter-spacing="0.14em">05 · ERROR</text>
+        <text x="810" y="628" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">登录失败</text>
+        <text x="810" y="645" fill="#4f5d75" font-size="9" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">账号密码错误 / 服务端拒绝连接，留在登录页重试</text>
+
+        <!-- end -->
+        <ellipse cx="440" cy="728" rx="160" ry="32" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="440" y="724" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif" text-anchor="middle">登录成功 · 进入工作台</text>
+        <text x="440" y="742" fill="#4f5d75" font-size="9" font-family="'Geist Mono', ui-monospace, monospace" text-anchor="middle">session.json（仅勾选记住我时）</text>
+
+        <!-- legend -->
+        <ellipse cx="292" cy="791" rx="13" ry="7" fill="rgba(79,93,117,0.10)" stroke="#5a6580" stroke-width="1"/>
+        <text x="314" y="795" fill="#4f5d75" font-size="10" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif">开始 / 结束</text>
+
+        <rect x="430" y="784" width="26" height="14" rx="3" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <text x="464" y="795" fill="#4f5d75" font-size="10" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif">步骤</text>
+
+        <path d="M574,783 L590,791 L574,799 L558,791 Z" fill="rgba(45,49,66,0.03)" stroke="#2d3142" stroke-width="1"/>
+        <text x="600" y="795" fill="#4f5d75" font-size="10" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif">判断</text>
+
+        <rect x="676" y="784" width="26" height="14" rx="3" fill="rgba(191,69,32,0.08)" stroke="#bf4520" stroke-width="1.2"/>
+        <text x="710" y="795" fill="#4f5d75" font-size="10" font-family="'Geist', 'Noto Sans SC', 'PingFang SC', sans-serif">写入本地配置文件</text>
+      </svg>
+    </div>
+
+    <p class="footnote">
+      首次启动：登录页读取服务地址时触发 <code>~/.nova/server-config.json</code> 落盘，内容为默认 baseUrl、数据库默认值与随机 internalToken；同时启动阶段会创建 <code>~/.nova/analysis/agent.db</code>。settings.json 只读取不创建，用户在设置中心保存后才写盘。<br>
+      登录时：登录页改过地址 / 令牌才会更新 server-config.json；登录成功仅在有「记住我」时写 <code>~/.nova/session.json</code>，JWT 只缓存在主进程内存，不会写入任何用户配置文件。
+    </p>
+  </div>
+</body>
+</html>
