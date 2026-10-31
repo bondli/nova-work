@@ -55,7 +55,9 @@ const cssTextPlugin = {
   },
 }
 
-const TAILWIND_CLI = join(ROOT, "node_modules", ".bin", "tailwindcss")
+// 注意：Windows 的 node_modules/.bin 下只有 .cmd/.ps1 shim，Node 的 spawn/execFile 无法直接执行无扩展名脚本，
+// 因此统一用当前 Node 直接跑 tailwindcss 的 CLI 入口（package.json 的 bin 指向 lib/cli.js），跨平台一致
+const TAILWIND_CLI = join(ROOT, "node_modules", "tailwindcss", "lib", "cli.js")
 const TAILWIND_ARGS = [
   "-i",
   join(ROOT, "src/styles/tailwind.css"),
@@ -65,10 +67,10 @@ const TAILWIND_ARGS = [
 
 function buildTailwind() {
   if (!WATCH) {
-    execFileSync(TAILWIND_CLI, TAILWIND_ARGS, { stdio: "inherit" })
+    execFileSync(process.execPath, [TAILWIND_CLI, ...TAILWIND_ARGS], { stdio: "inherit" })
     return
   }
-  const child = spawn(TAILWIND_CLI, [...TAILWIND_ARGS, "--watch"], { stdio: "inherit" })
+  const child = spawn(process.execPath, [TAILWIND_CLI, ...TAILWIND_ARGS, "--watch"], { stdio: "inherit" })
   child.unref()
 }
 
