@@ -17,7 +17,7 @@
     "lint": "eslint .",
     "test": "vitest run --passWithNoTests",
     "test:e2e": "npm run build && playwright test",
-    "pack": "npm run build && electron-builder --mac --publish never",
+    "pack": "npm run build && electron-builder --mac --win --publish never",
     "pack:mac": "npm run build && electron-builder --mac --publish never",
     "pack:win": "npm run build && electron-builder --win --publish never"
   },
