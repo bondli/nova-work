@@ -227,8 +227,14 @@ export async function posUploadImage(input: {
     '/marketing/uploadImage',
     input.filename,
     input.buffer
-  )) as { data: PosImageUploadResult }
-  return body.data
+  )) as { data: { filename: string } }
+
+  // 图片地址统一由桌面端拼装：api-config.json 的 baseUrl + /mini-image/ + 文件名。
+  // 服务端用请求 Host 拼地址会丢失反向代理前缀（如 /pos2），且协议可能被代理改写。
+  const config = await getServerConfig()
+  const base = config.baseUrl.replace(/\/+$/, '')
+
+  return { url: `${base}/mini-image/${body.data.filename}`, filename: body.data.filename }
 }
 
 /** 请求服务端导出接口（如 /order/exportOrderItemList），成功时返回文件二进制 */

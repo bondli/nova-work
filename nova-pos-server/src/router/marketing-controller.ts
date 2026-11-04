@@ -306,10 +306,9 @@ export const uploadMiniHomeImage = (req: RequestWithFile, res: Response): void =
         .toString('hex')}${extension}`;
       fs.writeFileSync(path.join(getMiniImageDir(), filename), file.buffer);
 
-      // 小程序端 <Image> 需要绝对地址；用请求自身的协议与 Host 拼出访问入口，
-      // 本地开发与反向代理部署都能得到当前实际可达的地址。
-      const origin = `${req.protocol}://${req.get('host')}`;
-      res.json({ data: { url: `${origin}/mini-image/${filename}`, filename } });
+      // 只返回文件名，完整地址由调用方（桌面端）用自己配置的 baseUrl 拼装：
+      // 服务端拿不到反向代理前缀（如 /pos2），用请求 Host 拼会得到不可用地址。
+      res.json({ data: { filename } });
     } catch (uploadError) {
       logger.error('Error saving mini home image:');
       console.log(uploadError);

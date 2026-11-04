@@ -45,6 +45,8 @@ type StorageSection = {
   publicBaseUrl?: string;
   /** 上传文件时校验的令牌 */
   uploadToken?: string;
+  /** 日志目录，与 POS 服务的 server-config.json 保持一致 */
+  logDir?: string;
 };
 
 type JwtSection = {
@@ -297,6 +299,7 @@ function normalize(file: MallServerConfig, legacy: DatabaseSection | null): Mall
       uploadDir: file.storage?.uploadDir ?? '~/.nova/mall-files',
       publicBaseUrl: file.storage?.publicBaseUrl ?? baseUrl,
       uploadToken: file.storage?.uploadToken ?? randomSecret(16),
+      logDir: file.storage?.logDir ?? '~/.nova/logs',
     },
     // JWT 密钥首次生成后写回配置文件，保证重启后已签发的 token 仍然有效
     jwt: {
@@ -454,6 +457,13 @@ export const getUploadConfig = (): {
     apiKey: storage.uploadToken ?? null,
   };
 };
+
+/** 日志目录：默认 ~/.nova/logs，与 POS 服务同一目录，便于统一排查 */
+export function getLogDir(): string {
+  const dir = expandHome(getMallConfig().storage?.logDir ?? '~/.nova/logs');
+  fs.mkdirSync(dir, { recursive: true });
+  return dir;
+}
 
 /** 小程序 /mini 接口运行配置（normalize 后所有字段均已补齐，可直接使用） */
 export interface MiniConfig {

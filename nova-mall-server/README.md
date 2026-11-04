@@ -30,7 +30,6 @@ nova-mall-server/
 | 方法 | 路径 | 说明 |
 |---|---|---|
 | GET | `/health` | 健康检查（免鉴权） |
-| GET | `/files/mini-image/*` | 小程序素材图片（只读转发 POS 的 mini-image 目录，对外不暴露 POS 域名） |
 | GET | `/files/*` | 上传文件静态访问 |
 
 ## 本地开发

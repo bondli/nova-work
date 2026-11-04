@@ -6,22 +6,17 @@ import type { Request, Response } from 'express';
 import { handle } from '../utils/async-handler';
 import { resolvePagination } from '../utils/query';
 import { readSharedMiniHome } from '../service/mini-home-content';
-import {
-  rewriteMiniHomeContent,
-  rewriteMiniStore,
-  toMiniAssetUrl,
-} from '../service/mini-assets';
 
 /** 首页：门店优先读共享配置里的 store，其次回退 mall-config；素材缺失回退默认配置 */
 export const getMiniHome = handle(async (_req: Request, res: Response) => {
   const { store: configStore, miniHome } = getMiniConfig();
   const shared = readSharedMiniHome();
-  const content = rewriteMiniHomeContent(shared ?? miniHome);
+  const content = shared ?? miniHome;
   res.json({
     success: true,
     data: {
-      // 图片统一走 mall 自己的域名，不对外暴露 POS 服务地址
-      store: rewriteMiniStore(shared?.store ?? configStore),
+      // 素材地址由桌面端写入绝对 URL，这里原样返回
+      store: shared?.store ?? configStore,
       brand: content.brand,
       banners: content.banners,
       categories: content.categories,
@@ -36,7 +31,7 @@ export const getMiniHome = handle(async (_req: Request, res: Response) => {
 /** 门店信息（首页与「我的」共用）：与首页保持同一数据源 */
 export const getMiniStore = handle(async (_req: Request, res: Response) => {
   const content = readSharedMiniHome();
-  res.json({ success: true, data: rewriteMiniStore(content?.store ?? getMiniConfig().store) });
+  res.json({ success: true, data: content?.store ?? getMiniConfig().store });
 });
 
 /** 进行中的营销活动；字段原样返回，默认每页 20 条 */
@@ -52,14 +47,7 @@ export const getMiniMarketings = handle(async (req: Request, res: Response) => {
 
   res.json({
     success: true,
-    data: rows.map((row) => {
-      // Sequelize 实例转纯对象，活动封面图改写成 mall 域名下的静态地址
-      const plain = row.get({ plain: true }) as Record<string, unknown>;
-      if (typeof plain.marketingImage === 'string') {
-        plain.marketingImage = toMiniAssetUrl(plain.marketingImage);
-      }
-      return plain;
-    }),
+    data: rows.map((row) => row.get({ plain: true }) as Record<string, unknown>),
     count,
   });
 });

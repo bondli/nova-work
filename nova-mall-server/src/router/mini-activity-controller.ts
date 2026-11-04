@@ -5,7 +5,6 @@ import { StoreCoupon } from '../model/storeCoupon';
 import { MemberCoupon } from '../model/memberCoupon';
 import { sequelize } from '../model/index';
 import { issueCoupon } from '../service/coupon';
-import { toMiniAssetUrl } from '../service/mini-assets';
 import { handle } from '../utils/async-handler';
 
 /**
@@ -60,7 +59,7 @@ export const getMiniActivityDetail = handle(async (req: Request, res: Response) 
       name: String(marketing.get('marketingName') ?? ''),
       description: String(marketing.get('marketingDesc') ?? ''),
       theme: marketing.get('marketingTheme') ?? null,
-      image: toMiniAssetUrl(String(marketing.get('marketingImage') ?? '')),
+      image: String(marketing.get('marketingImage') ?? ''),
       type: String(marketing.get('marketingType') ?? ''),
       condition: toNumber(marketing.get('marketingCondition')),
       value: toNumber(marketing.get('marketingValue')),

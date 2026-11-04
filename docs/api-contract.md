@@ -112,7 +112,7 @@
 | POST | `/marketing/delete` / `/marketing/offline` | `id` | 管理员接口 |
 | GET | `/marketing/miniHome` | 无 | `{ data: MiniHomeContent }`，桌面端「营销 - 小程序基础信息 / 小程序 banner / 小程序新品」读取 |
 | POST | `/marketing/miniHome` | `MiniHomeContent` | 管理员接口；写入 `~/.nova/mini-content.json`，mall-server `/mini/home`、`/mini/store` 实时读取 |
-| POST | `/marketing/uploadImage` | multipart `file`（jpg / png，≤5MB） | 管理员接口；落盘 `~/.nova/storage/mini-image/`，返回 `{ data: { url, filename } }`，`url` 为绝对地址，小程序 `<Image>` 可直接引用 |
+| POST | `/marketing/uploadImage` | multipart `file`（jpg / png，≤5MB） | 管理员接口；落盘 `~/.nova/storage/mini-image/`，返回 `{ data: { filename } }`，完整地址由桌面端用 `api-config.json` 的 `baseUrl` 拼成 `{baseUrl}/mini-image/{filename}` |
 
 `MiniHomeContent` 结构：`brand`（`name` / `sublabel`）、`banners[]`（`tag` / `title` / `desc` / `cta` / `image` / `link`）、`categories[]`（`name` / `size` / `image`）、`brandStory`（`title` / `slogan` / `desc` / `images[]` / `stats[]`）、`products[]`（`tag` / `name` / `desc` / `price` / `originPrice` / `image`）、`store`（`name` / `address` / `hours` / `phone` / `lat` / `lng` / `image`）。其中 `store` 同时供小程序首页「到店体验」与「我的-门店信息」使用；文件不存在或格式非法时，两端各自回退内置默认值，历史文件缺 `store` 时读取自动补默认门店。
 

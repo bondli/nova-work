@@ -128,7 +128,7 @@ nova-mall-server：会员端（小程序/手机端会员）独立 API，数据�
 nova-miniapp（Taro）：src/services/request.ts → HTTP 直连 nova-mall-server /mini/*（默认 http://127.0.0.1:9566）
 ```
 
-- **小程序素材图片统一走 mall-server**：图片由桌面端经 POS 上传后落在 `~/.nova/storage/mini-image`，mall 以只读静态目录 `/files/mini-image/*` 转发，并在 `/mini/home`、`/mini/products/:sn`、`/mini/marketings`、`/mini/activities/:id` 里把 POS 绝对地址改写成 mall 域名（`service/mini-assets.ts`）。目的是不让小程序端暴露 POS 的域名与路径，改动这些接口时不要绕过该改写。
+- **小程序素材图片地址由桌面端生成**：图片由桌面端经 POS 上传后落在 `~/.nova/storage/mini-image`，POS 只返回文件名；桌面端用 `~/.nova/api-config.json` 的 `baseUrl` 拼成 `{baseUrl}/mini-image/{filename}` 写进 `~/.nova/mini-content.json`，mall-server 的 `/mini/*` 接口原样返回该地址，不做改写。反向代理带路径前缀（如 `/pos2`）时地址依然正确，改动上传链路时不要改回用请求 Host 拼地址。
 
 - **业务数据统一经 nova-pos-server 读写，禁止任何端直连 MySQL**（唯一例外：桌面端 Agent 的只读查询，走 `src/main/db/sql-guard.ts`，仅允许 SELECT）。
 - 桌面端渲染层是浏览器环境，所有网络请求必须经主进程白名单（见 3.3）。

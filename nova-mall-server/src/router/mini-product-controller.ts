@@ -1,7 +1,6 @@
 import type { Request, Response } from 'express';
 import { Inventory } from '../model/inventory';
 import { readSharedMiniHome } from '../service/mini-home-content';
-import { toMiniAssetUrl } from '../service/mini-assets';
 import { handle } from '../utils/async-handler';
 
 /**
@@ -42,8 +41,8 @@ export const getMiniProduct = handle(async (req: Request, res: Response) => {
       brand: (first?.get('brand') as string) ?? '',
       price: product?.price || fallbackPrice,
       originPrice: product?.originPrice || '',
-      image: toMiniAssetUrl(product?.image),
-      detailImages: (product?.detailImages ?? []).map(toMiniAssetUrl),
+      image: product?.image ?? '',
+      detailImages: product?.detailImages ?? [],
       skus: rows.map((row) => ({
         sku: row.get('sku') as string,
         color: (row.get('color') as string) ?? '',
