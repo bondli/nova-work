@@ -40,3 +40,11 @@ export interface PosUploadResult {
   /** 本地文件名，由主进程补充 */
   filename?: string
 }
+
+/** 小程序素材图片上传结果，字段对应 /marketing/uploadImage */
+export interface PosImageUploadResult {
+  /** 可直接被小程序 <Image> 引用的绝对地址 */
+  url: string
+  /** 服务端落盘后的文件名 */
+  filename: string
+}

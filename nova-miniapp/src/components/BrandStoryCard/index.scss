@@ -1,0 +1,62 @@
+@use '../../styles/tokens.scss' as *;
+
+.nb-brand-card {
+  overflow: hidden;
+}
+
+.nb-brand-image {
+  height: 150px;
+}
+
+.nb-brand-body {
+  padding: 14px;
+}
+
+.nb-brand-eyebrow {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: $brand;
+}
+
+.nb-brand-title {
+  display: block;
+  margin-top: 4px;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: $text;
+}
+
+.nb-brand-desc {
+  display: block;
+  margin-top: 8px;
+  font-size: 10px;
+  line-height: 1.7;
+  color: $text-secondary;
+}
+
+.nb-brand-stats {
+  display: flex;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid $bg;
+}
+
+.nb-brand-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+}
+
+.nb-brand-stat-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: $brand-deep;
+}
+
+.nb-brand-stat-label {
+  font-size: 9px;
+  color: $text-muted;
+}

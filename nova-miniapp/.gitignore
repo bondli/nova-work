@@ -1,0 +1,27 @@
+# nova-miniapp（Taro 微信小程序）忽略规则，与根目录 .gitignore 互补
+
+# ---------- 依赖安装 ----------
+node_modules/
+
+# ---------- 构建产物（微信开发者工具加载的是 dist/，不提交） ----------
+dist/
+
+# ---------- 编译缓存 ----------
+.swc/
+.taro-cache/
+*.tsbuildinfo
+
+# ---------- 微信开发者工具本地私有配置（个人调试设置） ----------
+project.private.config.json
+
+# ---------- 本地环境变量（接口地址等本机覆盖项） ----------
+.env.local
+.env.*.local
+
+# ---------- 日志 ----------
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# ---------- 系统文件 ----------
+.DS_Store

@@ -15,7 +15,8 @@
 | 配置来源 | 唯一来源 `~/.nova/server-config.json`；不再读取任何环境变量 |
 | 配置文件字段 | `baseUrl`、`auth.internalToken`、`auth.jwtSecret`、`server.host/port`、`database.host/port/user/password/database/sqlLog/sync`、`storage.uploadDir/logDir/uploadToken` |
 | 内部令牌 | 所有换取令牌的请求必须携带 `x-nova-token`，与服务端 `auth.internalToken` 一致，否则 401 |
-| 换取 JWT | `POST /auth/token`，请求体 `{ userId, username, role }`，返回 `{ token, expiresIn }`（12 小时） |
+| 换取 JWT | `POST /auth/token`，请求体 `{ userId, username, role }`，返回 `{ token, expiresIn }`（30 天，桌面端由主进程自动续签） |
+| 手机端登录 | `POST /auth/mobile-login`，请求体 `{ username, password }`，返回 `{ token, expiresIn, user }`（30 天，避免店员每天重新登录） |
 | 业务鉴权 | 业务接口统一携带 `Authorization: Bearer <JWT>`；服务端验签后从载荷读取 `role / sub`，不再接受裸 `x-user-id` / `x-user-role` |
 | 角色约束 | `clerk` 访问管理员写接口返回 403；响应体递归裁剪 `cost/costPrice/profit/profitRate/totalCost/grossProfit*`，含 `cost` 时同时裁剪同层 `rate` |
 | 健康检查 | `GET /health` 免鉴权，返回 `{ code: 0, data: { status: 'ok', service: 'nova-pos-server', configPath } }` |
@@ -109,8 +110,26 @@
 | GET | `/marketing/queryCouponList` | `id` | 活动关联券 |
 | POST | `/marketing/create` / `/marketing/update` | 活动字段 | 管理员接口 |
 | POST | `/marketing/delete` / `/marketing/offline` | `id` | 管理员接口 |
+| GET | `/marketing/miniHome` | 无 | `{ data: MiniHomeContent }`，桌面端「营销 - 小程序基础信息 / 小程序 banner / 小程序新品」读取 |
+| POST | `/marketing/miniHome` | `MiniHomeContent` | 管理员接口；写入 `~/.nova/mini-content.json`，mall-server `/mini/home`、`/mini/store` 实时读取 |
+| POST | `/marketing/uploadImage` | multipart `file`（jpg / png，≤5MB） | 管理员接口；落盘 `~/.nova/storage/mini-image/`，返回 `{ data: { url, filename } }`，`url` 为绝对地址，小程序 `<Image>` 可直接引用 |
+
+`MiniHomeContent` 结构：`brand`（`name` / `sublabel`）、`banners[]`（`tag` / `title` / `desc` / `cta` / `image` / `link`）、`categories[]`（`name` / `size` / `image`）、`brandStory`（`title` / `slogan` / `desc` / `images[]` / `stats[]`）、`products[]`（`tag` / `name` / `desc` / `price` / `originPrice` / `image`）、`store`（`name` / `address` / `hours` / `phone` / `lat` / `lng` / `image`）。其中 `store` 同时供小程序首页「到店体验」与「我的-门店信息」使用；文件不存在或格式非法时，两端各自回退内置默认值，历史文件缺 `store` 时读取自动补默认门店。
 
 说明：时间筛选为区间重叠（`startTime <= end && endTime >= start`）；旧库没有参与人数 / 核销 / 带动销售数据，桌面端返回 0 或 `—`，不伪造。
+
+积分兑换（桌面端「营销 - 积分兑换」页签）：
+
+| 方法 | 路径 | 关键参数 | 返回 |
+|---|---|---|---|
+| GET | `/redeem/items` | `current`、`pageSize`、`keyword`、`status`（`active` / `inactive`） | `{ count, data: RedeemItem[] }`，每项附带 `redeemedCount = totalStock - stock` |
+| POST | `/redeem/create` | `name`、`image`、`description`、`detail`、`points`、`totalStock`、`perMemberLimit`、`status`、`sort` | 管理员接口；创建时 `stock = totalStock` |
+| POST | `/redeem/update` | 同上 + `id` | 管理员接口；总库存按差值同步剩余库存，不得小于已兑数量 |
+| GET | `/redeem/orders` | `itemId`（必填）、`current`、`pageSize`、`status`（`pending_pickup` / `picked` / `cancelled` / `expired`，缺省为全部） | `{ count, data: RedeemOrder[] }`，按手机号补 `memberName`；过期未核销的待取货记录读取时判为 `expired` |
+| POST | `/redeem/verify` | `id` | 店员可操作；仅 `pending_pickup` 且未过期可核销，原子更新为 `picked` 并写 `pickedAt`，重复核销返回 409 |
+
+`RedeemItem` 字段：`id` / `name` / `image` / `description` / `detail` / `points` / `totalStock` / `stock` / `perMemberLimit` / `status` / `sort` / `createdAt` / `updatedAt`。
+`RedeemOrder` 字段：`id` / `orderNo` / `phone` / `memberName` / `itemId` / `itemName` / `itemImage` / `points` / `status` / `pickupCode` / `expiredAt` / `pickedAt` / `requestId` / `createdAt` / `updatedAt`。
 
 ### 3.6 数据
 

@@ -47,12 +47,145 @@ type StorageSection = {
   uploadToken?: string;
 };
 
+type JwtSection = {
+  secret?: string;
+  expiresIn?: string;
+};
+
+type StoreSection = {
+  name?: string;
+  address?: string;
+  phone?: string;
+  hours?: string;
+  lat?: number;
+  lng?: number;
+  image?: string;
+};
+
+type SigninSection = {
+  rewards?: number[];
+  resetOnMiss?: boolean;
+};
+
+type LotterySection = {
+  cost?: number;
+  dailyLimit?: number;
+};
+
+type RedeemSection = {
+  pickupValidDays?: number;
+  perMemberDefault?: number;
+};
+
+type BannerSection = {
+  tag?: string;
+  title?: string;
+  desc?: string;
+  cta?: string;
+  image?: string;
+  link?: string;
+};
+
+type CategorySection = {
+  name?: string;
+  size?: string;
+  image?: string;
+};
+
+type BrandStorySection = {
+  title?: string;
+  slogan?: string;
+  desc?: string;
+  images?: string[];
+  stats?: { value?: string; label?: string }[];
+};
+
+type ProductSection = {
+  tag?: string;
+  name?: string;
+  desc?: string;
+  price?: string;
+  originPrice?: string;
+  image?: string;
+};
+
+type MiniHomeSection = {
+  brand?: { name?: string; sublabel?: string };
+  banners?: BannerSection[];
+  categories?: CategorySection[];
+  brandStory?: BrandStorySection;
+  products?: ProductSection[];
+};
+
 type MallServerConfig = {
   baseUrl?: string;
   server?: { host?: string; port?: number | string };
   database?: DatabaseSection;
   wechat?: WechatSection;
   storage?: StorageSection;
+  jwt?: JwtSection;
+  store?: StoreSection;
+  signin?: SigninSection;
+  lottery?: LotterySection;
+  redeem?: RedeemSection;
+  miniHome?: MiniHomeSection;
+};
+
+/** 小程序首页默认内容：配置缺失或为空时兜底，图片统一为空字符串由前端渐变兜底 */
+const DEFAULT_BANNERS: Required<BannerSection>[] = [
+  {
+    tag: '秋冬新品',
+    title: '秋冬焕新 满 1000 减 150',
+    desc: '全场童装通用 · 到店即享',
+    cta: '查看活动',
+    image: '',
+    // 小程序没有独立营销页，留空由客户端提示「关注门店公告」，避免跳转到不存在的路由
+    link: '',
+  },
+  {
+    tag: '积分兑换',
+    title: '积分兑好礼 到店自提',
+    desc: '保温杯 / 浴巾 / 帆布包 限量上新',
+    cta: '去兑换',
+    image: '',
+    link: '/pages/redeem/index',
+  },
+  {
+    tag: '会员日',
+    title: '会员日 双倍积分',
+    desc: '每月 8 日会员消费双倍积分',
+    cta: '了解会员',
+    image: '',
+    link: '/pages/mine/index',
+  },
+];
+
+const DEFAULT_CATEGORIES: Required<CategorySection>[] = [
+  { name: '女小童', size: '73-150cm', image: '' },
+  { name: '男小童', size: '73-150cm', image: '' },
+  { name: '女大童', size: '110-160cm', image: '' },
+  { name: '男大童', size: '110-160cm', image: '' },
+  { name: '婴儿', size: '0-1 岁', image: '' },
+  { name: '童鞋', size: '0-13 岁', image: '' },
+];
+
+const DEFAULT_PRODUCTS: Required<ProductSection>[] = [
+  { tag: '本季新品', name: '奶油针织开衫', desc: 'A 类棉 · 珍珠扣', price: '¥399', originPrice: '¥499', image: '' },
+  { tag: '热销', name: '轻盈羽绒马甲', desc: '90% 白鸭绒 · 轻暖', price: '¥459', originPrice: '¥599', image: '' },
+  { tag: '人气', name: '纯棉背带裤', desc: 'A 类婴幼儿标准', price: '¥269', originPrice: '¥329', image: '' },
+  { tag: '新品', name: '软底学步鞋', desc: '防滑耐磨 · 0-3 岁', price: '¥299', originPrice: '¥369', image: '' },
+];
+
+const DEFAULT_BRAND_STORY = {
+  title: 'ABOUT DAVE&BELLA',
+  slogan: '因爱而生　为爱创造',
+  desc: '2011 年创立，专注 0-14 岁儿童服饰。坚持以 A 类婴幼儿标准做贴身衣物，用柔软面料与原创设计，陪伴超过 3000 万家庭的孩子长大。',
+  images: [''],
+  stats: [
+    { value: '3000万+', label: '家庭选择' },
+    { value: 'A 类', label: '婴幼儿标准' },
+    { value: '0-14 岁', label: '全龄段覆盖' },
+  ],
 };
 
 let cached: MallServerConfig | null = null;
@@ -92,12 +225,61 @@ function parseBaseUrl(baseUrl: string | undefined): { host: string; port: number
       // 配置写错时回退默认值
     }
   }
-  return { host: '127.0.0.1', port: 9599 };
+  return { host: '127.0.0.1', port: 9566 };
 }
 
-/** 把文件内容补齐为完整结构；缺失的上传令牌自动生成 */
+/** 数值配置兜底：非法或非正数时回退默认值 */
+function positiveNumber(value: unknown, fallback: number): number {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+/** 数组配置逐项补默认字段，配置缺失或为空时整套回退默认数据 */
+function normalizeBanners(input?: BannerSection[]): Required<BannerSection>[] {
+  const source = input && input.length > 0 ? input : DEFAULT_BANNERS;
+  return source.map(
+    (item, index) =>
+      ({ ...(DEFAULT_BANNERS[index] ?? DEFAULT_BANNERS[0]), ...item }) as Required<BannerSection>,
+  );
+}
+
+function normalizeCategories(input?: CategorySection[]): Required<CategorySection>[] {
+  const source = input && input.length > 0 ? input : DEFAULT_CATEGORIES;
+  return source.map(
+    (item, index) =>
+      ({ ...(DEFAULT_CATEGORIES[index] ?? DEFAULT_CATEGORIES[0]), ...item }) as Required<CategorySection>,
+  );
+}
+
+function normalizeProducts(input?: ProductSection[]): Required<ProductSection>[] {
+  const source = input && input.length > 0 ? input : DEFAULT_PRODUCTS;
+  return source.map(
+    (item, index) =>
+      ({ ...(DEFAULT_PRODUCTS[index] ?? DEFAULT_PRODUCTS[0]), ...item }) as Required<ProductSection>,
+  );
+}
+
+function normalizeBrandStory(input?: BrandStorySection): typeof DEFAULT_BRAND_STORY {
+  const images = input?.images && input.images.length > 0 ? input.images : DEFAULT_BRAND_STORY.images;
+  const stats =
+    input?.stats && input.stats.length > 0
+      ? input.stats.map((stat, index) => ({
+          value: stat.value ?? DEFAULT_BRAND_STORY.stats[index]?.value ?? '',
+          label: stat.label ?? DEFAULT_BRAND_STORY.stats[index]?.label ?? '',
+        }))
+      : DEFAULT_BRAND_STORY.stats;
+  return {
+    title: input?.title ?? DEFAULT_BRAND_STORY.title,
+    slogan: input?.slogan ?? DEFAULT_BRAND_STORY.slogan,
+    desc: input?.desc ?? DEFAULT_BRAND_STORY.desc,
+    images,
+    stats,
+  };
+}
+
+/** 把文件内容补齐为完整结构；缺失的上传令牌、JWT 密钥自动生成 */
 function normalize(file: MallServerConfig, legacy: DatabaseSection | null): MallServerConfig {
-  const baseUrl = file.baseUrl ?? 'http://127.0.0.1:9599';
+  const baseUrl = file.baseUrl ?? 'http://127.0.0.1:9566';
   const derived = parseBaseUrl(baseUrl);
 
   return {
@@ -115,6 +297,42 @@ function normalize(file: MallServerConfig, legacy: DatabaseSection | null): Mall
       uploadDir: file.storage?.uploadDir ?? '~/.nova/mall-files',
       publicBaseUrl: file.storage?.publicBaseUrl ?? baseUrl,
       uploadToken: file.storage?.uploadToken ?? randomSecret(16),
+    },
+    // JWT 密钥首次生成后写回配置文件，保证重启后已签发的 token 仍然有效
+    jwt: {
+      secret: file.jwt?.secret ?? randomSecret(32),
+      expiresIn: file.jwt?.expiresIn ?? '7d',
+    },
+    store: {
+      name: file.store?.name ?? 'DaveBella 童装生活馆',
+      address: file.store?.address ?? '杭州市 · 万象城 L3 · 儿童区',
+      phone: file.store?.phone ?? '0571-8888 6666',
+      hours: file.store?.hours ?? '10:00 - 22:00 · 周一至周日',
+      lat: Number(file.store?.lat ?? 30.2525),
+      lng: Number(file.store?.lng ?? 120.1644),
+      image: file.store?.image ?? '',
+    },
+    signin: {
+      rewards: file.signin?.rewards?.length ? file.signin.rewards : [5, 5, 5, 10, 10, 10, 30],
+      resetOnMiss: file.signin?.resetOnMiss ?? true,
+    },
+    lottery: {
+      cost: positiveNumber(file.lottery?.cost, 10),
+      dailyLimit: positiveNumber(file.lottery?.dailyLimit, 5),
+    },
+    redeem: {
+      pickupValidDays: positiveNumber(file.redeem?.pickupValidDays, 30),
+      perMemberDefault: positiveNumber(file.redeem?.perMemberDefault, 1),
+    },
+    miniHome: {
+      brand: {
+        name: file.miniHome?.brand?.name ?? 'Dave & Bella',
+        sublabel: file.miniHome?.brand?.sublabel ?? 'DAVE & BELLA · KIDS 0-14',
+      },
+      banners: normalizeBanners(file.miniHome?.banners),
+      categories: normalizeCategories(file.miniHome?.categories),
+      brandStory: normalizeBrandStory(file.miniHome?.brandStory),
+      products: normalizeProducts(file.miniHome?.products),
     },
   };
 }
@@ -141,9 +359,17 @@ function load(): MallServerConfig {
 
   const normalized = normalize(fileContent, readLegacyDatabase());
 
-  const changed = JSON.stringify(fileContent) !== JSON.stringify(normalized);
+  // miniHome 仅作内存兜底（首页素材真正来源是 ~/.nova/mini-content.json），不落盘：
+  // 文件未配置该段时写回副本也剔除，避免下次启动被 normalize 补齐后又写回配置。
+  const toPersist: MallServerConfig = { ...normalized };
+  if (!fileContent.miniHome) delete toPersist.miniHome;
+  // store 同理：门店信息以桌面端「小程序素材」（mini-content.json）为准，
+  // 这里只保留内存兜底；文件里没写就不回写，避免删掉后又被自动补回
+  if (!fileContent.store) delete toPersist.store;
+
+  const changed = JSON.stringify(fileContent) !== JSON.stringify(toPersist);
   if (changed || !fs.existsSync(MALL_CONFIG_FILE)) {
-    persist(normalized);
+    persist(toPersist);
   }
 
   return normalized;
@@ -202,7 +428,7 @@ export const getWeixinConfig = (): WeixinConfig | null => {
   return { WECHAT_APP_ID: wechat.appId, WECHAT_APP_SECRET: wechat.appSecret };
 };
 
-/** 监听端口，优先 server.port，其次 baseUrl，最后默认 9599 */
+/** 监听端口，优先 server.port，其次 baseUrl，最后默认 9566 */
 export const getServerPort = (): number => {
   const config = getMallConfig();
   const port = Number(config.server?.port);
@@ -228,3 +454,29 @@ export const getUploadConfig = (): {
     apiKey: storage.uploadToken ?? null,
   };
 };
+
+/** 小程序 /mini 接口运行配置（normalize 后所有字段均已补齐，可直接使用） */
+export interface MiniConfig {
+  jwt: { secret: string; expiresIn: string };
+  store: {
+    name: string;
+    address: string;
+    phone: string;
+    hours: string;
+    lat: number;
+    lng: number;
+    image: string;
+  };
+  signin: { rewards: number[]; resetOnMiss: boolean };
+  lottery: { cost: number; dailyLimit: number };
+  redeem: { pickupValidDays: number; perMemberDefault: number };
+  miniHome: {
+    brand: { name: string; sublabel: string };
+    banners: Required<BannerSection>[];
+    categories: Required<CategorySection>[];
+    brandStory: typeof DEFAULT_BRAND_STORY;
+    products: Required<ProductSection>[];
+  };
+}
+
+export const getMiniConfig = (): MiniConfig => getMallConfig() as unknown as MiniConfig;

@@ -27,11 +27,12 @@ export const ADMIN = { username: 'admin', password: 'admin' }
 const REAL_SERVER_CONFIG = join(homedir(), '.nova', 'server-config.json')
 
 /**
- * 写入临时 home 的 server-config.json。
- * 桌面端主进程与 nova-pos-server 共用该文件，E2E 必须与服务端令牌一致，
- * 否则 /auth/token 换取 JWT 会返回 401。可用 NOVA_E2E_POS_BASE_URL / NOVA_E2E_POS_TOKEN 覆盖。
+ * 写入临时 home 的 api-config.json（桌面端的 POS 接入配置）。
+ * 桌面端与服务端配置文件已分离：令牌与地址来自真实环境的 server-config.json，
+ * 必须与服务端一致，否则 /auth/token 换取 JWT 会返回 401。
+ * 可用 NOVA_E2E_POS_BASE_URL / NOVA_E2E_POS_TOKEN 覆盖。
  */
-function writeServerConfig(home: string): void {
+function writeApiConfig(home: string): void {
   const baseUrl = process.env['NOVA_E2E_POS_BASE_URL'] ?? 'http://127.0.0.1:9577'
   let token = process.env['NOVA_E2E_POS_TOKEN'] ?? ''
 
@@ -54,19 +55,11 @@ function writeServerConfig(home: string): void {
   }
 
   writeFileSync(
-    join(home, 'server-config.json'),
+    join(home, 'api-config.json'),
     JSON.stringify(
       {
         baseUrl,
-        auth: { internalToken: token },
-        database: {
-          host: '127.0.0.1',
-          port: 3306,
-          user: 'readonly',
-          password: '',
-          database: 'store_pos'
-        },
-        storage: { uploadDir: '~/.nova/storage/inventory-image', logDir: '~/.nova/logs' }
+        auth: { internalToken: token }
       },
       null,
       2
@@ -93,7 +86,7 @@ export function createHome(prefix: string): { home: string; settingsPath: string
     )
   )
 
-  writeServerConfig(home)
+  writeApiConfig(home)
 
   return { home, settingsPath }
 }

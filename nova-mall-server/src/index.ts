@@ -7,6 +7,8 @@ import logger from './logger';
 import { sequelize } from './model/index';
 import router from './router/index';
 import { getServerHost, getServerPort, getUploadConfig, MALL_CONFIG_FILE, shouldSyncDatabase } from './config';
+import { errorHandler, notFoundHandler } from './middleware/error';
+import { getMiniImageDir } from './service/mini-assets';
 
 const PORT = getServerPort();
 const HOST = getServerHost();
@@ -46,6 +48,19 @@ app.get('/health', (_req, res) => {
   res.json({ code: 0, data: { status: 'ok', service: 'nova-mall-server' } });
 });
 
+// 小程序素材图片：POS 上传后落在 mini-image 目录，这里从同机磁盘只读转发，
+// 让小程序端只看到 mall 自己的域名，不暴露 POS 服务的域名与路径。
+app.use(
+  '/files/mini-image',
+  express.static(getMiniImageDir(), {
+    maxAge: '7d',
+    etag: true,
+    lastModified: true,
+    index: false,
+    dotfiles: 'ignore',
+  }),
+);
+
 // 上传文件静态访问
 fs.mkdirSync(uploadConfig.dir, { recursive: true });
 app.use(
@@ -63,6 +78,10 @@ app.all('*', (_req, res, next) => {
   res.header('X-Powered-By', 'MALL-STORE-SERVER');
   next();
 });
+
+// 统一 404 与异常响应（不泄露堆栈），必须挂在所有路由之后
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 (async () => {
   try {

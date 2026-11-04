@@ -1,0 +1,159 @@
+@use '../../styles/tokens.scss' as *;
+
+.nb-order-detail-skeleton {
+  padding: 16px;
+}
+
+.nb-order-detail-info {
+  padding: 12px;
+  border-radius: 12px;
+  background: #fafafa;
+}
+
+.nb-order-detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 11px;
+  color: #52525b;
+}
+
+.nb-order-detail-row:first-child {
+  margin-top: 0;
+}
+
+.nb-order-detail-value {
+  color: #52525b;
+  font-variant-numeric: tabular-nums;
+}
+
+.nb-order-goods {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid $border;
+  border-radius: 12px;
+  background: $card;
+}
+
+.nb-order-good {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nb-order-good-thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: $brand-soft;
+}
+
+.nb-order-good-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.nb-order-good-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  color: $text;
+}
+
+.nb-order-good-spec {
+  margin-top: 2px;
+  font-size: 10px;
+  color: $text-muted;
+}
+
+.nb-order-good-price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.nb-order-good-amount {
+  font-size: 12px;
+  font-weight: 600;
+  color: $brand;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 吊牌价：置于实收价上方并划线 */
+.nb-order-good-original {
+  font-size: 10px;
+  color: $text-muted;
+  text-decoration: line-through;
+  font-variant-numeric: tabular-nums;
+}
+
+.nb-order-good-count {
+  margin-top: 2px;
+  font-size: 10px;
+  color: $text-muted;
+}
+
+.nb-order-total {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid $bg;
+}
+
+.nb-order-total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.nb-order-total-label {
+  color: $text-secondary;
+}
+
+.nb-order-total-value {
+  color: $text;
+  font-variant-numeric: tabular-nums;
+}
+
+.nb-order-total-discount {
+  color: $success;
+  font-variant-numeric: tabular-nums;
+}
+
+.nb-order-total-final {
+  margin-top: 8px;
+}
+
+.nb-order-total-final-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: $text;
+}
+
+.nb-order-total-final-value {
+  font-size: 17px;
+  font-weight: 600;
+  color: $text;
+  font-variant-numeric: tabular-nums;
+}
+
+.nb-order-detail-foot {
+  display: block;
+  margin-top: 14px;
+  font-size: 9px;
+  text-align: center;
+  color: $text-muted;
+}

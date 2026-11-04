@@ -1,0 +1,113 @@
+@use '../../styles/tokens.scss' as *;
+
+.nb-profile-card {
+  padding: 16px;
+}
+
+.nb-profile-edit-title {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: $text;
+}
+
+.nb-profile-edit-sub {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  color: $text-secondary;
+}
+
+.nb-profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.nb-field-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.nb-field-label {
+  margin-bottom: 4px;
+  font-size: 11px;
+  color: #52525b;
+}
+
+/* 输入框与生日选择框共用同一套盒子尺寸：统一 border-box，避免边框叠加造成 2px 高度差 */
+.nb-field {
+  box-sizing: border-box;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid $border;
+  border-radius: 10px;
+  background: $card;
+}
+
+/* NutUI Input 根节点自带 flex:1 / 默认内边距，这里用复合选择器强制与本页生日触发器同高 */
+.nut-input.nb-field {
+  flex: none;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid $border;
+  border-radius: 10px;
+  background: $card;
+
+  .nut-input-native {
+    height: 100%;
+    font-size: 13px;
+    color: $text;
+  }
+}
+
+.nb-field-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nb-field-value {
+  font-size: 13px;
+  color: $text;
+  font-variant-numeric: tabular-nums;
+}
+
+.nb-field-placeholder {
+  font-size: 13px;
+  color: $text-muted;
+}
+
+.nb-field-readonly {
+  background: #fafafa;
+
+  .nut-input-native {
+    color: $text-muted;
+  }
+}
+
+.nut-input.nb-field-readonly {
+  background: #fafafa;
+}
+
+.nb-field-hint {
+  margin-top: 4px;
+  font-size: 9px;
+  color: $text-muted;
+}
+
+.nb-profile-save {
+  height: 42px;
+  margin-top: 20px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.nb-profile-edit-note {
+  display: block;
+  margin-top: 12px;
+  font-size: 9px;
+  text-align: center;
+  color: $text-muted;
+}

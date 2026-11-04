@@ -1,0 +1,70 @@
+@use '../../styles/tokens.scss' as *;
+
+.nb-product {
+  width: 132px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 1px solid $border;
+  border-radius: 14px;
+  background: $card;
+}
+
+/* 配置开启商品点击后才加该类，给出轻微按压反馈 */
+.nb-product-clickable:active {
+  opacity: 0.88;
+}
+
+.nb-product-img {
+  height: 150px;
+}
+
+.nb-product-body {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.nb-product-tag {
+  font-size: 10px;
+  color: $text-secondary;
+}
+
+.nb-product-name {
+  margin-top: 4px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  font-weight: 500;
+  color: $text;
+}
+
+.nb-product-desc {
+  margin-top: 2px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 10px;
+  color: $text-muted;
+}
+
+.nb-product-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.nb-product-price {
+  font-size: 13px;
+  font-weight: 600;
+  color: $brand-deep;
+  font-variant-numeric: tabular-nums;
+}
+
+.nb-product-origin {
+  font-size: 10px;
+  color: $text-muted;
+  text-decoration: line-through;
+  font-variant-numeric: tabular-nums;
+}

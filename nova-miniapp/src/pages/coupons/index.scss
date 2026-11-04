@@ -1,0 +1,27 @@
+@use '../../styles/tokens.scss' as *;
+
+.nb-coupons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nb-coupons-loading {
+  padding: 8px;
+}
+
+.nb-coupons-foot {
+  display: block;
+  margin-top: 16px;
+  font-size: 9px;
+  text-align: center;
+  color: $text-muted;
+}
+
+.nb-list-tip {
+  display: block;
+  padding: 8px 0;
+  font-size: 10px;
+  text-align: center;
+  color: $text-muted;
+}

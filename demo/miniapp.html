@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>DaveBella 会员小程序 · 原型</title>
+<title>DaveBella 会员小程序 · 新版原型</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="./demo.css" />
 <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
@@ -16,55 +16,177 @@
   }
   .screen { width:100%; height:100%; border-radius:44px; overflow:hidden; background:#f4f4f5; position:relative; display:flex; flex-direction:column; }
   .statusbar { height:44px; padding:12px 24px 0; display:flex; align-items:center; justify-content:space-between; font-size:12px; font-weight:600; background:#fff; flex-shrink:0; }
-  .mp-head { height:46px; background:#fff; display:flex; align-items:center; justify-content:space-between; padding:0 12px 0 16px; flex-shrink:0; }
-  .capsule { display:flex; align-items:center; gap:0; height:30px; border:1px solid #e4e4e7; border-radius:999px; overflow:hidden; background:#fff; }
+  .mp-head { height:46px; background:#fff; display:flex; align-items:center; justify-content:space-between; padding:0 12px 0 16px; flex-shrink:0; border-bottom:1px solid #f4f4f5; }
+  .capsule { display:flex; align-items:center; height:30px; border:1px solid #e4e4e7; border-radius:999px; overflow:hidden; background:#fff; }
   .capsule button { width:40px; height:30px; display:flex; align-items:center; justify-content:center; background:transparent; border:0; color:#18181b; cursor:pointer; }
   .capsule .divider { width:1px; height:16px; background:#e4e4e7; }
-  .content { flex:1; overflow-y:auto; }
+  .content { flex:1; overflow-y:auto; overscroll-behavior:contain; }
   .pg { display:none; padding:14px 14px 24px; }
   .pg.on { display:block; }
   .mp-card { background:#fff; border:1px solid #e4e4e7; border-radius:16px; }
-  .tabbar { height:64px; background:#fff; border-top:1px solid #e4e4e7; display:flex; align-items:center; padding:0 4px 6px; flex-shrink:0; }
-  .tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; font-size:9px; color:#a1a1aa; cursor:pointer; }
-  .tab svg { width:20px; height:20px; }
-  .tab.on { color:#4f46e5; font-weight:600; }
+  .tabbar { height:64px; background:#fff; border-top:1px solid #e4e4e7; display:flex; align-items:center; padding:0 10px 6px; flex-shrink:0; }
+  .tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; font-size:10px; color:#a1a1aa; cursor:pointer; background:none; border:0; }
+  .tab svg { width:21px; height:21px; }
+  .tab.on { color:#ff0f23; font-weight:600; }
   .sheet-mask { position:absolute; inset:0; background:rgba(0,0,0,.42); display:none; align-items:flex-end; z-index:40; }
   .sheet-mask.open { display:flex; }
-  .sheet { width:100%; background:#fff; border-radius:20px 20px 0 0; padding:10px 16px 26px; animation:up .2s ease-out; max-height:78%; overflow:auto; }
+  .sheet { width:100%; background:#fff; border-radius:22px 22px 0 0; padding:10px 16px 26px; animation:up .22s ease-out; max-height:82%; overflow:auto; }
   @keyframes up { from{ transform:translateY(100%);} to{transform:none;} }
-  .home-bar { position:absolute; bottom:6px; left:50%; transform:translateX(-50%); width:134px; height:5px; border-radius:3px; background:#18181b; opacity:.85; z-index:50; }
+  .home-bar { position:absolute; bottom:6px; left:50%; transform:translateX(-50%); width:134px; height:5px; border-radius:3px; background:#18181b; opacity:.85; z-index:50; pointer-events:none; }
+  .brand-mark { font-family: Georgia, "Times New Roman", serif; letter-spacing:.02em; }
+  .hero { position:relative; height:330px; border-radius:20px; overflow:hidden; background:#b30012; }
+  .hero img { width:100%; height:100%; object-fit:cover; }
+  .hero::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(30,27,75,.10) 0%, rgba(30,27,75,.06) 38%, rgba(30,27,75,.78) 100%); }
+  .hero-body { position:absolute; inset:0; z-index:2; padding:16px; display:flex; flex-direction:column; justify-content:space-between; color:#fff; }
+  .glass { background:rgba(255,255,255,.16); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,.26); }
+  .login-pill { display:inline-flex; align-items:center; gap:6px; height:30px; padding:0 11px; border-radius:999px; font-size:11px; font-weight:600; color:#fff; cursor:pointer; }
+  .section-head { display:flex; align-items:center; justify-content:space-between; margin:18px 2px 8px; }
+  .section-title { font-size:14px; font-weight:600; letter-spacing:-.01em; }
+  .section-more { font-size:11px; color:#71717a; background:none; border:0; cursor:pointer; display:flex; align-items:center; gap:2px; }
+  .hscroll { display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; margin:0 -14px; padding-left:14px; padding-right:14px; }
+  .hscroll::-webkit-scrollbar { display:none; }
+  .prod { width:132px; flex-shrink:0; background:#fff; border:1px solid #e4e4e7; border-radius:14px; overflow:hidden; }
+  .prod-img { height:150px; background:#f4f4f5; overflow:hidden; }
+  .prod-img img { width:100%; height:100%; object-fit:cover; }
+  .prod-img, .store-img { position:relative; }
+  .img-fb { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#fff1f2,#ffe0e5); color:#ff4057; font-family:Georgia, "Times New Roman", serif; letter-spacing:.12em; font-size:11px; }
+  .chip { display:inline-flex; align-items:center; gap:4px; border-radius:999px; padding:5px 10px; font-size:11px; background:#fff; border:1px solid #e4e4e7; color:#3f3f46; white-space:nowrap; cursor:pointer; }
+  .chip.on { background:#ff0f23; border-color:#ff0f23; color:#fff; }
+  .feature { display:flex; flex-direction:column; gap:7px; padding:12px; }
+  .feature-ico { width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:#fff1f2; color:#ff0f23; }
   .member-card {
-    position:relative; overflow:hidden; border-radius:18px; padding:18px 18px 16px; color:#fff;
-    background:linear-gradient(135deg,#4f46e5 0%,#312e81 62%,#1e1b4b 100%);
-    box-shadow:0 10px 26px rgba(79,70,229,.30);
+    position:relative; overflow:hidden; border-radius:18px; padding:18px; color:#fff;
+    background:linear-gradient(135deg,#ff0f23 0%,#d70015 58%,#7f0010 100%);
+    box-shadow:0 10px 26px rgba(79,70,229,.28);
   }
   .member-card::after {
     content:""; position:absolute; right:-42px; top:-52px; width:180px; height:180px; border-radius:50%;
     background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.22), rgba(255,255,255,0) 70%);
   }
-  .quick { display:flex; flex-direction:column; align-items:center; gap:6px; font-size:11px; color:#3f3f46; }
-  .quick-ico { width:42px; height:42px; border-radius:13px; display:flex; align-items:center; justify-content:center; background:#eef2ff; color:#4f46e5; }
-  .row { display:flex; align-items:center; justify-content:space-between; padding:13px 14px; border-bottom:1px solid #f4f4f5; }
+  .quick { display:flex; flex-direction:column; align-items:center; gap:7px; font-size:11px; color:#3f3f46; background:none; border:0; cursor:pointer; padding:8px 0; }
+  .quick-ico { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:#fff1f2; color:#ff0f23; }
+  .row { display:flex; align-items:center; justify-content:space-between; padding:13px 14px; border-bottom:1px solid #f4f4f5; width:100%; background:none; border-left:0; border-right:0; border-top:0; text-align:left; cursor:pointer; }
   .row:last-child { border-bottom:0; }
   .amount-plus { color:#16a34a; font-weight:600; }
   .amount-minus { color:#18181b; font-weight:600; }
+  .lock-wrap { display:flex; flex-direction:column; align-items:center; text-align:center; padding:34px 22px 24px; }
+  .lock-ico { width:64px; height:64px; border-radius:20px; background:#fff1f2; color:#ff0f23; display:flex; align-items:center; justify-content:center; }
+  .benefit { display:flex; align-items:center; gap:10px; width:100%; padding:11px 12px; border-radius:12px; background:#fafafa; text-align:left; }
+  .benefit-ico { width:30px; height:30px; border-radius:9px; background:#fff1f2; color:#ff0f23; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .sign-day { flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; }
+  .sign-dot { width:30px; height:30px; border-radius:999px; display:flex; align-items:center; justify-content:center; background:#f4f4f5; color:#a1a1aa; font-size:11px; font-weight:600; }
+  .sign-dot.done { background:#fff1f2; color:#ff0f23; }
+  .sign-dot.today { background:#ff0f23; color:#fff; box-shadow:0 0 0 4px #fff1f2; }
+  .lottery-card { position:relative; overflow:hidden; border-radius:18px; padding:16px; background:linear-gradient(135deg,#ff6a3d 0%,#ff2318 52%,#d70015 100%); color:#fff; box-shadow:0 10px 24px rgba(255,15,35,.22); }
+  .lottery-card::after { content:""; position:absolute; width:190px; height:190px; right:-60px; bottom:-90px; border-radius:50%; background:radial-gradient(circle,rgba(255,255,255,.25),rgba(255,255,255,0) 70%); }
+  .prize-chip { padding:5px 9px; border-radius:999px; background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.28); font-size:10px; white-space:nowrap; }
+  .coupon { display:flex; overflow:hidden; border-radius:14px; border:1px solid #ffe0e5; background:#fff; }
+  .coupon-left { width:78px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#fff1f2; color:#c7001a; }
+  .coupon-left.off { background:#f4f4f5; color:#a1a1aa; }
+  .stock-bar { height:4px; border-radius:2px; background:#f4f4f5; overflow:hidden; }
+  .stock-bar > span { display:block; height:100%; background:#ff0f23; }
+  .btn-primary { background:#ff0f23; border-color:#ff0f23; color:#fff; }
+  .btn-primary:hover { background:#d70015; }
+
+  /* 首页顶部品牌条（免登录，只放品牌与登录入口） */
+  .brand-top { display:flex; align-items:center; justify-content:space-between; padding:2px 2px 10px; }
+  .brand-top .logo { font-family:Georgia,"Times New Roman",serif; font-size:19px; font-weight:600; letter-spacing:.01em; }
+  .brand-top .tagline { margin-top:2px; font-size:9px; letter-spacing:.2em; color:#ff0f23; text-transform:uppercase; }
+  .login-btn { display:inline-flex; align-items:center; gap:5px; height:28px; padding:0 11px; border-radius:999px; border:1px solid #ffe0e5; background:#fff1f2; color:#c7001a; font-size:11px; font-weight:600; cursor:pointer; }
+
+  /* ① 活动 banner */
+  .banner { position:relative; width:272px; height:152px; flex-shrink:0; border-radius:16px; overflow:hidden; cursor:pointer; }
+  .banner img { width:100%; height:100%; object-fit:cover; }
+  .banner-shade { position:absolute; inset:0; background:linear-gradient(90deg,rgba(127,0,16,.86) 0%,rgba(199,0,26,.55) 52%,rgba(199,0,26,.12) 100%); }
+  .banner-body { position:absolute; inset:0; padding:14px; display:flex; flex-direction:column; justify-content:space-between; color:#fff; }
+  .banner-tag { align-self:flex-start; padding:3px 7px; border-radius:6px; background:rgba(255,255,255,.2); border:1px solid rgba(255,255,255,.3); font-size:9px; letter-spacing:.08em; }
+  .banner-title { font-size:17px; font-weight:600; line-height:1.24; letter-spacing:-.01em; text-shadow:0 1px 8px rgba(0,0,0,.18); }
+  .banner-desc { margin-top:4px; font-size:10px; color:rgba(255,255,255,.82); }
+  .banner-cta { display:inline-flex; align-items:center; gap:2px; align-self:flex-start; margin-top:8px; padding:4px 9px; border-radius:999px; background:#fff; color:#c7001a; font-size:10px; font-weight:600; }
+  .banner-dots { display:flex; justify-content:center; gap:5px; margin-top:8px; }
+  .banner-dot { width:5px; height:5px; border-radius:999px; background:#e4e4e7; }
+  .banner-dot.on { width:14px; background:#ff0f23; }
+
+  /* 活动详情页 */
+  .act-hero { position:relative; height:190px; border-radius:18px; overflow:hidden; background:linear-gradient(135deg,#ff6a3d,#d70015 60%,#7f0010); }
+  .act-hero img { width:100%; height:100%; object-fit:cover; }
+  .act-hero-shade { position:absolute; inset:0; background:linear-gradient(180deg,rgba(127,0,16,.06) 0%,rgba(127,0,16,.82) 100%); }
+  .act-hero-body { position:absolute; inset:0; padding:14px; display:flex; flex-direction:column; justify-content:space-between; color:#fff; }
+  .act-hero-title { font-size:18px; font-weight:600; line-height:1.28; letter-spacing:-.01em; }
+  .act-hero-desc { margin-top:4px; font-size:10px; color:rgba(255,255,255,.85); }
+  .act-row { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; font-size:11px; }
+  .act-row + .act-row { margin-top:8px; }
+  .act-row span:first-child { flex-shrink:0; color:#a1a1aa; }
+  .act-row span:last-child { text-align:right; color:#18181b; }
+  .act-rule { margin-top:10px; padding-top:9px; border-top:1px solid #f4f4f5; font-size:10px; line-height:1.7; color:#71717a; }
+  .act-coupon { display:flex; overflow:hidden; border-radius:14px; border:1px solid #ffe0e5; background:#fff; }
+  .act-coupon-left { width:82px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#fff1f2; color:#c7001a; }
+  .act-coupon-left b { font-size:22px; line-height:1; font-variant-numeric:tabular-nums; }
+  .act-coupon-left small { margin-top:3px; font-size:9px; }
+  .act-coupon-off .act-coupon-left { background:#f4f4f5; color:#a1a1aa; }
+  .act-claim { width:66px; height:28px; padding:0; border-radius:999px; border:1px solid #ff0f23; background:#ff0f23; color:#fff; font-size:11px; font-weight:600; cursor:pointer; }
+  .act-claim:disabled { border-color:#e4e4e7; background:#f4f4f5; color:#a1a1aa; cursor:default; }
+
+  /* ② 主营类目 */
+  .cat-tile { display:flex; flex-direction:column; gap:1px; background:#fff; border:1px solid #e4e4e7; border-radius:13px; overflow:hidden; padding:0 0 7px; cursor:pointer; text-align:left; }
+  .cat-img { height:104px; background:#f4f4f5; overflow:hidden; position:relative; margin-bottom:6px; }
+  .cat-img img { width:100%; height:100%; object-fit:cover; }
+  .cat-tile p { padding:0 8px; }
+
+  /* ③ 品牌价值 */
+  .brand-img { height:118px; background:#f4f4f5; overflow:hidden; position:relative; }
+  .brand-img img { width:100%; height:100%; object-fit:cover; }
+  .brand-stat { display:flex; flex-direction:column; gap:1px; }
+  .brand-stat b { font-size:13px; font-weight:600; color:#c7001a; }
+  .brand-stat span { font-size:9px; color:#a1a1aa; }
+
+  /* 积分兑换 */
+  .redeem-card { display:flex; gap:10px; background:#fff; border:1px solid #e4e4e7; border-radius:14px; padding:10px; }
+  .redeem-img { width:76px; height:76px; flex-shrink:0; border-radius:10px; overflow:hidden; background:#f4f4f5; position:relative; }
+  .redeem-img img { width:100%; height:100%; object-fit:cover; }
+  .code-box { display:flex; flex-direction:column; align-items:center; padding:16px; border-radius:14px; background:linear-gradient(135deg,#fff1f2,#ffe0e5); border:1px dashed #ff8a99; }
+  .code-digits { margin-top:6px; font-size:30px; font-weight:700; letter-spacing:.22em; color:#c7001a; }
+
+  .fade-in { animation:fade .18s ease-out; }
+  @keyframes fade { from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;} }
+  .tnum { font-variant-numeric: tabular-nums; }
+
+  /* 子页面返回按钮（抽奖页 / 资料修改页） */
+  .mp-back { width:28px; height:28px; display:none; align-items:center; justify-content:center; border:0; border-radius:999px; background:transparent; color:#18181b; cursor:pointer; flex-shrink:0; }
+  .mp-back:active { background:#f4f4f5; }
+
+  /* 抽奖页：大转盘 */
+  .wheel-wrap { position:relative; width:280px; height:280px; margin:0 auto; }
+  .wheel { position:absolute; inset:0; border-radius:50%; border:6px solid #fff; box-shadow:0 10px 30px rgba(199,0,26,.16), 0 0 0 1px #ffe0e5; overflow:hidden; transition:transform 4s cubic-bezier(.16,.72,.18,1); }
+  .wheel-face { position:absolute; inset:0; background:conic-gradient(from -30deg, #fff1f2 0 60deg, #ffffff 60deg 120deg, #fff1f2 120deg 180deg, #ffffff 180deg 240deg, #fff1f2 240deg 300deg, #ffffff 300deg 360deg); }
+  .wheel-line { position:absolute; left:50%; top:0; width:1px; height:50%; background:#ffe0e5; transform-origin:bottom center; }
+  .wheel-text { position:absolute; width:64px; text-align:center; font-size:10px; font-weight:600; color:#52525b; line-height:1.25; transform:translate(-50%,-50%); }
+  .wheel-pointer { position:absolute; left:50%; top:-10px; transform:translateX(-50%); width:0; height:0; border-left:9px solid transparent; border-right:9px solid transparent; border-top:15px solid #ff0f23; filter:drop-shadow(0 2px 3px rgba(0,0,0,.15)); z-index:3; }
+  .wheel-btn { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:78px; height:78px; border-radius:50%; border:5px solid #fff; background:linear-gradient(135deg,#ff6a3d,#ff0f23 55%,#c7001a); color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; box-shadow:0 8px 20px rgba(199,0,26,.36); cursor:pointer; z-index:4; }
+  .wheel-btn:disabled { opacity:.72; cursor:not-allowed; }
+
+  /* 资料修改表单 */
+  .field { width:100%; height:42px; padding:0 12px; border:1px solid #e4e4e7; border-radius:10px; background:#fff; font-size:13px; color:#18181b; outline:none; }
+  .field:focus { border-color:#ff0f23; box-shadow:0 0 0 3px rgba(255,15,35,.1); }
+  .field[readonly] { background:#fafafa; color:#a1a1aa; }
 </style>
 </head>
 <body>
 <div class="flex items-center gap-10">
   <div class="hidden max-w-[300px] lg:block">
-    <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#4f46e5]">MINIAPP · MEMBER SELF-SERVICE</p>
-    <h1 class="mt-2 text-[26px] font-semibold tracking-tight">会员自助查询</h1>
-    <p class="mt-2 text-[13px] leading-relaxed text-[#52525b]">微信授权登录 + 手机号绑定；查订单、积分、余额、优惠券与活动。仅查不改，金额与积分以服务端为准。</p>
+    <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#ff0f23]">MINIAPP · MEMBER SELF-SERVICE</p>
+    <h1 class="mt-2 text-[26px] font-semibold tracking-tight">会员小程序 · 新版</h1>
+    <p class="mt-2 text-[13px] leading-relaxed text-[#52525b]">首页对外传递品牌与门店产品力，免登录浏览；发现与我的需微信授权手机号登录，手机号即门店会员号。</p>
     <div class="mt-5 space-y-2 text-[12px] text-[#71717a]">
-      <p class="flex items-center gap-2"><i data-lucide="shield-check" class="h-4 w-4"></i>不返回成本、毛利、导购等敏感字段</p>
-      <p class="flex items-center gap-2"><i data-lucide="smartphone" class="h-4 w-4"></i>微信登录态校验，静默续期</p>
-      <p class="flex items-center gap-2"><i data-lucide="zap" class="h-4 w-4"></i>分包加载，首屏 ≤ 1.5s（4G）</p>
+      <p class="flex items-center gap-2"><i data-lucide="home" class="h-4 w-4"></i>首页：活动 banner / 主营类目 / 品牌价值 / 门店</p>
+      <p class="flex items-center gap-2"><i data-lucide="gift" class="h-4 w-4"></i>发现：签到积分 / 积分抽奖 / 积分兑换</p>
+      <p class="flex items-center gap-2"><i data-lucide="user-round" class="h-4 w-4"></i>我的：资产 / 订单 / 流水 / 兑换 / 余额</p>
     </div>
     <div class="mt-6 rounded-xl border border-[#e4e4e7] bg-white p-3 text-[12px] text-[#52525b]">
       <p class="font-medium text-[#18181b]">交互提示</p>
-      <p class="mt-1 leading-relaxed">点击 Tab 切换页面；首页快捷入口与「我的」菜单可打开底部弹层；点击订单/券可查看详情。</p>
+      <p class="mt-1 leading-relaxed">点击底部 Tab 切换；未登录访问「发现」「我的」会展示登录引导；点击「微信授权手机号」可模拟登录并解锁全部会员功能。</p>
     </div>
+    <p class="mt-6 text-[11px] text-[#a1a1aa]">演示数据仅用于原型评审，金额与积分以服务端为准。</p>
   </div>
 
   <div class="phone">
@@ -79,7 +201,10 @@
       </div>
 
       <div class="mp-head">
-        <p id="mp-title" class="text-[15px] font-semibold">DaveBella 会员</p>
+        <div class="flex min-w-0 items-center gap-1">
+          <button id="mp-back" title="返回" onclick="closeSubPage()" style="display:none" class="mp-back"><i data-lucide="chevron-left" class="h-4 w-4"></i></button>
+          <p id="mp-title" class="text-[15px] font-semibold">Dave & Bella</p>
+        </div>
         <div class="capsule">
           <button title="更多" onclick="showToast('已加入我的小程序')"><i data-lucide="more-horizontal" class="h-4 w-4"></i></button>
           <span class="divider"></span>
@@ -100,485 +225,1225 @@
 </div>
 
 <script>
+/* ========== 原型数据 ========== */
+// 图片统一走生成接口；prompt 在运行时编码，避免手写长 URL
+const imgUrl = (prompt, size = 'square') =>
+  `https://trae-api-cn.mchost.guru/api/ide/v1/tool_text_to_image?prompt=${encodeURIComponent(prompt)}&image_size=${size}`;
+
+const IMG = {
+  banner1: imgUrl('Editorial campaign photograph of two happy young children wearing warm red and cream winter puffer jackets, standing against a warm crimson studio backdrop with soft light, premium Chinese kidswear brand campaign, joyful winter mood, no text, no logo', 'landscape_16_9'),
+  banner2: imgUrl('Warm flat lay of children clothing and gifts, red knitted sweater, cream scarf, wooden toy and gift box on a soft beige background, premium kidswear promotion, cozy winter palette, no text', 'landscape_16_9'),
+  cat1: imgUrl('Portrait photograph of a little girl wearing a soft pink hooded puffer jacket standing outdoors in winter, natural light, premium Chinese childrens clothing catalog, warm neutral background, no text', 'portrait_4_3'),
+  cat2: imgUrl('Portrait photograph of a little boy with curly hair wearing a camel brown hooded puffer jacket outdoors, natural winter light, premium childrens clothing catalog, warm neutral background, no text', 'portrait_4_3'),
+  cat3: imgUrl('Portrait photograph of an older girl wearing a light lavender padded winter jacket, soft studio light, premium childrens clothing catalog, warm neutral background, no text', 'portrait_4_3'),
+  cat4: imgUrl('Portrait photograph of an older boy wearing a black winter jacket over a plaid shirt, natural outdoor light, premium childrens clothing catalog, warm neutral background, no text', 'portrait_4_3'),
+  cat5: imgUrl('Portrait photograph of a baby wearing a light blue hooded puffer suit with cute ears, soft studio light, premium baby clothing catalog, warm neutral background, no text', 'portrait_4_3'),
+  cat6: imgUrl('Studio product photograph of a pair of beige children winter ankle boots with small bow details, placed on a warm knitted blanket, premium kids footwear catalog, soft light, no text', 'portrait_4_3'),
+  brand1: imgUrl('Editorial photograph of two joyful children wearing yellow and pink winter jackets standing under a clear blue sky, natural sunlight, premium childrens outerwear brand campaign, no text', 'landscape_4_3'),
+  brand2: imgUrl('Editorial photograph of a smiling little girl in a red hooded winter coat holding a wooden toy, warm natural light, premium childrens clothing brand campaign, no text', 'landscape_4_3'),
+  p1: imgUrl('Studio product photograph of a little girls cream knit cardigan with pearl buttons, neatly styled on a warm beige background, soft natural lighting, premium childrens clothing catalog, no text'),
+  p2: imgUrl('Studio product photograph of a boys navy and cream striped cotton sweater neatly folded on a light gray background, soft shadows, premium childrens clothing catalog, no text'),
+  p3: imgUrl('Flat lay product photograph of a babys organic cotton two piece outfit in soft sage green on a warm cream background, minimal styling, premium baby clothing catalog, no text'),
+  p4: imgUrl('Studio product photograph of a childrens wool beret and scarf set in dusty rose on a light warm background, soft lighting, premium kidswear accessories, no text'),
+  r1: imgUrl('Studio product photograph of a cute childrens stainless steel thermos bottle in warm red with a small bear pattern, on a cream background, soft light, premium gift catalog, no text'),
+  r2: imgUrl('Studio product photograph of a folded organic cotton children bath towel set in cream and soft pink, on a warm beige background, premium gift catalog, no text'),
+  r3: imgUrl('Studio product photograph of a small natural canvas tote bag with a cute bear embroidery, cream color, on a warm background, premium family gift catalog, no text'),
+  r4: imgUrl('Studio product photograph of a childrens transparent umbrella with a red border and small animal print, on a warm cream background, premium kids gift catalog, no text'),
+  store: imgUrl('Warm bright interior of a modern childrens clothing boutique with wooden shelves, pastel kidswear displays and large windows, welcoming atmosphere, architectural interior photography, no text', 'landscape_4_3'),
+};
+
+/* 首页三块核心内容：活动 banner / 主营类目 / 品牌价值 */
+const BANNERS = [
+  { img:IMG.banner1, tag:'秋冬新品', title:'秋冬焕新<br>满 1000 减 150', desc:'全场童装通用 · 到店即享', cta:'查看活动', action:'__ACTIVITY__' },
+  { img:IMG.banner2, tag:'积分商城', title:'积分兑换上新<br>到店取好礼', desc:'保温杯 / 浴巾套装 / 帆布包', cta:'去兑换', action:'__REDEEM__' },
+  { img:IMG.store, tag:'会员日', title:'每月 18 号<br>消费双倍积分', desc:'到店消费自动叠加，无需报名', cta:'了解权益', action:'会员权益说明将在正式版展示' },
+];
+
+/* 活动详情：首页 banner 配置 `/pages/activity-detail/index?id=活动ID` 后进入 */
+const ACTIVITY_DETAIL = {
+  id:'1',
+  banner:IMG.banner1,
+  tag:'秋冬新品',
+  title:'秋冬焕新 · 满 1000 减 150',
+  desc:'全场童装通用，到店买单自动满减',
+  type:'满减活动',
+  time:'2026-10-01 ~ 2026-11-30',
+  content:'满 1000 元减 150 元',
+  rules:[
+    '活动期间到店消费满 1000 元，结算时自动减 150 元；',
+    '每位会员每天限享 1 次，不与其他满减活动同享；',
+    '线上领取的优惠券可在门店收银台出示核销。',
+  ],
+  coupons:[
+    { id:'c1', value:'150', cond:'满 1000 元可用', desc:'满 1000 减 150', exp:'2026-11-30', claimed:false },
+    { id:'c2', value:'60', cond:'满 599 元可用', desc:'满 599 减 60', exp:'2026-11-15', claimed:false },
+  ],
+};
+
+const CATEGORIES = [
+  { img:IMG.cat1, name:'女小童', size:'73-150cm' },
+  { img:IMG.cat2, name:'男小童', size:'73-150cm' },
+  { img:IMG.cat3, name:'女大童', size:'110-160cm' },
+  { img:IMG.cat4, name:'男大童', size:'110-160cm' },
+  { img:IMG.cat5, name:'婴儿', size:'0-1 岁' },
+  { img:IMG.cat6, name:'童鞋', size:'0-13 岁' },
+];
+
 const TABS = [
   { id:'home', label:'首页', icon:'home' },
-  { id:'orders', label:'订单', icon:'receipt-text' },
-  { id:'points', label:'积分', icon:'sparkles' },
-  { id:'balance', label:'余额', icon:'wallet' },
-  { id:'profile', label:'我的', icon:'user' },
+  { id:'discover', label:'发现', icon:'compass' },
+  { id:'mine', label:'我的', icon:'user-round' },
 ];
 
-const TITLES = { home:'DaveBella 会员', orders:'我的订单', points:'我的积分', balance:'我的余额', profile:'个人中心' };
-const state = { tab:'home' };
+const TITLES = { home:'Dave & Bella', discover:'发现', mine:'我的' };
 
-const orders = [
-  { no:'DB202610230018', date:'2026-10-23 11:24', store:'万象城店', status:'已完成', amount:'1,268.00', items:3, paid:'微信支付', goods:['羊毛混纺大衣 · M','真丝方巾 · 均码','羊绒围巾 · 均码'] },
-  { no:'DB202610180042', date:'2026-10-18 18:06', store:'万象城店', status:'已完成', amount:'699.00', items:1, paid:'会员余额', goods:['小香风外套 · S'] },
-  { no:'DB202610110007', date:'2026-10-11 14:52', store:'滨江天街店', status:'退款中', amount:'429.00', items:2, paid:'微信支付', goods:['针织开衫 · M','直筒牛仔裤 · 27'] },
-  { no:'DB202609270031', date:'2026-09-27 16:20', store:'万象城店', status:'已完成', amount:'1,980.00', items:2, paid:'支付宝', goods:['羊绒大衣 · L','打底衫 · M'] },
+const PRODUCTS = [
+  { img:IMG.p1, name:'奶油针织开衫', desc:'A类棉 · 珍珠扣', price:'¥ 399', origin:'¥ 499', tag:'本季新品' },
+  { img:IMG.p2, name:'海军条纹毛衣', desc:'精梳棉 · 柔软亲肤', price:'¥ 329', origin:'¥ 429', tag:'热卖' },
+  { img:IMG.p3, name:'婴儿有机棉套装', desc:'0-2岁 · 无骨缝制', price:'¥ 259', origin:'¥ 329', tag:'新生儿' },
+  { img:IMG.p4, name:'羊毛贝雷帽套装', desc:'秋冬配饰 · 亲肤不扎', price:'¥ 199', origin:'¥ 259', tag:'配饰' },
 ];
 
-const pointLogs = [
+const ACTIVITIES = [
+  { name:'秋冬焕新 · 满 1000 减 150', desc:'全场童装通用 · 到店买单自动满减', end:'11-30', icon:'gift', tone:'indigo', state:'了解' },
+  { name:'会员日双倍积分', desc:'每月 18 号 · 到店消费自动生效', end:'每月18号', icon:'sparkles', tone:'amber', state:'进行中' },
+  { name:'生日月专属礼', desc:'生日当月到店领 50 元券', end:'生日月', icon:'cake', tone:'rose', state:'了解' },
+];
+
+const SIGN_DAYS = [
+  { day:1, points:5 }, { day:2, points:5 }, { day:3, points:5 }, { day:4, points:10 },
+  { day:5, points:10 }, { day:6, points:10 }, { day:7, points:30 },
+];
+
+const PRIZES = ['10 积分', '50 积分', '满 100 减 10 券', '谢谢参与', '100 积分', '满 200 减 30 券'];
+
+// 积分兑换：实物礼品，兑换后到店凭取货码自提（制造二次到店客流）
+const REDEEM_ITEMS = [
+  { id:'r1', img:IMG.r1, name:'儿童保温杯 450ml', desc:'316 不锈钢 · 门店自提', points:800, stock:18, total:60 },
+  { id:'r2', img:IMG.r2, name:'有机棉浴巾套装', desc:'A 类纯棉 · 两条装', points:1200, stock:12, total:50 },
+  { id:'r3', img:IMG.r3, name:'小熊帆布托特包', desc:'会员限定周边 · 门店自提', points:1500, stock:6, total:30 },
+  { id:'r4', img:IMG.r4, name:'儿童动物雨伞', desc:'透明防夹手伞面', points:600, stock:25, total:80 },
+];
+
+const REDEEM_RECORDS = [
+  { no:'RD202610200006', name:'儿童保温杯 450ml', points:800, code:'836204', status:'pending', date:'2026-10-20 14:16', exp:'2026-11-19' },
+  { no:'RD202609280011', name:'有机棉浴巾套装', points:1200, code:'415902', status:'picked', date:'2026-09-28 11:02', exp:'2026-10-28' },
+];
+
+const ORDERS = [
+  { no:'DB202610230018', date:'2026-10-23 11:24', status:'已完成', statusTone:'success', amount:'1,268.00', items:3, paid:'微信支付', goods:[
+    { name:'奶油针织开衫', spec:'奶油白 · 120', qty:1, price:'399.00' },
+    { name:'海军条纹毛衣', spec:'藏青 · 130', qty:1, price:'329.00' },
+    { name:'羊毛贝雷帽', spec:'雾霾蓝 · 均码', qty:1, price:'199.00' },
+  ]},
+  { no:'DB202610180042', date:'2026-10-18 18:06', status:'已完成', statusTone:'success', amount:'699.00', items:1, paid:'会员余额', goods:[
+    { name:'小香风外套', spec:'米白 · 120', qty:1, price:'699.00' },
+  ]},
+  { no:'DB202610110007', date:'2026-10-11 14:52', status:'售后中', statusTone:'warning', amount:'429.00', items:2, paid:'微信支付', goods:[
+    { name:'针织开衫', spec:'浅灰 · 110', qty:1, price:'259.00' },
+    { name:'直筒牛仔裤', spec:'水洗蓝 · 130', qty:1, price:'170.00' },
+  ]},
+];
+
+const POINT_LOGS = [
   { t:'消费获得 · DB202610230018', d:'2026-10-23 11:24', v:'+1,268', type:'in' },
   { t:'消费获得 · DB202610180042', d:'2026-10-18 18:06', v:'+699', type:'in' },
+  { t:'积分抽奖 · 消耗', d:'2026-10-16 09:30', v:'-10', type:'out' },
   { t:'积分兑换 · 50 元券', d:'2026-10-15 10:02', v:'-3,000', type:'out' },
-  { t:'消费获得 · DB202610110007', d:'2026-10-11 14:52', v:'+429', type:'in' },
+  { t:'签到奖励 · 连续 3 天', d:'2026-10-12 08:15', v:'+5', type:'in' },
   { t:'生日双倍积分', d:'2026-10-08 00:00', v:'+520', type:'in' },
   { t:'积分过期', d:'2026-09-30 23:59', v:'-180', type:'out' },
 ];
 
-const balanceLogs = [
+const DRAW_RECORDS = [
+  { prize:'满 100 减 10 券', time:'2026-10-16 09:30', cost:'-10 积分', win:true },
+  { prize:'谢谢参与', time:'2026-10-09 20:18', cost:'-10 积分', win:false },
+  { prize:'50 积分', time:'2026-10-03 12:40', cost:'-10 积分', win:true },
+  { prize:'满 200 减 30 券', time:'2026-09-28 19:05', cost:'-10 积分', win:true },
+];
+
+const COUPONS = [
+  { name:'满 1000 减 150', scope:'全场童装通用', exp:'2026-11-30', status:'active' },
+  { name:'满 599 减 60', scope:'大衣 / 外套', exp:'2026-11-15', status:'active' },
+  { name:'10 元无门槛', scope:'新客专享', exp:'2026-11-30', status:'active' },
+  { name:'50 元无门槛', scope:'积分兑换', exp:'已使用 · 2026-10-15', status:'used' },
+  { name:'满 300 减 30', scope:'全场通用', exp:'已过期 · 2026-09-30', status:'expired' },
+];
+
+const BALANCE_LOGS = [
   { t:'充值 · 门店充值', d:'2026-10-20 15:30', v:'+2,000.00', type:'in' },
-  { t:'消费 · DB202610180042', d:'2026-10-18 18:06', v:'-699.00', type:'out' },
   { t:'充值赠送', d:'2026-10-20 15:30', v:'+200.00', type:'in' },
+  { t:'消费 · DB202610180042', d:'2026-10-18 18:06', v:'-699.00', type:'out' },
   { t:'消费 · DB202610050019', d:'2026-10-05 12:14', v:'-358.00', type:'out' },
 ];
 
-const coupons = [
-  { name:'满 1000 减 150', scope:'全场通用', exp:'2026-11-30', status:'可用' },
-  { name:'满 599 减 60', scope:'大衣 / 外套', exp:'2026-10-31', status:'可用' },
-  { name:'50 元无门槛', scope:'积分兑换', exp:'已使用', status:'已使用' },
-];
-
-function money(n){ return n; }
-
-function homePage(){
-  return `
-  <div class="member-card">
-    <div class="flex items-start justify-between">
-      <div>
-        <div class="flex items-center gap-2">
-          <span class="text-[15px] font-semibold">林晓</span>
-          <span class="rounded-full bg-white/20 px-2 py-[2px] text-[10px]">黄金会员</span>
-        </div>
-        <p class="mt-1 text-[10px] text-white/70">会员号 DB-8820-4176 · 万象城店</p>
-      </div>
-      <i data-lucide="crown" class="h-5 w-5 text-amber-300"></i>
-    </div>
-    <div class="mt-5 grid grid-cols-3 gap-2">
-      <div>
-        <p class="text-[10px] text-white/65">余额</p>
-        <p class="mt-1 text-[18px] font-semibold tnum">1,143<span class="text-[11px] font-normal">.00</span></p>
-      </div>
-      <div>
-        <p class="text-[10px] text-white/65">积分</p>
-        <p class="mt-1 text-[18px] font-semibold tnum">6,842</p>
-      </div>
-      <div>
-        <p class="text-[10px] text-white/65">优惠券</p>
-        <p class="mt-1 text-[18px] font-semibold tnum">2<span class="text-[11px] font-normal"> 张</span></p>
-      </div>
-    </div>
-    <div class="mt-4 flex items-center justify-between border-t border-white/15 pt-3 text-[10px] text-white/70">
-      <span>再消费 1,158 元升级铂金</span>
-      <span class="flex items-center gap-1">会员权益 <i data-lucide="chevron-right" class="h-3 w-3"></i></span>
-    </div>
-  </div>
-
-  <div class="mp-card mt-3 px-2 py-3">
-    <div class="grid grid-cols-4">
-      <button class="quick" onclick="goTab('orders')">
-        <span class="quick-ico"><i data-lucide="receipt-text" class="h-5 w-5"></i></span>我的订单
-      </button>
-      <button class="quick" onclick="goTab('points')">
-        <span class="quick-ico"><i data-lucide="sparkles" class="h-5 w-5"></i></span>积分
-      </button>
-      <button class="quick" onclick="goTab('balance')">
-        <span class="quick-ico"><i data-lucide="wallet" class="h-5 w-5"></i></span>余额
-      </button>
-      <button class="quick" onclick="openCoupons()">
-        <span class="quick-ico"><i data-lucide="ticket" class="h-5 w-5"></i></span>优惠券
-      </button>
-    </div>
-  </div>
-
-  <div class="mt-3 flex items-center justify-between px-1">
-    <p class="text-[13px] font-semibold">进行中的活动</p>
-    <button class="text-[11px] text-[#71717a]" onclick="openActivities()">全部</button>
-  </div>
-
-  <div class="mp-card mt-2 overflow-hidden">
-    <div class="flex items-center gap-3 p-3">
-      <div class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#eef2ff] to-[#e0e7ff] text-[#4f46e5]">
-        <i data-lucide="gift" class="h-6 w-6"></i>
-      </div>
-      <div class="min-w-0 flex-1">
-        <p class="text-[13px] font-medium">秋冬焕新 · 满 1000 减 150</p>
-        <p class="mt-1 text-[11px] text-[#71717a]">全场通用 · 剩余 9 天</p>
-      </div>
-      <button class="btn btn-sm btn-primary" onclick="openCoupon('满 1000 减 150','全场通用','2026-11-30')">领取</button>
-    </div>
-    <div class="flex items-center gap-3 border-t border-[#f4f4f5] p-3">
-      <div class="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#fef3c7] to-[#fde68a] text-[#b45309]">
-        <i data-lucide="crown" class="h-6 w-6"></i>
-      </div>
-      <div class="min-w-0 flex-1">
-        <p class="text-[13px] font-medium">会员日双倍积分</p>
-        <p class="mt-1 text-[11px] text-[#71717a]">每周三 · 自动生效</p>
-      </div>
-      <span class="badge badge-warning">进行中</span>
-    </div>
-  </div>
-
-  <div class="mt-3 flex items-center justify-between px-1">
-    <p class="text-[13px] font-semibold">最近订单</p>
-    <button class="text-[11px] text-[#71717a]" onclick="goTab('orders')">查看全部</button>
-  </div>
-  <div class="mp-card mt-2 p-3" onclick="openOrder(0)">
-    <div class="flex items-center justify-between">
-      <p class="text-[11px] text-[#71717a]">DB202610230018</p>
-      <span class="badge badge-success">已完成</span>
-    </div>
-    <div class="mt-2 flex items-center justify-between">
-      <p class="text-[12px] text-[#3f3f46]">羊毛混纺大衣 · M 等 3 件</p>
-      <p class="text-[14px] font-semibold tnum">¥1,268.00</p>
-    </div>
-    <p class="mt-1 text-[10px] text-[#a1a1aa]">2026-10-23 11:24 · 万象城店</p>
-  </div>
-  <p class="mt-4 text-center text-[10px] text-[#a1a1aa]">DaveBella · 懂你的经营伙伴</p>
-  `;
+/* ========== 登录态 ========== */
+const state = {
+  tab: 'home',
+  loggedIn: false,
+  name: '林晓',
+  birthday: '1990-10-08',
+  phone: '138 1234 4176',
+  level: '黄金会员',
+  points: 6842,
+  balance: '1,143.00',
+  couponCount: 3,
+  signedDays: [1, 2, 3],
+  signedToday: false,
+  redeemed: {},
+  redeemCount: 2,
+  couponTab: 'active',
+  orderTab: 'all',
+};
+</script>
+<script>
+/* ========== 通用小组件 ========== */
+function icon(name, cls = 'h-4 w-4') {
+  return `<i data-lucide="${name}" class="${cls}"></i>`;
 }
 
-function ordersPage(){
-  return `
-  <div class="flex items-center gap-2">
-    <div class="seg w-full">
-      <button class="on" style="flex:1">全部</button>
-      <button style="flex:1">已完成</button>
-      <button style="flex:1">退款/售后</button>
+// 图片加载失败时的兜底：换成品牌色渐变块，避免原型出现空白框
+function imgFail(el, label = 'DAVE & BELLA') {
+  el.style.display = 'none';
+  const box = el.parentNode;
+  if (box && !box.querySelector('.img-fb')) {
+    const fb = document.createElement('span');
+    fb.className = 'img-fb';
+    fb.textContent = label;
+    box.appendChild(fb);
+  }
+}
+
+function badge(text, tone = 'brand') {
+  const tones = {
+    brand: 'background:#fff1f2;color:#c7001a',
+    success: 'background:#ecfdf5;color:#15803d',
+    warning: 'background:#fffbeb;color:#b45309',
+    danger: 'background:#fef2f2;color:#b91c1c',
+    neutral: 'background:#f4f4f5;color:#71717a',
+  };
+  return `<span style="display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:999px;font-size:10px;font-weight:500;${tones[tone]}">${text}</span>`;
+}
+
+/* ========== 首页（免登录） ========== */
+function homePage() {
+  return `<div class="pg on fade-in">
+    <div class="brand-top">
+      <div>
+        <p class="logo brand-mark">Dave &amp; Bella</p>
+        <p class="tagline">DAVE &amp; BELLA · KIDS 0-14</p>
+      </div>
+      <p class="text-[10px] text-[#71717a]">专注 0-14 岁儿童服饰</p>
     </div>
-  </div>
-  <div class="mt-3 space-y-3">
-    ${orders.map((o,i)=>`
-      <div class="mp-card p-3" onclick="openOrder(${i})">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-1.5 text-[11px] text-[#71717a]">
-            <i data-lucide="store" class="h-3.5 w-3.5"></i>${o.store}
+
+    <!-- ① 活动 banner -->
+    <div class="hscroll" style="gap:10px">
+      ${BANNERS.map((b) => `
+        <div class="banner" style="background:linear-gradient(135deg,#ff6a3d,#d70015 60%,#7f0010)" onclick="${b.action === '__REDEEM__' ? "goTab('discover')" : b.action === '__ACTIVITY__' ? "openSubPage('activity-detail')" : `showToast('${b.action}')`}">
+          <img src="${b.img}" alt="${b.tag}" loading="lazy" onerror="this.style.display='none'">
+          <div class="banner-shade"></div>
+          <div class="banner-body">
+            <span class="banner-tag">${b.tag}</span>
+            <div>
+              <p class="banner-title">${b.title}</p>
+              <p class="banner-desc">${b.desc}</p>
+              <span class="banner-cta">${b.cta}${icon('chevron-right', 'h-3 w-3')}</span>
+            </div>
           </div>
-          <span class="badge ${o.status==='已完成'?'badge-success':'badge-warning'}">${o.status}</span>
+        </div>
+      `).join('')}
+    </div>
+    <div class="banner-dots">
+      ${BANNERS.map((_, i) => `<span class="banner-dot ${i === 0 ? 'on' : ''}"></span>`).join('')}
+    </div>
+
+    <!-- ② 主营类目：图卡 + 尺码区间 -->
+    <div class="section-head">
+      <p class="section-title">主营类目</p>
+    </div>
+    <div class="grid grid-cols-3 gap-2">
+      ${CATEGORIES.map((c) => `
+        <button class="cat-tile" onclick="showToast('已筛选：${c.name} ${c.size}')">
+          <div class="cat-img"><img src="${c.img}" alt="${c.name}" loading="lazy" onerror="imgFail(this,'${c.name}')"></div>
+          <p class="text-[11px] font-medium">${c.name}</p>
+          <p class="text-[9px] text-[#a1a1aa]">${c.size}</p>
+        </button>
+      `).join('')}
+    </div>
+
+    <!-- ③ 品牌价值 -->
+    <div class="section-head">
+      <p class="section-title">品牌价值</p>
+    </div>
+    <div class="mp-card overflow-hidden">
+      <div class="brand-img" style="height:150px"><img src="${IMG.brand1}" alt="DaveBella 品牌" loading="lazy" onerror="imgFail(this,'DAVE & BELLA')"></div>
+      <div class="p-3.5">
+        <p class="text-[9px] font-semibold tracking-[.22em] text-[#ff0f23]">ABOUT DAVE&amp;BELLA</p>
+        <p class="brand-mark mt-1 text-[17px] font-semibold tracking-tight">因爱而生　为爱创造</p>
+        <p class="mt-2 text-[10px] leading-relaxed text-[#71717a]">2011 年创立，专注 0-14 岁儿童服饰。坚持以 A 类婴幼儿标准做贴身衣物，用柔软面料与原创设计，陪伴超过 3000 万家庭的孩子长大。</p>
+        <div class="mt-3 grid grid-cols-3 gap-2 border-t border-[#f4f4f5] pt-3">
+          ${[
+            { b:'3000万+', s:'家庭选择' },
+            { b:'A 类', s:'婴幼儿标准' },
+            { b:'0-14 岁', s:'全龄段覆盖' },
+          ].map((x) => `<div class="brand-stat"><b>${x.b}</b><span>${x.s}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head" id="home-products">
+      <p class="section-title">本季新品</p>
+    </div>
+    <div class="hscroll">
+      ${PRODUCTS.map((p) => `
+        <div class="prod" onclick="showToast('商品详情将在正式版接入库存/商品接口')">
+          <div class="prod-img"><img src="${p.img}" alt="${p.name}" loading="lazy" onerror="imgFail(this,'DAVE & BELLA')"></div>
+          <div class="p-2.5">
+            <p class="text-[10px] text-[#71717a]">${p.tag}</p>
+            <p class="mt-1 truncate text-[12px] font-medium">${p.name}</p>
+            <p class="mt-0.5 truncate text-[10px] text-[#a1a1aa]">${p.desc}</p>
+            <div class="mt-1.5 flex items-baseline gap-1.5">
+              <p class="text-[13px] font-semibold tnum" style="color:#c7001a">${p.price}</p>
+              <p class="text-[10px] text-[#a1a1aa] line-through tnum">${p.origin}</p>
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="section-head">
+      <p class="section-title">近期活动</p>
+    </div>
+    <div class="space-y-2">
+      ${ACTIVITIES.map((a) => `
+        <div class="mp-card flex items-center gap-3 p-3">
+          <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl" style="background:${a.tone === 'amber' ? '#fffbeb' : a.tone === 'rose' ? '#fef2f2' : '#fff1f2'};color:${a.tone === 'amber' ? '#b45309' : a.tone === 'rose' ? '#be123c' : '#ff0f23'}">
+            ${icon(a.icon, 'h-5 w-5')}
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-[12px] font-medium">${a.name}</p>
+            <p class="mt-0.5 truncate text-[10px] text-[#71717a]">${a.desc}</p>
+          </div>
+          <button class="btn btn-sm ${a.state === '领取' ? 'btn-primary' : ''}" ${a.state === '领取' ? `onclick="goDiscover()"` : `onclick="showToast('活动详情将在正式版接入营销接口')"`}>${a.state}</button>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="section-head">
+      <p class="section-title">到店体验</p>
+    </div>
+    <div class="mp-card overflow-hidden">
+      <div class="store-img h-[132px] bg-[#f4f4f5]"><img class="h-full w-full object-cover" src="${IMG.store}" alt="DaveBella 门店" loading="lazy" onerror="imgFail(this,'DAVE & BELLA 门店')"></div>
+      <div class="p-3">
+        <div class="flex items-center justify-between">
+          <p class="text-[13px] font-semibold">DaveBella 童装生活馆</p>
+          ${badge('营业中', 'success')}
+        </div>
+        <p class="mt-1 text-[10px] text-[#71717a]">杭州市 · 万象城 L3 · 儿童区</p>
+        <p class="mt-0.5 text-[10px] text-[#a1a1aa]">10:00 - 22:00 · 周一至周日</p>
+        <div class="mt-2.5 flex items-center gap-2">
+          <button class="btn btn-sm flex-1" onclick="openStore()">${icon('navigation', 'h-3.5 w-3.5')}一键导航</button>
+          <button class="btn btn-sm flex-1" onclick="showToast('已复制门店电话：0571-8888 6666')">${icon('phone', 'h-3.5 w-3.5')}联系门店</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 rounded-xl bg-[#fff1f2] p-3">
+      <div class="flex items-center gap-2 text-[11px] font-medium text-[#c7001a]">${icon('heart-handshake', 'h-4 w-4')}会员专属</div>
+      <p class="mt-1 text-[10px] leading-relaxed text-[#ff0f23]">微信授权手机号即可查看会员资产、购物记录与优惠券，签到攒积分还能兑换实物到店自提。手机号就是你的门店会员号，无需重复注册。</p>
+      <button class="btn btn-sm btn-primary mt-2.5 w-full" onclick="${state.loggedIn ? "goTab('mine')" : 'openLogin()'}">${state.loggedIn ? '进入会员中心' : '微信授权手机号，解锁会员权益'}</button>
+    </div>
+
+    <p class="mt-5 text-center text-[10px] text-[#a1a1aa]">DaveBella · 把柔软穿进童年</p>
+  </div>`;
+}
+
+/* ========== 发现（需登录） ========== */
+function discoverPage() {
+  if (!state.loggedIn) return lockedPage('discover');
+  return `<div class="pg on fade-in">
+    <div class="flex items-center justify-between px-1">
+      <div>
+        <p class="text-[18px] font-semibold tracking-tight">会员福利</p>
+        <p class="mt-0.5 text-[11px] text-[#71717a]">签到攒积分，积分换好礼，兑换后到店自提</p>
+      </div>
+      <button class="chip" onclick="openPoints()">${icon('sparkles', 'h-3.5 w-3.5')}${state.points.toLocaleString('zh-CN')} 积分</button>
+    </div>
+
+    <div class="mp-card mt-3 p-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-[13px] font-semibold">每日签到</p>
+          <p class="mt-0.5 text-[10px] text-[#71717a]">连续签到 7 天，最高 +30 积分</p>
+        </div>
+        <div class="text-right">
+          <p class="text-[10px] text-[#a1a1aa]">已连续</p>
+          <p class="text-[18px] font-semibold tnum" style="color:#ff0f23">${state.signedToday ? 4 : 3}<span class="text-[10px] font-normal text-[#71717a]"> 天</span></p>
+        </div>
+      </div>
+      <div class="mt-4 flex items-start gap-1">
+        ${SIGN_DAYS.map((d) => {
+          const done = state.signedDays.includes(d.day);
+          const today = state.signedToday ? d.day === 4 : d.day === 4;
+          const cls = done || (state.signedToday && d.day === 4) ? 'sign-dot done' : (d.day === 4 && !state.signedToday ? 'sign-dot today' : 'sign-dot');
+          return `<div class="sign-day">
+            <div class="${cls}">${done || (state.signedToday && d.day === 4) ? icon('check', 'h-3.5 w-3.5') : (d.day === 4 && !state.signedToday ? '+' : d.day)}</div>
+            <span class="text-[9px] text-[#a1a1aa]">${d.day === 4 ? '今天' : '第' + d.day + '天'}</span>
+            <span class="text-[9px]" style="color:${done ? '#ff0f23' : '#a1a1aa'}">${d.points}分</span>
+          </div>`;
+        }).join('')}
+      </div>
+      <button class="btn btn-primary mt-4 w-full" ${state.signedToday ? 'disabled style="opacity:.55"' : ''} onclick="doSignIn()">
+        ${state.signedToday ? `${icon('check-circle-2', 'h-4 w-4')}今日已签到` : `${icon('calendar-check', 'h-4 w-4')}立即签到 +5 积分`}
+      </button>
+      <p class="mt-2 text-center text-[9px] text-[#a1a1aa]">签到积分实时到账，可在积分流水中查看</p>
+    </div>
+
+    <div class="lottery-card mt-3">
+      <div class="relative z-10">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            ${icon('gift', 'h-5 w-5')}
+            <p class="text-[14px] font-semibold">积分抽奖</p>
+          </div>
+          <button class="chip" style="background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.3);color:#fff" onclick="openDrawRecords()">抽奖记录${icon('chevron-right', 'h-3 w-3')}</button>
+        </div>
+        <p class="mt-1 text-[10px] text-white/80">10 积分抽一次，100% 中奖（含谢谢参与）</p>
+        <div class="mt-3 flex flex-wrap gap-1.5">
+          ${['50 积分', '100 积分', '10 元券', '30 元券', '谢谢参与'].map((p) => `<span class="prize-chip">${p}</span>`).join('')}
+        </div>
+        <div class="mt-3 flex items-center justify-between rounded-xl bg-white/15 px-3 py-2.5">
+          <div>
+            <p class="text-[10px] text-white/75">当前积分</p>
+            <p class="text-[16px] font-semibold tnum">${state.points.toLocaleString('zh-CN')}</p>
+          </div>
+          <button class="btn btn-sm" style="background:#fff;border-color:#fff;color:#c2410c;height:34px;padding:0 16px" onclick="openSubPage('draw')">${icon('dice-5', 'h-4 w-4')}去抽奖</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head">
+      <p class="section-title">积分兑换</p>
+      <button class="section-more" onclick="openRedeemRecords()">兑换记录${icon('chevron-right', 'h-3 w-3')}</button>
+    </div>
+    <div class="space-y-2">
+      ${REDEEM_ITEMS.map((item) => {
+        const enough = state.points >= item.points;
+        const soldOut = item.stock <= 0;
+        return `<div class="redeem-card">
+          <div class="redeem-img"><img src="${item.img}" alt="${item.name}" loading="lazy" onerror="imgFail(this,'DAVE & BELLA')"></div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <p class="truncate text-[12px] font-medium">${item.name}</p>
+                <p class="mt-0.5 truncate text-[10px] text-[#71717a]">${item.desc}</p>
+                <p class="mt-1 text-[13px] font-semibold" style="color:#c7001a"><span class="text-[10px] font-normal text-[#71717a]">需 </span>${item.points.toLocaleString('zh-CN')}<span class="text-[10px] font-normal text-[#71717a]"> 积分</span></p>
+              </div>
+              <button class="btn btn-sm ${enough && !soldOut ? 'btn-primary' : ''}" ${enough && !soldOut ? '' : 'disabled style="opacity:.5"'} onclick="openRedeemConfirm('${item.id}')">${soldOut ? '已兑完' : '兑换'}</button>
+            </div>
+            <div class="mt-2 flex items-center gap-2">
+              <div class="stock-bar flex-1"><span style="width:${Math.round(item.stock / item.total * 100)}%"></span></div>
+              <span class="text-[9px] text-[#a1a1aa]">剩 ${item.stock} 件</span>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <div class="mp-card mt-3 p-3">
+      <div class="flex items-start gap-2 text-[10px] leading-relaxed text-[#71717a]">${icon('store', 'h-3.5 w-3.5 mt-0.5')}<span>兑换成功后生成取货码，请在 30 天内到店自提；满减 / 满送券由门店活动自动发放，可在「我的 - 优惠券」查看。</span></div>
+    </div>
+  </div>`;
+}
+
+function lockedPage(which) {
+  const isDiscover = which === 'discover';
+  return `<div class="pg on fade-in">
+    <div class="mp-card lock-wrap">
+      <div class="lock-ico">${icon(isDiscover ? 'gift' : 'user-round', 'h-7 w-7')}</div>
+      <p class="mt-4 text-[16px] font-semibold">登录后查看${isDiscover ? '会员福利' : '会员资产'}</p>
+      <p class="mt-1.5 text-[11px] leading-relaxed text-[#71717a]">${isDiscover ? '签到送积分、积分抽奖、积分兑换好礼，全部为门店会员专属。' : '购物记录、积分流水、抽奖记录、优惠券、兑换记录与店内余额，一次看全。'}</p>
+      <div class="mt-5 w-full space-y-2">
+        ${(isDiscover
+          ? [
+              { ico:'calendar-check', t:'每日签到', d:'连续签到最高 +30 积分' },
+              { ico:'dice-5', t:'积分抽奖', d:'10 积分抽一次，好礼天天有' },
+              { ico:'gift', t:'积分兑换', d:'积分换实物，到店自提好礼' },
+            ]
+          : [
+              { ico:'wallet', t:'会员资产', d:'积分、余额、优惠券一目了然' },
+              { ico:'receipt-text', t:'购物记录', d:'到店消费订单随时可查' },
+              { ico:'sparkles', t:'积分与抽奖', d:'每一笔变动都有记录' },
+            ]
+        ).map((b) => `<div class="benefit">
+          <div class="benefit-ico">${icon(b.ico, 'h-4 w-4')}</div>
+          <div class="min-w-0"><p class="text-[12px] font-medium">${b.t}</p><p class="mt-0.5 text-[10px] text-[#71717a]">${b.d}</p></div>
+        </div>`).join('')}
+      </div>
+      <button class="btn btn-primary mt-5 w-full" style="height:42px" onclick="openLogin()">${icon('log-in', 'h-4 w-4')}微信授权手机号登录</button>
+      <p class="mt-2 text-[9px] leading-relaxed text-[#a1a1aa]">手机号即门店会员号；未注册会员请先到店登记</p>
+    </div>
+    <p class="mt-4 text-center text-[10px] text-[#a1a1aa]">仅首页无需登录，会员功能均需授权手机号</p>
+  </div>`;
+}
+</script>
+<script>
+/* ========== 我的（需登录） ========== */
+function minePage() {
+  if (!state.loggedIn) return lockedPage('mine');
+  return `<div class="pg on fade-in">
+    <div class="member-card">
+      <div class="relative z-10">
+        <div class="flex items-center gap-3">
+          <div class="flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-[16px] font-semibold">${state.name.slice(0, 1)}</div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2">
+              <p class="text-[15px] font-semibold">${state.name}</p>
+              ${badge(state.level, 'brand')}
+            </div>
+            <p class="mt-0.5 text-[10px] text-white/75 tnum">会员号 ${state.phone}</p>
+          </div>
+          <button class="chip" style="background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.28);color:#fff" onclick="openProfile()">${icon('settings-2', 'h-3.5 w-3.5')}资料</button>
+        </div>
+        <div class="mt-4 grid grid-cols-3 gap-2">
+          <button class="text-left" onclick="openBalance()">
+            <p class="text-[10px] text-white/65">店内余额</p>
+            <p class="mt-1 text-[17px] font-semibold tnum">¥${state.balance}</p>
+          </button>
+          <button class="text-left" onclick="openPoints()">
+            <p class="text-[10px] text-white/65">积分</p>
+            <p class="mt-1 text-[17px] font-semibold tnum">${state.points.toLocaleString('zh-CN')}</p>
+          </button>
+          <button class="text-left" onclick="openCoupons()">
+            <p class="text-[10px] text-white/65">优惠券</p>
+            <p class="mt-1 text-[17px] font-semibold tnum">${state.couponCount}<span class="text-[10px] font-normal"> 张</span></p>
+          </button>
+        </div>
+        <div class="mt-4 flex items-center justify-between border-t border-white/15 pt-3 text-[10px] text-white/70">
+          <span>到店实付 ¥7,862 · 再消费 ¥2,138 升级铂金</span>
+          <span class="flex items-center gap-1" onclick="showToast('会员权益说明将在正式版展示')">权益${icon('chevron-right', 'h-3 w-3')}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mp-card mt-3 px-1 py-1">
+      <div class="grid grid-cols-3">
+        <button class="quick" onclick="openOrders()"><span class="quick-ico">${icon('receipt-text', 'h-5 w-5')}</span>购物记录</button>
+        <button class="quick" onclick="openPoints()"><span class="quick-ico">${icon('sparkles', 'h-5 w-5')}</span>积分流水</button>
+        <button class="quick" onclick="openDrawRecords()"><span class="quick-ico">${icon('gift', 'h-5 w-5')}</span>抽奖记录</button>
+        <button class="quick" onclick="openCoupons()"><span class="quick-ico">${icon('ticket', 'h-5 w-5')}</span>优惠券</button>
+        <button class="quick" onclick="openBalance()"><span class="quick-ico">${icon('wallet', 'h-5 w-5')}</span>店内余额查询</button>
+        <button class="quick" onclick="openRedeemRecords()"><span class="quick-ico">${icon('package', 'h-5 w-5')}</span>我的兑换</button>
+      </div>
+    </div>
+
+    <div class="section-head">
+      <p class="section-title">最近一笔消费</p>
+      <button class="section-more" onclick="openOrders()">全部记录${icon('chevron-right', 'h-3 w-3')}</button>
+    </div>
+    <div class="mp-card p-3" onclick="openOrderDetail('DB202610230018')">
+      <div class="flex items-center justify-between">
+        <p class="text-[11px] text-[#71717a] tnum">${ORDERS[0].no}</p>
+        ${badge(ORDERS[0].status, ORDERS[0].statusTone)}
+      </div>
+      <div class="mt-2 flex items-center justify-between">
+        <p class="text-[12px]">奶油针织开衫 等 3 件</p>
+        <p class="text-[15px] font-semibold tnum">¥${ORDERS[0].amount}</p>
+      </div>
+      <p class="mt-1 text-[10px] text-[#a1a1aa] tnum">${ORDERS[0].date} · ${ORDERS[0].paid}</p>
+    </div>
+
+    <div class="mp-card mt-3 overflow-hidden">
+      <button class="row" onclick="openStore()">
+        <span class="flex items-center gap-2 text-[13px]">${icon('map-pin', 'h-4 w-4 text-[#ff0f23]')}门店信息</span>
+        <span class="flex items-center gap-1 text-[11px] text-[#a1a1aa]">万象城 L3${icon('chevron-right', 'h-3.5 w-3.5')}</span>
+      </button>
+      <button class="row" onclick="showToast('客服将在正式版接入门店微信')">
+        <span class="flex items-center gap-2 text-[13px]">${icon('message-circle', 'h-4 w-4 text-[#ff0f23]')}联系门店</span>
+        <span class="flex items-center gap-1 text-[11px] text-[#a1a1aa]">${icon('chevron-right', 'h-3.5 w-3.5')}</span>
+      </button>
+      <button class="row" onclick="showToast('DaveBella 会员小程序 v1.0.0')">
+        <span class="flex items-center gap-2 text-[13px]">${icon('info', 'h-4 w-4 text-[#ff0f23]')}关于 DaveBella</span>
+        <span class="flex items-center gap-1 text-[11px] text-[#a1a1aa]">v1.0.0${icon('chevron-right', 'h-3.5 w-3.5')}</span>
+      </button>
+    </div>
+
+    <button class="btn mt-4 w-full" style="height:42px;color:#dc2626" onclick="openLogout()">退出登录</button>
+    <p class="mt-4 text-center text-[10px] text-[#a1a1aa]">DaveBella · 把柔软穿进童年</p>
+  </div>`;
+}
+
+/* ========== 弹层 ========== */
+function sheetHead(title, desc = '') {
+  return `<div class="mx-auto mb-3 h-1 w-9 rounded-full bg-[#e4e4e7]"></div>
+    <div class="flex items-start justify-between gap-2">
+      <div><p class="text-[15px] font-semibold">${title}</p>${desc ? `<p class="mt-1 text-[10px] text-[#71717a]">${desc}</p>` : ''}</div>
+      <button class="btn btn-sm btn-ghost" onclick="closeSheet()">${icon('x', 'h-4 w-4')}</button>
+    </div>`;
+}
+
+function openLogin() {
+  openSheet(`
+    ${sheetHead('登录 DaveBella 会员', '微信授权手机号，手机号即门店会员号')}
+    <div class="mt-4 rounded-2xl bg-[#fff1f2] p-4">
+      <div class="flex items-center gap-3">
+        <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-[#ff0f23]">${icon('shopping-bag', 'h-5 w-5')}</div>
+        <div>
+          <p class="brand-mark text-[16px] font-semibold">Dave &amp; Bella</p>
+          <p class="mt-0.5 text-[10px] text-[#c7001a]">会员中心 · 门店权益一站查看</p>
+        </div>
+      </div>
+      <div class="mt-3 grid grid-cols-3 gap-2 text-center">
+        ${[
+          { ico:'calendar-check', t:'签到积分' },
+          { ico:'gift', t:'积分兑换' },
+          { ico:'wallet', t:'资产查询' },
+        ].map((b) => `<div class="rounded-xl bg-white/80 py-2.5">
+          <div class="flex justify-center text-[#ff0f23]">${icon(b.ico, 'h-4 w-4')}</div>
+          <p class="mt-1 text-[10px] text-[#c7001a]">${b.t}</p>
+        </div>`).join('')}
+      </div>
+    </div>
+    <button class="btn btn-primary mt-4 w-full" style="height:44px" onclick="simulateLogin()">${icon('message-circle', 'h-4 w-4')}微信授权手机号登录</button>
+    <p class="mt-3 text-center text-[9px] leading-relaxed text-[#a1a1aa]">授权即表示同意《会员服务协议》与《隐私政策》<br>未注册会员请先到门店登记，会员号即手机号</p>
+    <button class="btn btn-ghost mt-1 w-full" onclick="closeSheet()">暂不登录，先逛逛</button>
+  `);
+}
+
+function openOrders() {
+  openSheet(`
+    ${sheetHead('购物记录', '仅展示近 12 个月到店消费订单')}
+    <div class="mt-3 seg" style="display:flex;background:#f4f4f5;border-radius:9px;padding:3px">
+      ${['全部', '已完成', '售后'].map((t, i) => `<button class="btn btn-sm" style="flex:1;border-color:transparent;background:${i === 0 ? '#fff' : 'transparent'};box-shadow:${i === 0 ? '0 1px 2px rgba(0,0,0,.06)' : 'none'}" onclick="showToast('已切换：${t}')">${t}</button>`).join('')}
+    </div>
+    <div class="mt-3 space-y-2.5">
+      ${ORDERS.map((o) => `<div class="rounded-xl border border-[#e4e4e7] p-3" onclick="openOrderDetail('${o.no}')">
+        <div class="flex items-center justify-between">
+          <p class="text-[10px] text-[#71717a] tnum">${o.no}</p>
+          ${badge(o.status, o.statusTone)}
         </div>
         <div class="mt-2 flex items-start justify-between gap-3">
           <div class="min-w-0">
-            <p class="truncate text-[13px] font-medium">${o.goods[0]}${o.items>1?` 等 ${o.items} 件`:''}</p>
-            <p class="mt-1 text-[10px] text-[#a1a1aa]">${o.date} · ${o.no}</p>
+            <p class="truncate text-[12px] font-medium">${o.goods[0].name}${o.items > 1 ? ` 等 ${o.items} 件` : ''}</p>
+            <p class="mt-1 text-[10px] text-[#a1a1aa] tnum">${o.date} · ${o.paid}</p>
           </div>
-          <p class="flex-shrink-0 text-[15px] font-semibold tnum">¥${o.amount}</p>
+          <p class="flex-shrink-0 text-[14px] font-semibold tnum">¥${o.amount}</p>
         </div>
         <div class="mt-2 flex items-center justify-between border-t border-[#f4f4f5] pt-2">
-          <span class="text-[10px] text-[#a1a1aa]">${o.paid}</span>
-          <span class="flex items-center gap-1 text-[11px] text-[#71717a]">查看详情 <i data-lucide="chevron-right" class="h-3 w-3"></i></span>
+          <span class="text-[10px] text-[#a1a1aa]">共 ${o.items} 件商品</span>
+          <span class="flex items-center gap-1 text-[10px] text-[#71717a]">查看详情${icon('chevron-right', 'h-3 w-3')}</span>
         </div>
-      </div>
-    `).join('')}
-  </div>
-  <p class="mt-4 text-center text-[10px] text-[#a1a1aa]">仅展示近 12 个月订单</p>
-  `;
+      </div>`).join('')}
+    </div>
+    <p class="mt-3 text-center text-[9px] text-[#a1a1aa]">如对订单有疑问，请联系门店导购</p>
+  `);
 }
 
-function pointsPage(){
-  return `
-  <div class="mp-card p-5 text-center">
-    <p class="text-[11px] text-[#71717a]">可用积分</p>
-    <p class="mt-1 text-[34px] font-semibold tracking-tight tnum">6,842</p>
-    <p class="mt-1 text-[10px] text-[#a1a1aa]">其中 180 分将于 2026-12-31 过期</p>
-    <div class="mt-4 flex gap-2">
-      <button class="btn flex-1" onclick="showToast('积分兑换需到店或联系导购')"><i data-lucide="gift" class="h-4 w-4"></i>去兑换</button>
-      <button class="btn flex-1" onclick="showToast('积分规则：消费 1 元累计 1 分')"><i data-lucide="info" class="h-4 w-4"></i>积分规则</button>
-    </div>
-  </div>
-  <div class="mt-4 flex items-center justify-between px-1">
-    <p class="text-[13px] font-semibold">积分明细</p>
-    <span class="text-[11px] text-[#71717a]">近 90 天</span>
-  </div>
-  <div class="mp-card mt-2 overflow-hidden">
-    ${pointLogs.map(l=>`
-      <div class="row">
-        <div class="min-w-0">
-          <p class="truncate text-[12px]">${l.t}</p>
-          <p class="mt-1 text-[10px] text-[#a1a1aa]">${l.d}</p>
-        </div>
-        <span class="${l.type==='in'?'amount-plus':'amount-minus'} text-[13px] tnum">${l.v}</span>
-      </div>
-    `).join('')}
-  </div>
-  `;
-}
-
-function balancePage(){
-  return `
-  <div class="mp-card p-5">
-    <p class="text-[11px] text-[#71717a]">账户余额</p>
-    <p class="mt-1 text-[34px] font-semibold tracking-tight tnum">¥1,143<span class="text-[16px]">.00</span></p>
-    <p class="mt-1 text-[10px] text-[#a1a1aa]">含赠送金额 ¥200.00 · 不可提现</p>
-    <div class="mt-4 flex gap-2">
-      <button class="btn btn-primary flex-1" onclick="showToast('充值请前往门店收银台')"><i data-lucide="plus" class="h-4 w-4"></i>充值</button>
-      <button class="btn flex-1" onclick="openBalanceHelp()"><i data-lucide="info" class="h-4 w-4"></i>使用说明</button>
-    </div>
-  </div>
-  <div class="mt-3 rounded-xl border border-[#e0e7ff] bg-[#eef2ff] p-3 text-[11px] leading-relaxed text-[#4338ca]">
-    <p class="flex items-center gap-1.5 font-medium"><i data-lucide="shield-check" class="h-3.5 w-3.5"></i>余额安全提示</p>
-    <p class="mt-1 text-[#4f46e5]">余额仅可在 DaveBella 门店消费使用，不支持提现与转账。如余额异常请联系门店。</p>
-  </div>
-  <div class="mt-4 flex items-center justify-between px-1">
-    <p class="text-[13px] font-semibold">收支明细</p>
-    <span class="text-[11px] text-[#71717a]">近 90 天</span>
-  </div>
-  <div class="mp-card mt-2 overflow-hidden">
-    ${balanceLogs.map(l=>`
-      <div class="row">
-        <div class="min-w-0">
-          <p class="truncate text-[12px]">${l.t}</p>
-          <p class="mt-1 text-[10px] text-[#a1a1aa]">${l.d}</p>
-        </div>
-        <span class="${l.type==='in'?'amount-plus':'amount-minus'} text-[13px] tnum">¥${l.v.replace('+','').replace('-','')}${''}</span>
-      </div>
-    `).join('')}
-  </div>
-  `;
-}
-
-function profilePage(){
-  return `
-  <div class="mp-card p-4">
-    <div class="flex items-center gap-3">
-      <div class="flex h-12 w-12 items-center justify-center rounded-full bg-[#eef2ff] text-[16px] font-semibold text-[#4338ca]">林</div>
-      <div class="min-w-0 flex-1">
-        <p class="text-[15px] font-semibold">林晓</p>
-        <p class="mt-0.5 text-[11px] text-[#71717a]">13812344176 · 黄金会员</p>
-      </div>
-      <span class="badge badge-brand">万象城店</span>
-    </div>
-    <div class="mt-3 grid grid-cols-3 gap-2 rounded-xl bg-[#fafafa] p-3 text-center">
-      <div><p class="text-[14px] font-semibold tnum">2</p><p class="text-[10px] text-[#71717a]">优惠券</p></div>
-      <div><p class="text-[14px] font-semibold tnum">6,842</p><p class="text-[10px] text-[#71717a]">积分</p></div>
-      <div><p class="text-[14px] font-semibold tnum">1,143</p><p class="text-[10px] text-[#71717a]">余额</p></div>
-    </div>
-  </div>
-
-  <div class="mp-card mt-3 overflow-hidden">
-    <button class="row w-full text-left" onclick="openCoupons()">
-      <span class="flex items-center gap-2 text-[13px]"><i data-lucide="ticket" class="h-4 w-4 text-[#4f46e5]"></i>我的优惠券</span>
-      <span class="flex items-center gap-1 text-[11px] text-[#a1a1aa]">2 张可用 <i data-lucide="chevron-right" class="h-3.5 w-3.5"></i></span>
-    </button>
-    <button class="row w-full text-left" onclick="openActivities()">
-      <span class="flex items-center gap-2 text-[13px]"><i data-lucide="megaphone" class="h-4 w-4 text-[#4f46e5]"></i>活动中心</span>
-      <span class="flex items-center gap-1 text-[11px] text-[#a1a1aa]"><i data-lucide="chevron-right" class="h-3.5 w-3.5"></i></span>
-    </button>
-    <button class="row w-full text-left" onclick="openBindPhone()">
-      <span class="flex items-center gap-2 text-[13px]"><i data-lucide="phone" class="h-4 w-4 text-[#4f46e5]"></i>绑定手机号</span>
-      <span class="flex items-center gap-1 text-[11px] text-[#a1a1aa]">13812344176 <i data-lucide="chevron-right" class="h-3.5 w-3.5"></i></span>
-    </button>
-    <button class="row w-full text-left" onclick="showToast('已打开消息通知设置（原型）')">
-      <span class="flex items-center gap-2 text-[13px]"><i data-lucide="bell" class="h-4 w-4 text-[#4f46e5]"></i>消息通知</span>
-      <span class="flex items-center gap-1 text-[11px] text-[#a1a1aa]"><i data-lucide="chevron-right" class="h-3.5 w-3.5"></i></span>
-    </button>
-    <button class="row w-full text-left" onclick="showToast('已打开关于 DaveBella（原型）')">
-      <span class="flex items-center gap-2 text-[13px]"><i data-lucide="info" class="h-4 w-4 text-[#4f46e5]"></i>关于 DaveBella</span>
-      <span class="flex items-center gap-1 text-[11px] text-[#a1a1aa]">v1.0.0 <i data-lucide="chevron-right" class="h-3.5 w-3.5"></i></span>
-    </button>
-  </div>
-
-  <button class="mt-4 w-full rounded-xl border border-[#e4e4e7] bg-white py-3 text-[13px] font-medium text-[#dc2626]" onclick="openLogout()">退出登录</button>
-  <p class="mt-4 text-center text-[10px] text-[#a1a1aa]">DaveBella · 懂我，帮我的经营伙伴</p>
-  `;
-}
-
-/* ------- 弹层 ------- */
-function openOrder(i){
-  const o = orders[i];
+function openOrderDetail(no) {
+  const o = ORDERS.find((item) => item.no === no) || ORDERS[0];
   openSheet(`
-    <div class="mx-auto mb-3 h-1 w-9 rounded-full bg-[#e4e4e7]"></div>
-    <div class="flex items-center justify-between">
-      <p class="text-[15px] font-semibold">订单详情</p>
-      <button class="btn btn-sm btn-ghost" onclick="closeSheet()"><i data-lucide="x" class="h-4 w-4"></i></button>
-    </div>
+    ${sheetHead('订单详情')}
     <div class="mt-3 rounded-xl bg-[#fafafa] p-3 text-[11px] text-[#52525b]">
       <div class="flex justify-between"><span>订单号</span><span class="tnum">${o.no}</span></div>
-      <div class="mt-1.5 flex justify-between"><span>下单时间</span><span>${o.date}</span></div>
-      <div class="mt-1.5 flex justify-between"><span>门店</span><span>${o.store}</span></div>
+      <div class="mt-1.5 flex justify-between"><span>下单时间</span><span class="tnum">${o.date}</span></div>
       <div class="mt-1.5 flex justify-between"><span>支付方式</span><span>${o.paid}</span></div>
+      <div class="mt-1.5 flex justify-between"><span>订单状态</span><span>${o.status}</span></div>
     </div>
     <div class="mt-3 space-y-2">
-      ${o.goods.map(g=>`
-        <div class="flex items-center gap-3">
-          <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-[#f4f4f5] text-[#a1a1aa]"><i data-lucide="shirt" class="h-5 w-5"></i></div>
-          <div class="min-w-0 flex-1"><p class="truncate text-[12px]">${g}</p><p class="mt-0.5 text-[10px] text-[#a1a1aa]">数量 1</p></div>
-        </div>
-      `).join('')}
+      ${o.goods.map((g) => `<div class="flex items-center gap-3">
+        <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-[#fff1f2] text-[#ff0f23]">${icon('shirt', 'h-5 w-5')}</div>
+        <div class="min-w-0 flex-1"><p class="truncate text-[12px]">${g.name}</p><p class="mt-0.5 text-[10px] text-[#a1a1aa]">${g.spec}</p></div>
+        <div class="text-right"><p class="text-[12px] tnum">¥${g.price}</p><p class="mt-0.5 text-[10px] text-[#a1a1aa]">x${g.qty}</p></div>
+      </div>`).join('')}
     </div>
     <div class="mt-3 border-t border-[#f4f4f5] pt-3">
       <div class="flex justify-between text-[12px]"><span class="text-[#71717a]">商品合计</span><span class="tnum">¥${o.amount}</span></div>
-      <div class="mt-1.5 flex justify-between text-[12px]"><span class="text-[#71717a]">优惠</span><span class="tnum text-[#16a34a]">-¥0.00</span></div>
+      <div class="mt-1.5 flex justify-between text-[12px]"><span class="text-[#71717a]">优惠</span><span class="tnum" style="color:#16a34a">-¥0.00</span></div>
       <div class="mt-2 flex items-center justify-between"><span class="text-[13px] font-medium">实付</span><span class="text-[17px] font-semibold tnum">¥${o.amount}</span></div>
     </div>
     <div class="mt-4 flex gap-2">
-      <button class="btn flex-1" onclick="showToast('已复制订单号')"><i data-lucide="copy" class="h-4 w-4"></i>复制订单号</button>
-      <button class="btn btn-primary flex-1" onclick="showToast('如需售后请联系门店导购')"><i data-lucide="message-circle" class="h-4 w-4"></i>联系门店</button>
+      <button class="btn flex-1" onclick="showToast('已复制订单号')">${icon('copy', 'h-4 w-4')}复制订单号</button>
+      <button class="btn btn-primary flex-1" onclick="showToast('请联系门店导购处理售后')">${icon('message-circle', 'h-4 w-4')}联系门店</button>
     </div>
   `);
 }
 
-function openCoupons(){
+function openPoints() {
   openSheet(`
-    <div class="mx-auto mb-3 h-1 w-9 rounded-full bg-[#e4e4e7]"></div>
-    <div class="flex items-center justify-between">
-      <p class="text-[15px] font-semibold">我的优惠券</p>
-      <button class="btn btn-sm btn-ghost" onclick="closeSheet()"><i data-lucide="x" class="h-4 w-4"></i></button>
+    ${sheetHead('积分流水', '积分变动以服务端记录为准')}
+    <div class="mt-3 rounded-xl bg-[#fff1f2] p-4 text-center">
+      <p class="text-[10px] text-[#c7001a]">当前可用积分</p>
+      <p class="mt-1 text-[30px] font-semibold tracking-tight tnum">${state.points.toLocaleString('zh-CN')}</p>
+      <p class="mt-1 text-[9px] text-[#ff4057]">签到、消费、抽奖均可获得积分</p>
+    </div>
+    <div class="mt-3 overflow-hidden rounded-xl border border-[#e4e4e7]">
+      ${POINT_LOGS.map((l) => `<div class="row">
+        <div class="min-w-0"><p class="truncate text-[12px]">${l.t}</p><p class="mt-1 text-[10px] text-[#a1a1aa] tnum">${l.d}</p></div>
+        <span class="${l.type === 'in' ? 'amount-plus' : 'amount-minus'} text-[13px] tnum">${l.v}</span>
+      </div>`).join('')}
+    </div>
+    <button class="btn mt-3 w-full" onclick="closeSheet();goTab('discover')">${icon('calendar-check', 'h-4 w-4')}去签到赚积分</button>
+  `);
+}
+
+function openDrawRecords() {
+  openSheet(`
+    ${sheetHead('抽奖记录', '记录你的每一次好运')}
+    <div class="mt-3 overflow-hidden rounded-xl border border-[#e4e4e7]">
+      ${DRAW_RECORDS.map((r) => `<div class="row">
+        <div class="flex min-w-0 items-center gap-2.5">
+          <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg" style="background:${r.win ? '#fff1f2' : '#f4f4f5'};color:${r.win ? '#ff0f23' : '#a1a1aa'}">${icon(r.win ? 'gift' : 'meh', 'h-4 w-4')}</div>
+          <div class="min-w-0"><p class="truncate text-[12px]">${r.prize}</p><p class="mt-0.5 text-[10px] text-[#a1a1aa] tnum">${r.time}</p></div>
+        </div>
+        <span class="text-[11px] text-[#71717a] tnum">${r.cost}</span>
+      </div>`).join('')}
+    </div>
+    <button class="btn btn-primary mt-3 w-full" onclick="closeSheet();setTimeout(()=>openSubPage('draw'),160)">${icon('dice-5', 'h-4 w-4')}再来一次</button>
+  `);
+}
+
+/* ---- 活动详情（banner 配置 `/pages/activity-detail/index?id=活动ID` 进入） ---- */
+function activityDetailPage() {
+  const a = ACTIVITY_DETAIL;
+  return `<div class="pg on fade-in">
+    <div class="act-hero">
+      <img src="${a.banner}" alt="${a.title}" loading="lazy" onerror="this.style.display='none'">
+      <div class="act-hero-shade"></div>
+      <div class="act-hero-body">
+        <span class="banner-tag">${a.tag}</span>
+        <div>
+          <p class="act-hero-title">${a.title}</p>
+          <p class="act-hero-desc">${a.desc}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="mp-card mt-3 p-3">
+      <div class="act-row"><span>活动类型</span><span>${a.type}</span></div>
+      <div class="act-row"><span>活动时间</span><span class="tnum">${a.time}</span></div>
+      <div class="act-row"><span>活动内容</span><span>${a.content}</span></div>
+      <div class="act-rule">
+        <p class="mb-1 font-medium text-[#52525b]">活动规则</p>
+        ${a.rules.map((r, i) => `<p>${i + 1}. ${r}</p>`).join('')}
+      </div>
+    </div>
+
+    ${a.coupons.length ? `
+      <div class="section-head">
+        <p class="section-title">活动优惠券</p>
+        <span class="text-[10px] text-[#a1a1aa]">领取后自动存入「我的优惠券」</span>
+      </div>
+      <div class="space-y-2">
+        ${a.coupons.map((c) => `
+          <div class="act-coupon ${c.claimed ? 'act-coupon-off' : ''}">
+            <div class="act-coupon-left">
+              <b>${c.value}</b>
+              <small>元</small>
+              <small>${c.cond}</small>
+            </div>
+            <div class="min-w-0 flex-1 p-3">
+              <p class="text-[12px] font-medium">${c.desc}</p>
+              <p class="mt-1 text-[10px] text-[#a1a1aa]">${c.claimed ? '已领取 · ' : '有效期至 '}${c.exp}</p>
+            </div>
+            <div class="flex w-[78px] flex-shrink-0 items-center justify-center">
+              <button class="act-claim" ${c.claimed ? 'disabled' : ''} onclick="claimActivityCoupon('${c.id}')">${c.claimed ? '已领取' : '立即领取'}</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    ` : ''}
+
+    <p class="mt-4 text-center text-[10px] text-[#a1a1aa]">优惠券仅限 DaveBella 门店收银台使用，不与其他活动同享</p>
+  </div>`;
+}
+
+function claimActivityCoupon(id) {
+  const coupon = ACTIVITY_DETAIL.coupons.find((c) => c.id === id);
+  if (!coupon || coupon.claimed) return;
+  coupon.claimed = true;
+  state.couponCount += 1;
+  openSubPage('activity-detail');
+  showToast('领取成功，已放入我的优惠券');
+}
+
+function openCoupons() {
+  const list = COUPONS.filter((c) => c.status === state.couponTab);
+  openSheet(`
+    ${sheetHead('我的优惠券', '仅限 DaveBella 门店收银台使用')}
+    <div class="mt-3" style="display:flex;background:#f4f4f5;border-radius:9px;padding:3px">
+      ${[
+        { id:'active', label:'可用' }, { id:'used', label:'已使用' }, { id:'expired', label:'已过期' },
+      ].map((t) => `<button class="btn btn-sm" style="flex:1;border-color:transparent;background:${state.couponTab === t.id ? '#fff' : 'transparent'};box-shadow:${state.couponTab === t.id ? '0 1px 2px rgba(0,0,0,.06)' : 'none'}" onclick="state.couponTab='${t.id}';openCoupons()">${t.label}</button>`).join('')}
     </div>
     <div class="mt-3 space-y-2">
-      ${coupons.map(c=>`
-        <div class="flex overflow-hidden rounded-xl border ${c.status==='可用'?'border-[#e0e7ff]':'border-[#e4e4e7]'} bg-white">
-          <div class="flex w-20 flex-shrink-0 flex-col items-center justify-center ${c.status==='可用'?'bg-[#eef2ff] text-[#4338ca]':'bg-[#f4f4f5] text-[#a1a1aa]'}">
-            <i data-lucide="ticket" class="h-4 w-4"></i>
-            <span class="mt-1 text-[10px]">${c.status==='可用'?'可用':'已使用'}</span>
-          </div>
-          <div class="min-w-0 flex-1 p-3">
-            <p class="text-[13px] font-medium">${c.name}</p>
-            <p class="mt-0.5 text-[10px] text-[#71717a]">${c.scope}</p>
-            <p class="mt-1 text-[10px] text-[#a1a1aa]">有效期至 ${c.exp}</p>
-          </div>
+      ${list.length === 0 ? `<div class="rounded-xl border border-[#e4e4e7] py-10 text-center text-[11px] text-[#a1a1aa]">暂无优惠券</div>` : list.map((c) => `<div class="coupon">
+        <div class="coupon-left ${c.status !== 'active' ? 'off' : ''}">
+          <p class="text-[10px]">${c.name.startsWith('满') ? '满减券' : '无门槛'}</p>
+          <p class="mt-1 text-[18px] font-semibold tnum leading-none">${c.name.match(/\d+/)?.[0] || ''}</p>
         </div>
-      `).join('')}
+        <div class="min-w-0 flex-1 p-3">
+          <p class="text-[12px] font-medium">${c.name}</p>
+          <p class="mt-0.5 text-[10px] text-[#71717a]">${c.scope}</p>
+          <p class="mt-1 text-[10px] text-[#a1a1aa]">${c.status === 'active' ? '有效期至 ' + c.exp : c.exp}</p>
+        </div>
+        <div class="flex w-14 flex-shrink-0 items-center justify-center text-[10px]" style="color:${c.status === 'active' ? '#ff0f23' : '#a1a1aa'}">${c.status === 'active' ? '去使用' : c.status === 'used' ? '已使用' : '已过期'}</div>
+      </div>`).join('')}
     </div>
-    <p class="mt-3 text-center text-[10px] text-[#a1a1aa]">优惠券仅限门店收银台使用，不可叠加</p>
+    <button class="btn mt-3 w-full" onclick="closeSheet();goTab('discover')">${icon('gift', 'h-4 w-4')}去积分兑换好礼</button>
   `);
 }
 
-function openCoupon(name, scope, exp){
+/* ---- 积分兑换 ---- */
+function openRedeemConfirm(id) {
+  const item = REDEEM_ITEMS.find((x) => x.id === id);
+  if (!item) return;
   openSheet(`
-    <div class="mx-auto mb-3 h-1 w-9 rounded-full bg-[#e4e4e7]"></div>
-    <div class="flex items-center justify-between">
-      <p class="text-[15px] font-semibold">领取优惠券</p>
-      <button class="btn btn-sm btn-ghost" onclick="closeSheet()"><i data-lucide="x" class="h-4 w-4"></i></button>
-    </div>
-    <div class="mt-4 rounded-xl bg-gradient-to-br from-[#4f46e5] to-[#312e81] p-5 text-center text-white">
-      <i data-lucide="ticket" class="mx-auto h-6 w-6"></i>
-      <p class="mt-2 text-[18px] font-semibold">${name}</p>
-      <p class="mt-1 text-[11px] text-white/75">${scope} · 有效期至 ${exp}</p>
-    </div>
-    <p class="mt-3 text-[11px] leading-relaxed text-[#71717a]">领取后将自动存入「我的优惠券」，到店买单出示会员手机号即可使用。</p>
-    <button class="btn btn-primary mt-3 w-full" onclick="claimCoupon('${name}')">确认领取</button>
-  `);
-}
-
-function claimCoupon(name){
-  closeSheet();
-  showToast('已领取「' + name + '」');
-}
-
-function openActivities(){
-  openSheet(`
-    <div class="mx-auto mb-3 h-1 w-9 rounded-full bg-[#e4e4e7]"></div>
-    <div class="flex items-center justify-between">
-      <p class="text-[15px] font-semibold">活动中心</p>
-      <button class="btn btn-sm btn-ghost" onclick="closeSheet()"><i data-lucide="x" class="h-4 w-4"></i></button>
-    </div>
-    <div class="mt-3 space-y-3">
-      <div class="rounded-xl border border-[#e4e4e7] p-3">
-        <div class="flex items-center justify-between"><p class="text-[13px] font-medium">秋冬焕新 · 满 1000 减 150</p><span class="badge badge-brand">进行中</span></div>
-        <p class="mt-1 text-[11px] text-[#71717a]">2026-10-01 至 2026-11-15 · 全场通用</p>
-        <button class="btn btn-sm btn-primary mt-2" onclick="openCoupon('满 1000 减 150','全场通用','2026-11-30')">领取</button>
-      </div>
-      <div class="rounded-xl border border-[#e4e4e7] p-3">
-        <div class="flex items-center justify-between"><p class="text-[13px] font-medium">会员日双倍积分</p><span class="badge badge-warning">每周三</span></div>
-        <p class="mt-1 text-[11px] text-[#71717a]">会员日消费积分翻倍，自动生效</p>
-      </div>
-      <div class="rounded-xl border border-[#e4e4e7] p-3 opacity-70">
-        <div class="flex items-center justify-between"><p class="text-[13px] font-medium">生日月专属礼</p><span class="badge">未开始</span></div>
-        <p class="mt-1 text-[11px] text-[#71717a]">10-01 至 10-31 · 生日当月可领 50 元券</p>
+    ${sheetHead('确认兑换', '兑换后需到店自提，积分不可退回')}
+    <div class="mt-3 flex gap-3 rounded-xl border border-[#e4e4e7] p-3">
+      <div class="redeem-img"><img src="${item.img}" alt="${item.name}" onerror="imgFail(this,'DAVE & BELLA')"></div>
+      <div class="min-w-0 flex-1">
+        <p class="text-[13px] font-medium">${item.name}</p>
+        <p class="mt-0.5 text-[10px] text-[#71717a]">${item.desc}</p>
+        <p class="mt-1 text-[13px] font-semibold" style="color:#c7001a">${item.points.toLocaleString('zh-CN')} 积分</p>
       </div>
     </div>
+    <div class="mt-3 rounded-xl bg-[#fafafa] p-3 text-[11px] text-[#52525b]">
+      <div class="flex justify-between"><span>当前积分</span><span class="tnum">${state.points.toLocaleString('zh-CN')}</span></div>
+      <div class="mt-1.5 flex justify-between"><span>本次消耗</span><span class="tnum" style="color:#c7001a">-${item.points.toLocaleString('zh-CN')}</span></div>
+      <div class="mt-1.5 flex justify-between"><span>兑换后剩余</span><span class="tnum">${(state.points - item.points).toLocaleString('zh-CN')}</span></div>
+    </div>
+    <div class="mt-3 rounded-xl bg-[#fff1f2] p-3 text-[10px] leading-relaxed text-[#c7001a]">
+      <p class="flex items-center gap-1.5 font-medium">${icon('store', 'h-3.5 w-3.5')}取货说明</p>
+      <p class="mt-1">兑换成功后生成 6 位取货码，请于 30 天内到 DaveBella 童装生活馆 L3 收银台出示核销，逾期作废且积分不退。</p>
+    </div>
+    <div class="mt-4 flex gap-2">
+      <button class="btn flex-1" onclick="closeSheet()">再想想</button>
+      <button class="btn btn-primary flex-1" onclick="confirmRedeem('${item.id}')">确认兑换</button>
+    </div>
   `);
 }
 
-function openBalanceHelp(){
+function confirmRedeem(id) {
+  const item = REDEEM_ITEMS.find((x) => x.id === id);
+  if (!item) return;
+  // 每人限兑 1 件 + 积分/库存双重校验，与服务端事务校验保持一致
+  if (state.redeemed[id]) { closeSheet(); showToast('该礼品每人限兑 1 件'); return; }
+  if (state.points < item.points) { closeSheet(); showToast('积分不足，去签到赚积分吧'); return; }
+  if (item.stock <= 0) { closeSheet(); showToast('该礼品已兑完'); return; }
+  const code = String(Math.floor(100000 + Math.random() * 900000));
+  const no = 'RD' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + String(REDEEM_RECORDS.length + 1).padStart(4, '0');
+  state.points -= item.points;
+  item.stock -= 1;
+  state.redeemed[id] = true;
+  state.redeemCount += 1;
+  REDEEM_RECORDS.unshift({ no, name:item.name, points:item.points, code, status:'pending', date:'今天 09:32', exp:'30 天内有效' });
+  POINT_LOGS.unshift({ t:'积分兑换 · ' + item.name, d:'今天 09:32', v:'-' + item.points.toLocaleString('zh-CN'), type:'out' });
+  goTab('discover');
+  showRedeemSuccess(item, code);
+}
+
+function showRedeemSuccess(item, code) {
   openSheet(`
-    <div class="mx-auto mb-3 h-1 w-9 rounded-full bg-[#e4e4e7]"></div>
-    <div class="flex items-center justify-between">
-      <p class="text-[15px] font-semibold">余额使用说明</p>
-      <button class="btn btn-sm btn-ghost" onclick="closeSheet()"><i data-lucide="x" class="h-4 w-4"></i></button>
+    <div class="py-3 text-center">
+      <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full" style="background:#fff1f2;color:#ff0f23">${icon('party-popper', 'h-8 w-8')}</div>
+      <p class="mt-3 text-[15px] font-semibold">兑换成功</p>
+      <p class="mt-1 text-[11px] text-[#71717a]">${item.name} · 已扣 ${item.points.toLocaleString('zh-CN')} 积分</p>
+      <div class="code-box mt-4">
+        <span class="text-[10px] text-[#c7001a]">到店取货码</span>
+        <span class="code-digits tnum">${code}</span>
+        <span class="text-[9px] text-[#ff4057]">有效期 30 天 · 逾期作废</span>
+      </div>
+      <p class="mt-3 text-[10px] leading-relaxed text-[#71717a]">请到 DaveBella 童装生活馆（万象城 L3）收银台<br>出示取货码，由店员核销后取货</p>
+      <div class="mt-4 flex gap-2">
+        <button class="btn flex-1" onclick="closeSheet();setTimeout(openRedeemRecords, 160)">查看记录</button>
+        <button class="btn btn-primary flex-1" onclick="closeSheet()">知道了</button>
+      </div>
     </div>
-    <ul class="mt-3 space-y-2 text-[12px] leading-relaxed text-[#52525b]">
-      <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#16a34a]"></i>余额可在 DaveBella 全部门店消费，买单时优先抵扣。</li>
-      <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#16a34a]"></i>充值需前往门店收银台，充值与赠送金额实时到账。</li>
-      <li class="flex gap-2"><i data-lucide="x" class="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#dc2626]"></i>余额不支持提现、转账，不可转赠他人。</li>
-      <li class="flex gap-2"><i data-lucide="x" class="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#dc2626]"></i>退款时优先退回余额，赠送部分按规则扣回。</li>
-    </ul>
-    <button class="btn mt-4 w-full" onclick="closeSheet()">我知道了</button>
   `);
 }
 
-function openBindPhone(){
+function openRedeemRecords() {
   openSheet(`
-    <div class="mx-auto mb-3 h-1 w-9 rounded-full bg-[#e4e4e7]"></div>
-    <div class="flex items-center justify-between">
-      <p class="text-[15px] font-semibold">绑定手机号</p>
-      <button class="btn btn-sm btn-ghost" onclick="closeSheet()"><i data-lucide="x" class="h-4 w-4"></i></button>
+    ${sheetHead('我的兑换', '兑换后 30 天内到店自提，逾期作废')}
+    <div class="mt-3 space-y-2">
+      ${REDEEM_RECORDS.map((r) => `<div class="rounded-xl border border-[#e4e4e7] p-3">
+        <div class="flex items-center justify-between">
+          <p class="text-[10px] text-[#71717a] tnum">${r.no}</p>
+          ${badge(r.status === 'pending' ? '待取货' : '已取货', r.status === 'pending' ? 'warning' : 'success')}
+        </div>
+        <div class="mt-2 flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <p class="truncate text-[12px] font-medium">${r.name}</p>
+            <p class="mt-0.5 text-[10px] text-[#a1a1aa] tnum">${r.date} · ${r.points.toLocaleString('zh-CN')} 积分</p>
+          </div>
+          <span class="flex-shrink-0 text-[12px] font-semibold tnum" style="color:${r.status === 'pending' ? '#c7001a' : '#a1a1aa'}">${r.code}</span>
+        </div>
+        ${r.status === 'pending' ? `<p class="mt-2 rounded-lg bg-[#fff1f2] px-2 py-1.5 text-[9px] text-[#c7001a]">取货码有效期至 ${r.exp} · 到店出示核销</p>` : ''}
+      </div>`).join('')}
     </div>
-    <p class="mt-3 text-[12px] leading-relaxed text-[#52525b]">绑定手机号后，门店导购可凭手机号查询您的会员权益。当前已绑定 <span class="font-medium text-[#18181b]">13812344176</span>。</p>
-    <div class="mt-3 rounded-xl bg-[#fafafa] p-3">
-      <label class="text-[11px] text-[#71717a]">新手机号</label>
-      <input id="mp-phone" class="input mt-1" placeholder="请输入手机号" />
-      <button class="btn btn-primary mt-2 w-full" onclick="showToast('验证码已发送')">获取验证码</button>
-      <input class="input mt-2" placeholder="请输入 6 位验证码" />
-    </div>
-    <button class="btn mt-3 w-full" onclick="closeSheet();showToast('手机号绑定成功')">保存</button>
+    <button class="btn btn-primary mt-3 w-full" onclick="closeSheet();goTab('discover')">${icon('gift', 'h-4 w-4')}去积分兑换</button>
   `);
 }
 
-function openLogout(){
+function openBalance() {
   openSheet(`
-    <div class="mx-auto mb-3 h-1 w-9 rounded-full bg-[#e4e4e7]"></div>
-    <p class="text-[15px] font-semibold">退出登录</p>
-    <p class="mt-2 text-[12px] leading-relaxed text-[#52525b]">退出后将清除本地会员信息，再次使用需重新微信授权并绑定手机号。</p>
+    ${sheetHead('店内余额查询', '余额仅可在 DaveBella 门店消费使用')}
+    <div class="mt-3 rounded-xl bg-gradient-to-br from-[#ff0f23] to-[#b30012] p-5 text-white">
+      <p class="text-[10px] text-white/70">当前可用余额</p>
+      <p class="mt-1 text-[30px] font-semibold tracking-tight tnum">¥${state.balance}</p>
+      <p class="mt-1 text-[9px] text-white/65">含赠送金额 ¥200.00 · 不可提现</p>
+    </div>
+    <div class="mt-3 rounded-xl bg-[#fff1f2] p-3 text-[10px] leading-relaxed text-[#c7001a]">
+      <p class="flex items-center gap-1.5 font-medium">${icon('shield-check', 'h-3.5 w-3.5')}余额使用说明</p>
+      <p class="mt-1">到店买单时优先抵扣；充值请前往门店收银台；不支持提现、转账或转赠他人。</p>
+    </div>
+    <p class="mt-4 text-[12px] font-semibold">收支明细</p>
+    <div class="mt-2 overflow-hidden rounded-xl border border-[#e4e4e7]">
+      ${BALANCE_LOGS.map((l) => `<div class="row">
+        <div class="min-w-0"><p class="truncate text-[12px]">${l.t}</p><p class="mt-1 text-[10px] text-[#a1a1aa] tnum">${l.d}</p></div>
+        <span class="${l.type === 'in' ? 'amount-plus' : 'amount-minus'} text-[13px] tnum">${l.v.startsWith('+') ? '+' : '-'}¥${l.v.replace('+', '').replace('-', '')}</span>
+      </div>`).join('')}
+    </div>
+    <p class="mt-3 text-center text-[9px] text-[#a1a1aa]">如余额异常，请联系门店核对</p>
+  `);
+}
+
+function openProfile() {
+  openSheet(`
+    ${sheetHead('会员资料', '手机号为门店会员号，如需修改请联系门店')}
+    <div class="mt-3 overflow-hidden rounded-xl border border-[#e4e4e7]">
+      <div class="row" style="cursor:default">
+        <span class="text-[12px]">手机号</span>
+        <span class="text-[12px] text-[#71717a] tnum">${state.phone}</span>
+      </div>
+      <div class="row" style="cursor:default">
+        <span class="text-[12px]">昵称</span>
+        <span class="text-[12px] text-[#71717a]">${state.name}</span>
+      </div>
+      <div class="row" style="cursor:default">
+        <span class="text-[12px]">生日</span>
+        <span class="text-[12px] text-[#71717a]">${state.birthday}</span>
+      </div>
+      <div class="row" style="cursor:default">
+        <span class="text-[12px]">会员等级</span>
+        <span class="text-[12px] text-[#71717a]">${state.level}</span>
+      </div>
+    </div>
+    <p class="mt-3 text-[10px] leading-relaxed text-[#a1a1aa]">生日当月可享会员生日礼；昵称与生日支持自助修改。</p>
+    <button class="btn btn-primary mt-3 w-full" onclick="closeSheet();setTimeout(()=>openSubPage('profile-edit'),160)">修改资料</button>
+  `);
+}
+
+function openStore() {
+  openSheet(`
+    ${sheetHead('门店信息')}
+    <div class="mt-3 overflow-hidden rounded-xl border border-[#e4e4e7]">
+      <div class="store-img h-[120px] bg-[#f4f4f5]"><img class="h-full w-full object-cover" src="${IMG.store}" alt="门店" onerror="imgFail(this,'DAVE & BELLA 门店')"></div>
+      <div class="p-3">
+        <div class="flex items-center justify-between"><p class="text-[13px] font-semibold">DaveBella 童装生活馆</p>${badge('营业中', 'success')}</div>
+        <p class="mt-1 text-[10px] text-[#71717a]">杭州市 · 万象城 L3 · 儿童区</p>
+        <p class="mt-0.5 text-[10px] text-[#a1a1aa]">10:00 - 22:00 · 周一至周日</p>
+        <p class="mt-0.5 text-[10px] text-[#a1a1aa] tnum">0571-8888 6666</p>
+      </div>
+    </div>
+    <div class="mt-3 flex gap-2">
+      <button class="btn flex-1" onclick="showToast('已复制门店地址')">${icon('copy', 'h-4 w-4')}复制地址</button>
+      <button class="btn btn-primary flex-1" onclick="showToast('正在打开微信地图（原型）')">${icon('navigation', 'h-4 w-4')}一键导航</button>
+    </div>
+  `);
+}
+
+function openLogout() {
+  openSheet(`
+    ${sheetHead('退出登录')}
+    <p class="mt-2 text-[12px] leading-relaxed text-[#52525b]">退出后将清除本地会员登录态，再次使用需重新微信授权手机号。</p>
     <div class="mt-4 flex gap-2">
       <button class="btn flex-1" onclick="closeSheet()">取消</button>
-      <button class="btn btn-danger flex-1" onclick="closeSheet();showToast('已退出登录（原型）')">确认退出</button>
+      <button class="btn flex-1" style="background:#dc2626;border-color:#dc2626;color:#fff" onclick="doLogout()">确认退出</button>
     </div>
   `);
 }
-
-/* ------- 通用 ------- */
-function openSheet(html){
+</script>
+<script>
+/* ========== 交互 ========== */
+function openSheet(html) {
   document.getElementById('mp-sheet').innerHTML = html;
   document.getElementById('mp-sheet-mask').classList.add('open');
   lucide.createIcons();
 }
-function closeSheet(){ document.getElementById('mp-sheet-mask').classList.remove('open'); }
+function closeSheet() {
+  document.getElementById('mp-sheet-mask').classList.remove('open');
+}
 
-function showToast(msg){
+function showToast(msg) {
   let t = document.getElementById('mp-toast');
-  if(!t){
+  if (!t) {
     t = document.createElement('div');
     t.id = 'mp-toast';
-    t.style.cssText = 'position:absolute;left:50%;bottom:96px;transform:translateX(-50%) translateY(6px);background:rgba(24,24,27,.94);color:#fff;font-size:12px;padding:9px 14px;border-radius:9px;z-index:80;opacity:0;transition:all .2s;pointer-events:none;white-space:nowrap;';
+    t.style.cssText = 'position:absolute;left:50%;bottom:96px;transform:translateX(-50%) translateY(6px);background:rgba(24,24,27,.94);color:#fff;font-size:12px;padding:9px 14px;border-radius:9px;z-index:80;opacity:0;transition:all .2s;pointer-events:none;white-space:nowrap;max-width:78%;text-align:center;';
     document.querySelector('.screen').appendChild(t);
   }
   t.textContent = msg;
-  requestAnimationFrame(()=>{ t.style.opacity='1'; t.style.transform='translateX(-50%)'; });
+  requestAnimationFrame(() => { t.style.opacity = '1'; t.style.transform = 'translateX(-50%)'; });
   clearTimeout(t._timer);
-  t._timer = setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(6px)'; }, 2000);
+  t._timer = setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(6px)'; }, 2000);
 }
 
-function renderTabbar(){
-  document.getElementById('mp-tabbar').innerHTML = TABS.map(t=>`
-    <button class="tab ${state.tab===t.id?'on':''}" onclick="goTab('${t.id}')">
-      <i data-lucide="${t.icon}"></i><span>${t.label}</span>
+function renderTabbar() {
+  document.getElementById('mp-tabbar').innerHTML = TABS.map((t) => `
+    <button class="tab ${state.tab === t.id ? 'on' : ''}" onclick="goTab('${t.id}')">
+      ${icon(t.icon)}<span>${t.label}</span>
     </button>
   `).join('');
 }
 
-const PAGES = { home:homePage, orders:ordersPage, points:pointsPage, balance:balancePage, profile:profilePage };
+const PAGES = { home: homePage, discover: discoverPage, mine: minePage };
 
-function goTab(id){
+/* 子页面（抽奖 / 修改资料）：复用内容区，隐藏 tabBar，顶部出现返回按钮 */
+let subPage = null;
+const SUB_PAGES = {
+  draw: { title:'积分抽奖', render: drawPage },
+  'profile-edit': { title:'修改资料', render: profileEditPage },
+  'activity-detail': { title:'活动详情', render: activityDetailPage },
+};
+
+function openSubPage(which) {
+  const conf = SUB_PAGES[which];
+  if (!conf) return;
+  subPage = which;
+  document.getElementById('mp-back').style.display = 'flex';
+  document.getElementById('mp-title').textContent = conf.title;
+  document.getElementById('mp-tabbar').style.display = 'none';
+  const content = document.getElementById('mp-content');
+  content.innerHTML = conf.render();
+  content.scrollTop = 0;
+  lucide.createIcons();
+}
+
+function closeSubPage() {
+  subPage = null;
+  goTab(state.tab);
+}
+
+function goTab(id) {
+  subPage = null;
+  document.getElementById('mp-back').style.display = 'none';
+  document.getElementById('mp-tabbar').style.display = 'flex';
   state.tab = id;
-  document.getElementById('mp-title').textContent = TITLES[id] || 'DaveBella 会员';
+  document.getElementById('mp-title').textContent = TITLES[id] || 'Dave & Bella';
   document.getElementById('mp-content').innerHTML = PAGES[id]();
   document.getElementById('mp-content').scrollTop = 0;
   renderTabbar();
   lucide.createIcons();
 }
 
+function goDiscover() {
+  goTab('discover');
+}
+
+function scrollToProducts() {
+  const target = document.getElementById('home-products');
+  if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ---- 登录 / 退出 ---- */
+function simulateLogin() {
+  closeSheet();
+  setTimeout(() => {
+    state.loggedIn = true;
+    goTab(state.tab);
+    showToast('登录成功，会员权益已解锁');
+  }, 260);
+}
+
+function doLogout() {
+  closeSheet();
+  state.loggedIn = false;
+  state.tab = 'home';
+  goTab('home');
+  showToast('已退出登录');
+}
+
+/* ---- 签到 ---- */
+function doSignIn() {
+  if (state.signedToday) return;
+  state.signedToday = true;
+  state.signedDays = [1, 2, 3, 4];
+  state.points += 5;
+  POINT_LOGS.unshift({ t:'签到奖励 · 连续 4 天', d:'今天 08:15', v:'+5', type:'in' });
+  goTab('discover');
+  showToast('签到成功，+5 积分已到账');
+}
+
+/* ---- 积分抽奖：独立大转盘页面 ---- */
+const DRAW_POOL = [
+  { prize:'谢谢参与', weight:40, type:'none' },
+  { prize:'10 积分', weight:25, type:'points', value:10 },
+  { prize:'50 积分', weight:15, type:'points', value:50 },
+  { prize:'100 积分', weight:8, type:'points', value:100 },
+  { prize:'满 100 减 10 券', weight:8, type:'coupon' },
+  { prize:'满 200 减 30 券', weight:4, type:'coupon' },
+];
+
+let wheelRot = 0;
+let wheelSpinning = false;
+
+function drawPage() {
+  return `<div class="pg on fade-in">
+    <div class="mp-card p-4 text-center">
+      <p class="text-[16px] font-semibold">好运转出来</p>
+      <p class="mt-1 text-[10px] text-[#71717a]">10 积分抽一次 · 每日最多 5 次</p>
+      <div class="mt-4">
+        <div class="wheel-wrap">
+          <div class="wheel-pointer"></div>
+          <div class="wheel" id="wheel" style="transform:rotate(0deg)">
+            <div class="wheel-face"></div>
+            ${[0, 1, 2, 3, 4, 5].map((i) => `<span class="wheel-line" style="transform:rotate(${i * 60 + 30}deg)"></span>`).join('')}
+            ${PRIZES.map((p, i) => {
+              // 奖品文案按扇区中心坐标摆放，保持水平可读
+              const angle = i * 60 * Math.PI / 180;
+              const x = Math.round(Math.sin(angle) * 92);
+              const y = Math.round(-Math.cos(angle) * 92);
+              return `<span class="wheel-text" style="left:calc(50% + ${x}px);top:calc(50% + ${y}px)">${p}</span>`;
+            }).join('')}
+          </div>
+          <button class="wheel-btn" id="wheel-btn" onclick="spinWheel()">
+            <span class="text-[13px] font-semibold">抽奖</span>
+            <span class="text-[9px] opacity-80">10 积分</span>
+          </button>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center justify-center gap-2">
+        ${badge('今日剩余 5 次', 'brand')}
+        ${badge('100% 中奖', 'warning')}
+      </div>
+      <p class="mt-2 text-[9px] text-[#a1a1aa]">当前积分 <b id="draw-points" class="tnum" style="color:#c7001a">${state.points.toLocaleString('zh-CN')}</b> · 中奖积分实时到账</p>
+      <div class="mt-4 flex items-center justify-between rounded-xl bg-[#fff1f2] px-3 py-2.5">
+        <span class="text-left text-[10px] text-[#c7001a]">奖品池：积分 / 满减券 / 谢谢参与</span>
+        <button class="text-[10px] font-medium" style="color:#c7001a;background:none;border:0;cursor:pointer" onclick="openDrawRecords()">抽奖记录${icon('chevron-right', 'h-3 w-3')}</button>
+      </div>
+    </div>
+    <div class="mp-card mt-3 p-3">
+      <p class="text-[11px] font-medium">抽奖规则</p>
+      <div class="mt-2 space-y-1 text-[10px] leading-relaxed text-[#71717a]">
+        <p>1. 每次消耗 10 积分，每日最多 5 次；</p>
+        <p>2. 积分奖品实时到账，优惠券自动放入「我的优惠券」；</p>
+        <p>3. 抽奖结果以服务端记录为准，不支持撤销。</p>
+      </div>
+    </div>
+    <p class="mt-4 text-center text-[10px] text-[#a1a1aa]">DaveBella · 把柔软穿进童年</p>
+  </div>`;
+}
+
+// 按权重抽奖（正式版由服务端返回结果，前端只负责把转盘停在对应扇区）
+function pickPrize() {
+  const total = DRAW_POOL.reduce((sum, item) => sum + item.weight, 0);
+  let roll = Math.random() * total;
+  let result = DRAW_POOL[DRAW_POOL.length - 1];
+  for (const item of DRAW_POOL) {
+    roll -= item.weight;
+    if (roll <= 0) { result = item; break; }
+  }
+  return result;
+}
+
+function spinWheel() {
+  if (wheelSpinning) return;
+  if (state.points < 10) { showToast('积分不足，去签到赚积分吧'); return; }
+  const wheel = document.getElementById('wheel');
+  const btn = document.getElementById('wheel-btn');
+  if (!wheel) return;
+
+  wheelSpinning = true;
+  if (btn) btn.disabled = true;
+
+  const result = pickPrize();
+  const index = PRIZES.indexOf(result.prize);
+  // 让中奖扇区中心停在顶部指针处，并额外转 5 圈
+  const target = ((360 - index * 60) % 360 + 360) % 360;
+  const current = ((wheelRot % 360) + 360) % 360;
+  wheelRot += 360 * 5 + ((target - current + 360) % 360);
+  wheel.style.transform = `rotate(${wheelRot}deg)`;
+
+  state.points -= 10;
+  POINT_LOGS.unshift({ t:'积分抽奖 · 消耗', d:'今天 09:30', v:'-10', type:'out' });
+  if (result.type === 'points') state.points += result.value;
+  if (result.type === 'coupon') state.couponCount += 1;
+  DRAW_RECORDS.unshift({ prize: result.prize, time:'今天 09:30', cost:'-10 积分', win: result.type !== 'none' });
+
+  // 4s 与 .wheel 过渡时长一致，转完再弹结果
+  setTimeout(() => {
+    wheelSpinning = false;
+    if (btn) btn.disabled = false;
+    const pointsEl = document.getElementById('draw-points');
+    if (pointsEl) pointsEl.textContent = state.points.toLocaleString('zh-CN');
+    showDrawResult(result);
+  }, 4100);
+}
+
+function showDrawResult(result) {
+  const win = result.type !== 'none';
+  openSheet(`
+    <div class="mx-auto mb-3 h-1 w-9 rounded-full bg-[#e4e4e7]"></div>
+    <div class="py-4 text-center">
+      <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full" style="background:${win ? '#fff1f2' : '#f4f4f5'};color:${win ? '#ff0f23' : '#a1a1aa'}">
+        ${icon(win ? 'party-popper' : 'meh', 'h-9 w-9')}
+      </div>
+      <p class="mt-4 text-[15px] font-semibold">${win ? '恭喜中奖' : '差一点点'}</p>
+      <p class="mt-2 text-[20px] font-semibold" style="color:${win ? '#ff0f23' : '#71717a'}">${result.prize}</p>
+      <p class="mt-1 text-[10px] text-[#a1a1aa]">${result.type === 'points' ? '积分已自动到账' : result.type === 'coupon' ? '优惠券已放入「我的优惠券」' : '再接再厉，下次好运'}</p>
+      <div class="mt-5 flex gap-2">
+        <button class="btn flex-1" onclick="closeSheet()">收下</button>
+        <button class="btn btn-primary flex-1" onclick="closeSheet();setTimeout(spinWheel, 120)">再抽一次</button>
+      </div>
+    </div>
+  `);
+}
+
+/* ---- 资料修改页 ---- */
+function profileEditPage() {
+  return `<div class="pg on fade-in">
+    <div class="mp-card p-4">
+      <p class="text-[15px] font-semibold">修改会员资料</p>
+      <p class="mt-1 text-[10px] text-[#71717a]">昵称与生日可自助修改，手机号即会员号不可变更</p>
+      <div class="mt-4 space-y-3">
+        <div>
+          <p class="mb-1 text-[11px] text-[#52525b]">昵称</p>
+          <input id="edit-name" class="field" maxlength="16" value="${state.name}" placeholder="请输入昵称" />
+        </div>
+        <div>
+          <p class="mb-1 text-[11px] text-[#52525b]">生日</p>
+          <input id="edit-birthday" class="field tnum" type="date" value="${state.birthday}" />
+          <p class="mt-1 text-[9px] text-[#a1a1aa]">生日当月到店可领会员生日礼</p>
+        </div>
+        <div>
+          <p class="mb-1 text-[11px] text-[#52525b]">手机号</p>
+          <input class="field tnum" value="${state.phone}" readonly />
+        </div>
+        <div>
+          <p class="mb-1 text-[11px] text-[#52525b]">会员等级</p>
+          <input class="field" value="${state.level}" readonly />
+        </div>
+      </div>
+      <button class="btn btn-primary mt-5 w-full" style="height:42px" onclick="saveProfile()">保存修改</button>
+      <p class="mt-3 text-center text-[9px] text-[#a1a1aa]">保存后立即生效，会员资产与积分不受影响</p>
+    </div>
+  </div>`;
+}
+
+function saveProfile() {
+  const nameEl = document.getElementById('edit-name');
+  const birthEl = document.getElementById('edit-birthday');
+  const name = (nameEl ? nameEl.value : '').trim();
+  if (!name) { showToast('昵称不能为空'); return; }
+  state.name = name.slice(0, 16);
+  if (birthEl && birthEl.value) state.birthday = birthEl.value;
+  closeSubPage();
+  showToast('资料已更新');
+}
+
+/* ---- 初始化 ---- */
+renderTabbar();
 goTab('home');
 </script>
 </body>

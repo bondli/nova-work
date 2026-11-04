@@ -62,6 +62,15 @@ const ENDPOINTS = [
   'POST /marketing/update',
   'POST /marketing/delete',
   'POST /marketing/offline',
+  'GET /marketing/miniHome',
+  'POST /marketing/miniHome',
+  'POST /marketing/uploadImage',
+  // 积分兑换
+  'GET /redeem/items',
+  'POST /redeem/create',
+  'POST /redeem/update',
+  'GET /redeem/orders',
+  'POST /redeem/verify',
   // 数据
   'POST /data/getCoreData',
   'GET /data/getOrderCharts',

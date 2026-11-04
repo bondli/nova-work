@@ -1,0 +1,58 @@
+@use '../../styles/tokens.scss' as *;
+
+.nb-sheet {
+  width: 100%;
+  padding: 10px 16px 26px;
+  background: $card;
+  border-radius: 22px 22px 0 0;
+  max-height: 76vh;
+  overflow-y: auto;
+}
+
+.nb-sheet-handle {
+  width: 36px;
+  height: 4px;
+  margin: 0 auto 12px;
+  border-radius: 999px;
+  background: $border;
+}
+
+.nb-sheet-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.nb-sheet-head-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.nb-sheet-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: $text;
+}
+
+.nb-sheet-desc {
+  margin-top: 4px;
+  font-size: 10px;
+  line-height: 1.5;
+  color: $text-secondary;
+}
+
+.nb-sheet-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.nb-sheet-body {
+  margin-top: 12px;
+}

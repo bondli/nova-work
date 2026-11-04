@@ -1,0 +1,33 @@
+@use './styles/tokens.scss' as *;
+@use './styles/common.scss' as *;
+
+page {
+  background: $bg;
+  color: $text;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+view,
+text,
+image,
+button {
+  box-sizing: border-box;
+}
+
+/* NutUI 主按钮跟随品牌红 */
+.nut-button-primary {
+  background: $brand !important;
+  border-color: $brand !important;
+  color: #fff !important;
+}
+
+.nut-button-primary.nut-button-primary-disabled {
+  opacity: 0.55;
+}
+
+/* NutUI 禁用态会把 *-disabled 类同时加到内层文字容器，并给它铺一层浅色底；
+   这里统一清空内层背景，禁用效果只由外层按钮的透明度表达 */
+.nut-button-children {
+  background: transparent !important;
+}

@@ -38,6 +38,8 @@ type DatabaseSection = {
 type StorageSection = {
   uploadDir?: string;
   logDir?: string;
+  /** 小程序素材图片目录（营销页上传的 Banner / 类目 / 商品图） */
+  miniImageDir?: string;
   /** 插件上传商品图片时使用的令牌 */
   uploadToken?: string;
 };
@@ -102,6 +104,7 @@ function normalize(file: NovaServerConfig, legacy: DatabaseSection | null): Nova
   const baseUrl = file.baseUrl ?? 'http://127.0.0.1:9577';
   const derived = parseBaseUrl(baseUrl);
   const uploadDir = file.storage?.uploadDir ?? '~/.nova/storage/inventory-image';
+  const miniImageDir = file.storage?.miniImageDir ?? '~/.nova/storage/mini-image';
   const logDir = file.storage?.logDir ?? '~/.nova/logs';
 
   return {
@@ -117,6 +120,7 @@ function normalize(file: NovaServerConfig, legacy: DatabaseSection | null): Nova
     database: file.database ?? legacy ?? {},
     storage: {
       uploadDir,
+      miniImageDir,
       logDir,
       uploadToken: file.storage?.uploadToken ?? randomSecret(16),
     },
@@ -249,6 +253,13 @@ export function getServerHost(): string {
 
 export function getUploadDir(): string {
   const dir = expandHome(getServerConfig().storage?.uploadDir ?? '~/.nova/storage/inventory-image');
+  fs.mkdirSync(dir, { recursive: true });
+  return dir;
+}
+
+/** 小程序素材图片目录：与商品图片分开存放，便于单独备份 / 清理 */
+export function getMiniImageDir(): string {
+  const dir = expandHome(getServerConfig().storage?.miniImageDir ?? '~/.nova/storage/mini-image');
   fs.mkdirSync(dir, { recursive: true });
   return dir;
 }

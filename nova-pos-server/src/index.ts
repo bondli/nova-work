@@ -14,6 +14,7 @@ import {
   getServerHost,
   getServerPort,
   getUploadDir,
+  getMiniImageDir,
   shouldSyncDatabase,
   SERVER_CONFIG_FILE,
 } from './config';
@@ -92,6 +93,17 @@ app.use(
   '/inventory-image',
   express.static(getUploadDir(), {
     maxAge: '1m',
+    etag: true,
+    lastModified: true,
+  }),
+);
+
+// 静态资源：小程序素材图片。小程序 <Image> 同样无法携带 Authorization，
+// 必须在业务鉴权之前注册；文件名带时间戳与随机串，不做覆盖，可放宽缓存。
+app.use(
+  '/mini-image',
+  express.static(getMiniImageDir(), {
+    maxAge: '7d',
     etag: true,
     lastModified: true,
   }),

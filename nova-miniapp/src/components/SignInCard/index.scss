@@ -1,0 +1,129 @@
+@use '../../styles/tokens.scss' as *;
+
+.nb-sign-card {
+  padding: 16px;
+}
+
+.nb-sign-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.nb-sign-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text;
+}
+
+.nb-sign-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  color: $text-secondary;
+}
+
+.nb-sign-streak {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.nb-sign-streak-label {
+  font-size: 10px;
+  color: $text-muted;
+}
+
+.nb-sign-streak-value {
+  margin-top: 2px;
+  font-size: 18px;
+  font-weight: 600;
+  color: $brand;
+  font-variant-numeric: tabular-nums;
+}
+
+.nb-sign-streak-unit {
+  font-size: 10px;
+  font-weight: 400;
+  color: $text-secondary;
+}
+
+.nb-sign-days {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin-top: 16px;
+}
+
+.nb-sign-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  gap: 5px;
+}
+
+.nb-sign-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: $bg;
+  color: $text-muted;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.nb-sign-dot-done {
+  background: $brand-soft;
+  color: $brand;
+}
+
+.nb-sign-dot-today {
+  background: $brand;
+  color: #fff;
+  box-shadow: 0 0 0 4px $brand-soft;
+}
+
+.nb-sign-dot-plus {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.nb-sign-day-label {
+  font-size: 9px;
+  color: $text-muted;
+}
+
+.nb-sign-day-points {
+  font-size: 9px;
+  color: $text-muted;
+}
+
+.nb-sign-day-points-done {
+  color: $brand;
+}
+
+.nb-sign-button {
+  height: 40px;
+  margin-top: 16px;
+  font-size: 13px;
+  border-radius: 10px;
+}
+
+.nb-sign-button-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.nb-sign-note {
+  display: block;
+  margin-top: 8px;
+  font-size: 9px;
+  text-align: center;
+  color: $text-muted;
+}

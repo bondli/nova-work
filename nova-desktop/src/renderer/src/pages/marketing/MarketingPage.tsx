@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Megaphone, Plus, Ticket } from 'lucide-react'
+import { Megaphone, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Campaign, CampaignFilters, CampaignType } from '@shared/types/campaign'
 import {
@@ -25,9 +25,11 @@ import { DataTable } from '@renderer/components/common/DataTable'
 import { DateRangePicker, type DateRangeValue } from '@renderer/components/common/DateRangePicker'
 import { FilterBar, FilterField } from '@renderer/components/common/FilterBar'
 import { PaginationBar } from '@renderer/components/common/PaginationBar'
-import { StatCard } from '@renderer/components/common/StatCard'
-import { formatDate, formatMoney } from '@renderer/lib/format'
+import { SegmentedControl } from '@renderer/components/common/SegmentedControl'
+import { formatDate } from '@renderer/lib/format'
 import { useAuthStore } from '@renderer/stores/auth-store'
+import { MiniHomeConfigPanel, type MiniHomeSection } from '@renderer/features/marketing/MiniHomeConfigPanel'
+import { RedeemItemsPanel } from '@renderer/features/marketing/RedeemItemsPanel'
 import { createCampaignColumns } from '@renderer/features/marketing/columns'
 import { CAMPAIGN_TYPE } from '@renderer/features/marketing/labels'
 import { useCampaignsQuery, useDeleteCampaign, useToggleCampaign } from '@renderer/features/marketing/queries'
@@ -66,7 +68,10 @@ function createDefaultFilters(range: DateRangeValue): CampaignFilters {
 }
 
 /**
- * 营销活动：指标卡 + 活动时间/活动名称/类型筛选 + 活动表格。
+ * 营销页：顶部分段切换「营销活动 / 积分兑换 / 小程序基础信息 / 小程序 banner / 小程序新品」。
+ * 营销活动为筛选 + 活动表格；积分兑换维护小程序积分商城的兑换实物与核销记录；
+ * 其余三个页签分别维护小程序基础信息、首页顶部轮播与首页本季新品，
+ * 三者共用同一份小程序配置，各自保存后小程序端实时生效。
  * 详情全员可见；新建、编辑、上下线、删除仅管理员可用，与老系统权限一致。
  */
 export function MarketingPage() {
@@ -83,6 +88,14 @@ export function MarketingPage() {
   const [newOpen, setNewOpen] = useState(false)
   const [drawOpen, setDrawOpen] = useState(false)
   const [pendingDelete, setPendingDelete] = useState<Campaign | null>(null)
+  /** 顶部分段切换：营销活动 / 积分兑换 / 小程序基础信息 / 小程序 banner / 小程序新品 */
+  const [activeTab, setActiveTab] = useState<
+    'activity' | 'redeem' | 'mini-base' | 'mini-banner' | 'mini-product'
+  >('activity')
+
+  /** 小程序页签对应的配置分区，营销活动页签不走这里 */
+  const miniSection: MiniHomeSection =
+    activeTab === 'mini-base' ? 'base' : activeTab === 'mini-banner' ? 'banners' : 'products'
 
   const { data, isLoading, isFetching, error } = useCampaignsQuery(filters)
   const toggleMutation = useToggleCampaign()
@@ -130,122 +143,127 @@ export function MarketingPage() {
     setFilters(createDefaultFilters(INITIAL_RANGE))
   }
 
-  const summary = data?.summary
-
   return (
     <div className="flex h-full flex-col gap-3 overflow-auto p-4">
-      <div className="grid grid-cols-3 gap-3">
-        <StatCard
-          label="进行中活动"
-          value={(summary?.ongoingCount ?? 0).toLocaleString('zh-CN')}
-          icon={Megaphone}
-        />
-        <StatCard
-          label="带动销售额"
-          value={formatMoney(summary?.drivenSales ?? 0, { decimals: 0 })}
-          icon={Ticket}
-          hint="旧库暂无核销数据"
-        />
-        <StatCard
-          label="本月核销"
-          value={(summary?.monthRedeemed ?? 0).toLocaleString('zh-CN')}
-          icon={Ticket}
-          hint="旧库暂无核销数据"
-        />
-      </div>
-
-      <FilterBar
-        onSubmit={() => setFilters((current) => ({ ...current, page: 1 }))}
-        onReset={handleReset}
-        loading={isFetching}
-        actions={
-          <>
-            <Button type="button" variant="outline" size="sm" onClick={() => setDrawOpen(true)}>
-              抽奖查询
-            </Button>
-            {isAdmin ? (
-              <Button type="button" size="sm" onClick={() => setNewOpen(true)}>
-                <Plus className="h-3.5 w-3.5" aria-hidden="true" />
-                新建活动
-              </Button>
-            ) : null}
-          </>
-        }
-      >
-        <FilterField label="活动时间">
-          <DateRangePicker
-            value={range}
-            allowFuture
-            onChange={(next) => {
-              setRange(next)
-              setFilters((current) => ({
-                ...current,
-                start: formatDate(next.start),
-                end: formatDate(next.end),
-                page: 1
-              }))
-            }}
-          />
-        </FilterField>
-
-        <Input
-          className="h-8 w-[200px] text-ui"
-          placeholder="输入活动名称"
-          aria-label="活动名称"
-          value={filters.name}
-          onChange={(event) =>
-            setFilters((current) => ({ ...current, name: event.target.value, page: 1 }))
-          }
-        />
-
-        <FilterField label="类型">
-          <Select
-            value={filters.type}
-            onValueChange={(value) =>
-              setFilters((current) => ({
-                ...current,
-                type: value as CampaignFilters['type'],
-                page: 1
-              }))
-            }
-          >
-            <SelectTrigger className="h-8 w-[132px] text-ui" aria-label="活动类型">
-              <SelectValue placeholder="活动类型" />
-            </SelectTrigger>
-            <SelectContent>
-              {TYPE_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value} className="text-ui">
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </FilterField>
-      </FilterBar>
-
-      <DataTable
-        columns={columns}
-        data={data?.rows ?? []}
-        rowKey="id"
-        isLoading={isLoading}
-        error={error ? (error as Error).message : undefined}
-        empty={{
-          icon: Megaphone,
-          title: '暂无活动',
-          description: '换个活动名称或类型筛选后再试'
-        }}
-        footer={
-          <div className="p-3">
-            <PaginationBar
-              total={data?.total ?? 0}
-              page={filters.page}
-              pageSize={filters.pageSize}
-              unit="个活动"
-              onPageChange={(page) => setFilters((current) => ({ ...current, page }))}
-            />
-          </div>
+      <SegmentedControl
+        className="self-start"
+        value={activeTab}
+        options={[
+          { key: 'activity', label: '营销活动' },
+          { key: 'redeem', label: '积分兑换' },
+          { key: 'mini-base', label: '小程序基础信息' },
+          { key: 'mini-banner', label: '小程序 banner' },
+          { key: 'mini-product', label: '小程序新品' }
+        ]}
+        onChange={(key) =>
+          setActiveTab(
+            key as 'activity' | 'redeem' | 'mini-base' | 'mini-banner' | 'mini-product'
+          )
         }
       />
+
+      {activeTab === 'activity' ? (
+        <div className="flex min-h-0 flex-1 flex-col gap-3">
+          <FilterBar
+            onSubmit={() => setFilters((current) => ({ ...current, page: 1 }))}
+            onReset={handleReset}
+            loading={isFetching}
+            actions={
+              <>
+                <Button type="button" variant="outline" size="sm" onClick={() => setDrawOpen(true)}>
+                  抽奖查询
+                </Button>
+                {isAdmin ? (
+                  <Button type="button" size="sm" onClick={() => setNewOpen(true)}>
+                    <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+                    新建活动
+                  </Button>
+                ) : null}
+              </>
+            }
+          >
+            <FilterField label="活动时间">
+              <DateRangePicker
+                value={range}
+                allowFuture
+                onChange={(next) => {
+                  setRange(next)
+                  setFilters((current) => ({
+                    ...current,
+                    start: formatDate(next.start),
+                    end: formatDate(next.end),
+                    page: 1
+                  }))
+                }}
+              />
+            </FilterField>
+
+            <Input
+              className="h-8 w-[200px] text-ui"
+              placeholder="输入活动名称"
+              aria-label="活动名称"
+              value={filters.name}
+              onChange={(event) =>
+                setFilters((current) => ({ ...current, name: event.target.value, page: 1 }))
+              }
+            />
+
+            <FilterField label="类型">
+              <Select
+                value={filters.type}
+                onValueChange={(value) =>
+                  setFilters((current) => ({
+                    ...current,
+                    type: value as CampaignFilters['type'],
+                    page: 1
+                  }))
+                }
+              >
+                <SelectTrigger className="h-8 w-[132px] text-ui" aria-label="活动类型">
+                  <SelectValue placeholder="活动类型" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TYPE_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value} className="text-ui">
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FilterField>
+          </FilterBar>
+
+          <DataTable
+            columns={columns}
+            data={data?.rows ?? []}
+            rowKey="id"
+            isLoading={isLoading}
+            error={error ? (error as Error).message : undefined}
+            empty={{
+              icon: Megaphone,
+              title: '暂无活动',
+              description: '换个活动名称或类型筛选后再试'
+            }}
+            footer={
+              <div className="p-3">
+                <PaginationBar
+                  total={data?.total ?? 0}
+                  page={filters.page}
+                  pageSize={filters.pageSize}
+                  unit="个活动"
+                  onPageChange={(page) => setFilters((current) => ({ ...current, page }))}
+                />
+              </div>
+            }
+          />
+        </div>
+      ) : activeTab === 'redeem' ? (
+        <RedeemItemsPanel />
+      ) : (
+        <div className="min-h-0 flex-1 overflow-auto">
+          <MiniHomeConfigPanel section={miniSection} />
+        </div>
+      )}
 
       <MarketingDetailSheet
         open={detailOpen}

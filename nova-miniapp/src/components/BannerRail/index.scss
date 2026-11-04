@@ -1,0 +1,109 @@
+@use '../../styles/tokens.scss' as *;
+
+.nb-banner-block {
+  margin: 0 -14px;
+  padding: 0 14px;
+}
+
+.nb-banner-rail {
+  width: auto;
+  white-space: nowrap;
+}
+
+.nb-banner {
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  width: 272px;
+  height: 152px;
+  margin-right: 10px;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.nb-banner:last-child {
+  margin-right: 0;
+}
+
+.nb-banner-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.nb-banner-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(127, 0, 16, 0.86) 0%, rgba(199, 0, 26, 0.55) 52%, rgba(199, 0, 26, 0.12) 100%);
+}
+
+.nb-banner-body {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px;
+  color: #fff;
+}
+
+.nb-banner-tag {
+  align-self: flex-start;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.nb-banner-title {
+  display: block;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.24;
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.18);
+}
+
+.nb-banner-desc {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.nb-banner-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  color: #c7001a;
+}
+
+.nb-banner-dots {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.nb-banner-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: $border;
+  transition: all 0.2s;
+}
+
+.nb-banner-dot-on {
+  width: 14px;
+  background: $brand;
+}

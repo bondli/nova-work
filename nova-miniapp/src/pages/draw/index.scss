@@ -1,0 +1,174 @@
+@use '../../styles/tokens.scss' as *;
+
+.nb-draw-page {
+  padding-bottom: 32px;
+}
+
+.nb-draw-skeleton {
+  padding: 16px;
+}
+
+.nb-draw-card {
+  padding: 16px;
+  text-align: center;
+}
+
+.nb-draw-title {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: $text;
+}
+
+.nb-draw-sub {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  color: $text-secondary;
+}
+
+.nb-draw-wheel {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.nb-draw-badges {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.nb-draw-points {
+  display: block;
+  margin-top: 8px;
+  font-size: 9px;
+  color: $text-muted;
+}
+
+.nb-draw-points-value {
+  font-weight: 600;
+  color: $brand-deep;
+  font-variant-numeric: tabular-nums;
+}
+
+.nb-draw-pool {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: $brand-soft;
+  font-size: 10px;
+  color: $brand-deep;
+}
+
+.nb-draw-pool-link {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-weight: 500;
+  color: $brand-deep;
+}
+
+.nb-draw-rules {
+  margin-top: 12px;
+  padding: 12px;
+}
+
+.nb-draw-rules-title {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: $text;
+}
+
+.nb-draw-rules-line {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  line-height: 1.6;
+  color: $text-secondary;
+}
+
+.nb-draw-foot {
+  display: block;
+  margin-top: 16px;
+  font-size: 10px;
+  text-align: center;
+  color: $text-muted;
+}
+
+/* 结果弹层 */
+.nb-draw-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 4px 2px;
+  text-align: center;
+}
+
+.nb-draw-result-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: $bg;
+}
+
+.nb-draw-result-icon-win {
+  background: $brand-soft;
+}
+
+.nb-draw-result-title {
+  margin-top: 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: $text;
+}
+
+.nb-draw-result-prize {
+  margin-top: 8px;
+  font-size: 20px;
+  font-weight: 600;
+  color: $text-secondary;
+}
+
+.nb-draw-result-prize-win {
+  color: $brand;
+}
+
+.nb-draw-result-note {
+  margin-top: 4px;
+  font-size: 10px;
+  color: $text-muted;
+}
+
+.nb-draw-result-actions {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.nb-draw-result-cancel {
+  flex: 1;
+  height: 42px;
+  border: 1px solid $border;
+  border-radius: 10px;
+  background: $card;
+  color: $text;
+  font-size: 13px;
+}
+
+.nb-draw-result-submit {
+  flex: 1;
+  height: 42px;
+  border-radius: 10px;
+  font-size: 13px;
+}

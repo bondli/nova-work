@@ -229,15 +229,15 @@ export interface Clerk {
 let clerkCache: Clerk[] | null = null
 
 /**
- * 导购列表：仅保留在职（status 非 disabled）且非管理员的账号，
- * 展示名优先取真实姓名，未设置时回退用户名。
+ * 导购列表：仅保留在职且非管理员的账号，展示名优先取真实姓名，未设置时回退用户名。
+ * 在职判定与服务端登录一致：只认 status === 'normal'，库里禁用值存在 'disable' / 'disabled' 两种写法。
  * 该接口仅管理员可读，导购员调用会失败，调用方需自行降级。
  */
 export async function fetchClerks(): Promise<Clerk[]> {
   if (clerkCache) return clerkCache
   const result = await posGet<ServerList<ServerUser>>('/user/list')
   clerkCache = (result.data ?? [])
-    .filter((user) => user.role !== 'admin' && user.status !== 'disabled')
+    .filter((user) => user.role !== 'admin' && user.status === 'normal')
     .map((user) => ({
       id: user.id,
       username: user.name,

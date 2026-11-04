@@ -21,6 +21,7 @@ import type { AppNotification } from '../shared/types/notification'
 import type {
   PosExportInput,
   PosExportResult,
+  PosImageUploadResult,
   PosRequestInput,
   PosUploadResult
 } from '../shared/types/pos'
@@ -68,7 +69,10 @@ const api = {
     export: (input: PosExportInput) =>
       ipcRenderer.invoke(IPC.posExport, input) as Promise<IpcResult<PosExportResult>>,
     /** 选择本地 Excel 并上传解析；取消时返回 null */
-    upload: () => ipcRenderer.invoke(IPC.posUpload) as Promise<IpcResult<PosUploadResult | null>>
+    upload: () => ipcRenderer.invoke(IPC.posUpload) as Promise<IpcResult<PosUploadResult | null>>,
+    /** 选择本地图片上传为小程序素材；取消时返回 null */
+    uploadImage: () =>
+      ipcRenderer.invoke(IPC.posUploadImage) as Promise<IpcResult<PosImageUploadResult | null>>
   },
   print: {
     /** 打印小票 HTML，主进程调用 Electron 原生打印 */
@@ -85,7 +89,7 @@ const api = {
   serverConfig: {
     /** 登录页读取 POS 服务地址（未登录也可调用） */
     baseUrl: () => ipcRenderer.invoke(IPC.serverConfigBaseUrl) as Promise<IpcResult<string>>,
-    /** 登录页保存 POS 服务地址与内部令牌，写入 ~/.nova/server-config.json */
+    /** 登录页保存 POS 服务地址与内部令牌，写入 ~/.nova/api-config.json */
     setBaseUrl: (input: ServerLoginInput) =>
       ipcRenderer.invoke(IPC.serverConfigSetBaseUrl, input) as Promise<IpcResult<string>>
   },

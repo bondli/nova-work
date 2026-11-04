@@ -39,9 +39,9 @@ function SettingsCard({
 
 /**
  * 数据设置：
- * - POS 服务地址写入 ~/.nova/server-config.json，与 nova-pos-server 共用；
+ * - POS 服务地址写入 ~/.nova/api-config.json，桌面端专用，不改动服务端配置；
  * - 只读数据库写入 ~/.nova/agent-config.json，仅用于 Agent 查询（同样预置在系统提示词中）。
- * 上传目录、日志目录等属于服务端自身配置，不在这里维护。
+ * 上传目录、日志目录、监听地址等属于服务端自身配置，不在这里维护。
  */
 export function DataSettingsTab() {
   const isAdmin = useAuthStore((state) => state.user?.role) === 'admin'
@@ -218,8 +218,8 @@ export function DataSettingsTab() {
       </div>
 
       <div className="flex shrink-0 items-center justify-between gap-3 border-t border-border pt-3">
-        <p className="min-w-0 truncate text-meta text-subtle" title={view?.serverConfigPath}>
-          POS 配置保存到 ~/.nova/server-config.json，数据库配置保存到 ~/.nova/agent-config.json
+        <p className="min-w-0 truncate text-meta text-subtle" title={view?.apiConfigPath}>
+          POS 服务地址保存到 ~/.nova/api-config.json，数据库配置保存到 ~/.nova/agent-config.json
         </p>
         <Button type="button" onClick={() => void save()} disabled={saving}>
           {saving ? '保存中…' : '保存'}

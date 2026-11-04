@@ -1,0 +1,97 @@
+@use '../../styles/tokens.scss' as *;
+
+.nb-home {
+  padding-bottom: 30px;
+}
+
+.nb-brand-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 2px 2px 10px;
+}
+
+.nb-brand-logo {
+  display: block;
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: $text;
+}
+
+.nb-brand-tagline {
+  display: block;
+  margin-top: 2px;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: $brand;
+  text-transform: uppercase;
+}
+
+.nb-brand-focus {
+  font-size: 10px;
+  color: $text-secondary;
+}
+
+.nb-home-skeleton {
+  padding: 16px;
+}
+
+.nb-product-rail {
+  width: auto;
+  white-space: nowrap;
+  margin: 0 -14px;
+  padding: 0 14px 4px;
+}
+
+.nb-product-cell {
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 10px;
+}
+
+.nb-product-cell:last-child {
+  margin-right: 0;
+}
+
+.nb-member-strip {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 12px;
+  background: $brand-soft;
+}
+
+.nb-member-strip-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nb-member-strip-title {
+  font-size: 11px;
+  font-weight: 500;
+  color: $brand-deep;
+}
+
+.nb-member-strip-desc {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  line-height: 1.6;
+  color: $brand;
+}
+
+.nb-member-strip-button {
+  height: 34px;
+  margin-top: 10px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+
+.nb-home-foot {
+  display: block;
+  margin-top: 20px;
+  font-size: 10px;
+  text-align: center;
+  color: $text-muted;
+}

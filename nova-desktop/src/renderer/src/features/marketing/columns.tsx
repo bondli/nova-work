@@ -16,7 +16,8 @@ interface CampaignColumnsOptions {
 
 /**
  * 营销活动列表列定义。
- * 列顺序按老系统：活动名称 / 活动描述 / 活动类型 / 开始时间 / 结束时间 / 状态 / 参与 / 核销 / 带动销售 / 操作。
+ * 列顺序按老系统：活动ID / 活动名称 / 活动描述 / 活动类型 / 开始时间 / 结束时间 / 状态 / 参与 / 核销 / 带动销售 / 操作。
+ * 活动ID 用于小程序 banner 跳转链接（/pages/activity-detail/index?id=ID）。
  * 参与、核销、带动销售在新系统独有且旧库没有数据来源，缺失时渲染「—」。
  */
 export function createCampaignColumns({
@@ -27,6 +28,13 @@ export function createCampaignColumns({
   onDelete
 }: CampaignColumnsOptions): ColumnDef<Campaign>[] {
   return [
+    {
+      accessorKey: 'id',
+      header: '活动ID',
+      cell: ({ row }) => (
+        <span className="tnum text-ui text-muted-foreground">{row.original.id}</span>
+      )
+    },
     {
       accessorKey: 'name',
       header: '活动名称',

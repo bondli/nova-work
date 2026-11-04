@@ -1,13 +1,26 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { CampaignFilters, CampaignInput } from '@shared/types/campaign'
+import type { MiniHomeContent } from '@shared/types/mini-home'
+import type {
+  RedeemItemFilters,
+  RedeemItemInput,
+  RedeemOrderFilters
+} from '@shared/types/redeem'
 import {
   createCampaign,
+  createRedeemItem,
   deleteCampaign,
   fetchCampaignCoupons,
   fetchCampaignDetail,
   fetchCampaigns,
+  fetchMiniHomeContent,
+  fetchRedeemItems,
+  fetchRedeemOrders,
+  saveMiniHomeContent,
   toggleCampaign,
-  updateCampaign
+  updateCampaign,
+  updateRedeemItem,
+  verifyRedeemOrder
 } from './api'
 
 /**
@@ -76,4 +89,77 @@ export function useUpdateCampaign() {
     mutationFn: ({ id, input }: { id: string; input: CampaignInput }) => updateCampaign(id, input),
     onSuccess: invalidate
   })
+}
+
+/** 小程序首页素材：配置由桌面端编辑、文件落盘，手动保存后才刷新 */
+export function useMiniHomeContentQuery() {
+  return useQuery({
+    queryKey: ['mini-home-content'],
+    queryFn: fetchMiniHomeContent
+  })
+}
+
+export function useSaveMiniHomeContent() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (content: MiniHomeContent) => saveMiniHomeContent(content),
+    onSuccess: (content) => {
+      queryClient.setQueryData(['mini-home-content'], content)
+    }
+  })
+}
+
+/** 积分兑换 Query Key：礼品列表与某礼品的兑换记录分开缓存 */
+export const redeemKeys = {
+  all: ['redeem'] as const,
+  items: (filters: RedeemItemFilters) => [...redeemKeys.all, 'items', filters] as const,
+  orders: (itemId: number, filters: RedeemOrderFilters) =>
+    [...redeemKeys.all, 'orders', itemId, filters] as const
+}
+
+export function useRedeemItemsQuery(filters: RedeemItemFilters) {
+  return useQuery({
+    queryKey: redeemKeys.items(filters),
+    queryFn: () => fetchRedeemItems(filters),
+    placeholderData: keepPreviousData
+  })
+}
+
+/** 礼品兑换记录：抽屉打开时才请求 */
+export function useRedeemOrdersQuery(
+  itemId: number | null,
+  filters: RedeemOrderFilters,
+  enabled: boolean
+) {
+  return useQuery({
+    queryKey: redeemKeys.orders(itemId ?? 0, filters),
+    queryFn: () => fetchRedeemOrders(itemId as number, filters),
+    enabled: Boolean(itemId) && enabled,
+    placeholderData: keepPreviousData
+  })
+}
+
+function useInvalidateRedeemItems() {
+  const queryClient = useQueryClient()
+  return () => queryClient.invalidateQueries({ queryKey: redeemKeys.all })
+}
+
+export function useCreateRedeemItem() {
+  const invalidate = useInvalidateRedeemItems()
+  return useMutation({ mutationFn: createRedeemItem, onSuccess: invalidate })
+}
+
+export function useUpdateRedeemItem() {
+  const invalidate = useInvalidateRedeemItems()
+  return useMutation({
+    mutationFn: ({ id, input }: { id: number; input: RedeemItemInput }) =>
+      updateRedeemItem(id, input),
+    onSuccess: invalidate
+  })
+}
+
+/** 核销成功后同时刷新礼品列表（剩余库存不变）与当前记录抽屉 */
+export function useVerifyRedeemOrder() {
+  const invalidate = useInvalidateRedeemItems()
+  return useMutation({ mutationFn: verifyRedeemOrder, onSuccess: invalidate })
 }

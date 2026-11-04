@@ -1884,9 +1884,25 @@ function openMarketingDetailDrawer(idx){
   lucide.createIcons();
 }
 
+/* 营销页 Tab：与桌面端一致，营销活动 / 积分兑换 / 小程序新品 */
+const MARKETING_TAB = { value:'campaigns' };
+function switchMarketingTab(tab){ MARKETING_TAB.value = tab; go('marketing'); }
+
 function marketingPage(){
+  const tab = MARKETING_TAB.value;
   return `
   <div class="flex h-full flex-col gap-3">
+    <div class="flex w-fit items-center gap-1 rounded-lg border border-[#e4e4e7] bg-white p-1">
+      ${[['campaigns','营销活动'],['redeem','积分兑换'],['miniProducts','小程序新品']].map(([key,label])=>`
+      <button class="rounded-md px-3 py-1.5 text-[12px] ${tab===key?'bg-[#18181b] font-medium text-white':'text-[#71717a] hover:bg-[#f4f4f5]'}" onclick="switchMarketingTab('${key}')">${label}</button>`).join('')}
+    </div>
+    ${tab==='campaigns' ? campaignsPanel() : tab==='redeem' ? redeemPanel() : miniProductsPanel()}
+  </div>`;
+}
+
+/** 营销活动面板：指标 + 筛选 + 表格 */
+function campaignsPanel(){
+  return `
     <div class="grid grid-cols-3 gap-3">
       ${[['进行中活动','2','megaphone',''],['带动销售额','¥0','trending-up','旧库暂无核销数据'],['本月核销','0','ticket-check','旧库暂无核销数据']].map(([l,v,i,h])=>`
       <div class="card p-4"><div class="flex items-center justify-between"><p class="metric-label">${l}</p><i data-lucide="${i}" class="h-4 w-4 text-[#a1a1aa]"></i></div><p class="metric-value mt-1">${v}</p>${h?`<p class="mt-1 text-[11px] text-[#a1a1aa]">${h}</p>`:''}</div>`).join('')}
@@ -1928,7 +1944,201 @@ function marketingPage(){
       </table>
     </div>
     <div class="flex items-center justify-between text-[12px] text-[#71717a]"><span>共 5 个活动</span><div class="flex gap-1"><button class="btn btn-sm btn-primary">1</button></div></div>
-  </div>`;
+  `;
+}
+
+/* ---------- 积分兑换 ---------- */
+const REDEEM_ITEMS = [
+  { name:'儿童保温杯 450ml', desc:'316 不锈钢 · 450ml', points:'800', stock:'18', total:'60', limit:'1' },
+  { name:'纯棉浴巾', desc:'A 类纯棉 · 70×140cm', points:'1,200', stock:'12', total:'50', limit:'1' },
+  { name:'帆布托特包', desc:'加厚帆布 · 大容量', points:'1,500', stock:'6', total:'30', limit:'1' },
+  { name:'晴雨两用伞', desc:'黑胶防晒 · 折叠便携', points:'600', stock:'25', total:'80', limit:'2' },
+];
+const REDEEM_ORDERS = [
+  { member:'林女士', phone:'138****2233', no:'RP20261102001', code:'382915', time:'2026-11-02 14:20', status:'待自提', tone:'badge-brand' },
+  { member:'张女士', phone:'139****8877', no:'RP20261101008', code:'761204', time:'2026-11-01 10:05', status:'已核销', tone:'badge-success' },
+  { member:'陈女士', phone:'137****4455', no:'RP20261031002', code:'904782', time:'2026-10-31 16:48', status:'已过期', tone:'badge' },
+];
+let REDEEM_ORDER_SCOPE = 0;
+
+function redeemPanel(){
+  return `
+    <div class="card flex flex-wrap items-end gap-2 p-3">
+      <div><label class="mb-1 block text-[11px] text-[#71717a]">礼品名称</label><input class="input h-8 w-[180px] text-xs" placeholder="输入礼品名称" /></div>
+      <div><label class="mb-1 block text-[11px] text-[#71717a]">状态</label><select class="input h-8 w-[120px] text-xs"><option>全部</option><option>上架</option><option>下架</option></select></div>
+      <button class="btn btn-sm btn-primary" onclick="showToast('已按条件查询礼品')"><i data-lucide="search" class="h-3.5 w-3.5"></i>查询</button>
+      <button class="btn btn-sm" onclick="showToast('已重置查询条件')">重置</button>
+      <div class="ml-auto"><button class="btn btn-sm btn-primary" onclick="openRedeemItemDrawer('create')"><i data-lucide="plus" class="h-3.5 w-3.5"></i>新增礼品</button></div>
+    </div>
+    <div class="card min-h-0 flex-1 overflow-auto">
+      <table class="table">
+        <thead><tr><th>礼品</th><th>所需积分</th><th>库存</th><th>已兑 / 总量</th><th>每人限兑</th><th>状态</th><th class="text-right">操作</th></tr></thead>
+        <tbody>
+          ${REDEEM_ITEMS.map((item, idx)=>`<tr>
+            <td><span class="flex items-center gap-2"><span class="flex h-9 w-9 items-center justify-center rounded-lg bg-[#fff1f2]"><i data-lucide="gift" class="h-4 w-4 text-[#ff0f23]"></i></span><span><span class="block font-medium">${item.name}</span><span class="block text-[11px] text-[#71717a]">${item.desc}</span></span></span></td>
+            <td class="tnum font-medium">${item.points}</td>
+            <td class="tnum">${item.stock}</td>
+            <td class="tnum text-[#71717a]">${Number(item.total)-Number(item.stock)} / ${item.total}</td>
+            <td class="tnum">${item.limit}</td>
+            <td><span class="badge badge-success">上架</span></td>
+            <td class="whitespace-nowrap text-right">
+              <button class="btn btn-sm btn-ghost text-[#4f46e5]" onclick="openRedeemOrdersDrawer(${idx})">兑换记录</button>
+              <button class="btn btn-sm btn-ghost text-[#4f46e5]" onclick="openRedeemItemDrawer('edit', ${idx})">编辑</button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="flex items-center justify-between text-[12px] text-[#71717a]"><span>共 ${REDEEM_ITEMS.length} 件礼品</span><div class="flex gap-1"><button class="btn btn-sm btn-primary">1</button></div></div>
+  `;
+}
+
+/** 新增 / 编辑兑换礼品：右侧抽屉 */
+function openRedeemItemDrawer(mode, idx){
+  const appShell = document.getElementById('app-shell');
+  const isEdit = mode === 'edit';
+  const item = isEdit ? REDEEM_ITEMS[idx] : { name:'', desc:'', points:'', total:'', limit:'1' };
+  document.getElementById('redeem-item-drawer')?.remove();
+  const drawer = document.createElement('div');
+  drawer.id = 'redeem-item-drawer';
+  drawer.className = 'absolute inset-0 z-50 flex justify-end bg-black/20';
+  drawer.innerHTML = `
+    <div class="flex h-full w-[460px] flex-col bg-white shadow-2xl">
+      <div class="flex items-center justify-between border-b border-[#e4e4e7] px-3 py-2.5">
+        <span class="text-[13px] font-semibold">${isEdit?'编辑兑换礼品':'新增兑换礼品'}</span>
+        <button class="btn btn-sm btn-ghost" onclick="document.getElementById('redeem-item-drawer')?.remove()"><i data-lucide="x" class="h-4 w-4"></i></button>
+      </div>
+      <div class="flex-1 space-y-3 overflow-auto p-3">
+        ${isEdit?`<p class="rounded-md bg-[#f4f4f5] px-3 py-2 text-[11px] text-[#71717a]">已兑 ${Number(item.total)-Number(item.stock)} 件，总库存不能小于已兑数量</p>`:''}
+        <div><label class="mb-1 block text-[11px] text-[#71717a]">礼品名称</label><input class="input h-8 text-xs" value="${item.name}" placeholder="例如：儿童保温杯 450ml" /></div>
+        <div><label class="mb-1 block text-[11px] text-[#71717a]">简介</label><input class="input h-8 text-xs" value="${item.desc}" placeholder="材质 / 规格等一句话说明" /></div>
+        <div><label class="mb-1 block text-[11px] text-[#71717a]">礼品图片</label><div class="flex h-24 items-center justify-center rounded-lg border border-dashed border-[#d4d4d8] text-[11px] text-[#a1a1aa]"><i data-lucide="image-plus" class="mr-1 h-4 w-4"></i>上传图片（264 × 264）</div></div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="mb-1 block text-[11px] text-[#71717a]">所需积分</label><input class="input h-8 text-xs tnum" value="${item.points}" placeholder="800" /></div>
+          <div><label class="mb-1 block text-[11px] text-[#71717a]">总库存</label><input class="input h-8 text-xs tnum" value="${item.total}" placeholder="60" /></div>
+          <div><label class="mb-1 block text-[11px] text-[#71717a]">每人限兑</label><input class="input h-8 text-xs tnum" value="${item.limit}" placeholder="1" /></div>
+          <div><label class="mb-1 block text-[11px] text-[#71717a]">状态</label><select class="input h-8 text-xs"><option>上架</option><option>下架</option></select></div>
+        </div>
+        <div><label class="mb-1 block text-[11px] text-[#71717a]">详情说明</label><textarea class="input h-20 py-2 text-xs" placeholder="兑换后 30 天内到店自提，逾期作废且积分不退">${isEdit?'兑换后 30 天内到店自提，逾期作废且积分不退':''}</textarea></div>
+      </div>
+      <div class="flex shrink-0 justify-end gap-2 border-t border-[#e4e4e7] px-3 py-2.5">
+        <button class="btn btn-sm" onclick="document.getElementById('redeem-item-drawer')?.remove()">取消</button>
+        <button class="btn btn-sm btn-primary" onclick="document.getElementById('redeem-item-drawer')?.remove();showToast('${isEdit?'礼品已更新':'礼品已新增'}')">保存</button>
+      </div>
+    </div>`;
+  appShell.appendChild(drawer);
+  lucide.createIcons();
+}
+
+/** 兑换记录：右侧宽抽屉，支持会员核销 */
+function openRedeemOrdersDrawer(idx){
+  REDEEM_ORDER_SCOPE = idx;
+  const appShell = document.getElementById('app-shell');
+  const item = REDEEM_ITEMS[idx];
+  document.getElementById('redeem-orders-drawer')?.remove();
+  const drawer = document.createElement('div');
+  drawer.id = 'redeem-orders-drawer';
+  drawer.className = 'absolute inset-0 z-50 flex justify-end bg-black/20';
+  drawer.innerHTML = `
+    <div class="flex h-full w-[760px] flex-col bg-white shadow-2xl">
+      <div class="flex items-center justify-between border-b border-[#e4e4e7] px-3 py-2.5">
+        <span class="text-[13px] font-semibold">兑换记录 · ${item.name}</span>
+        <button class="btn btn-sm btn-ghost" onclick="document.getElementById('redeem-orders-drawer')?.remove()"><i data-lucide="x" class="h-4 w-4"></i></button>
+      </div>
+      <div class="flex items-end gap-2 border-b border-[#e4e4e7] px-3 py-2">
+        <select class="input h-8 w-[132px] text-xs"><option>全部状态</option><option>待自提</option><option>已核销</option><option>已过期</option></select>
+        <button class="btn btn-sm btn-primary" onclick="showToast('已按状态筛选兑换记录')"><i data-lucide="search" class="h-3.5 w-3.5"></i>查询</button>
+      </div>
+      <div class="min-h-0 flex-1 overflow-auto">
+        <table class="table">
+          <thead><tr><th>会员</th><th>手机号</th><th>兑换单号</th><th>取货码</th><th>兑换时间</th><th>状态</th><th class="text-right">操作</th></tr></thead>
+          <tbody>
+            ${REDEEM_ORDERS.map((order, orderIdx)=>`<tr>
+              <td class="font-medium">${order.member}</td>
+              <td class="tnum text-[#71717a]">${order.phone}</td>
+              <td class="tnum text-[#71717a]">${order.no}</td>
+              <td><span class="badge badge-brand tnum">${order.code}</span></td>
+              <td class="tnum text-[#71717a]">${order.time}</td>
+              <td><span class="badge ${order.tone}">${order.status}</span></td>
+              <td class="whitespace-nowrap text-right">${order.status==='待自提'?`<button class="btn btn-sm btn-ghost text-[#16a34a]" onclick="verifyRedeemOrder(${orderIdx})"><i data-lucide="ticket-check" class="mr-1 h-3.5 w-3.5"></i>核销</button>`:'<span class="text-[11px] text-[#a1a1aa]">—</span>'}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="flex shrink-0 items-center justify-between border-t border-[#e4e4e7] px-3 py-2 text-[12px] text-[#71717a]"><span>共 ${REDEEM_ORDERS.length} 条</span><div class="flex gap-1"><button class="btn btn-sm btn-primary">1</button></div></div>
+    </div>`;
+  appShell.appendChild(drawer);
+  lucide.createIcons();
+}
+
+function verifyRedeemOrder(orderIdx){
+  const order = REDEEM_ORDERS[orderIdx];
+  if(!order || order.status !== '待自提') return;
+  order.status = '已核销';
+  order.tone = 'badge-success';
+  openRedeemOrdersDrawer(REDEEM_ORDER_SCOPE);
+  showToast('核销成功，会员可凭取货码提货');
+}
+
+/* ---------- 小程序新品 ---------- */
+const MINI_PRODUCTS = [
+  { tag:'本季新品', name:'奶油针织开衫', desc:'A 类棉 · 珍珠扣', price:'¥399', originPrice:'¥499', sn:'DB4252824', skuCount:31 },
+  { tag:'本季新品', name:'灯芯绒背带裤', desc:'加厚灯芯绒 · 可调肩带', price:'¥459', originPrice:'¥599', sn:'DB4260117', skuCount:18 },
+  { tag:'本季新品', name:'小兔刺绣卫衣', desc:'纯棉毛圈 · 落肩版型', price:'¥269', originPrice:'¥329', sn:'', skuCount:0 },
+  { tag:'本季新品', name:'格纹衬衫外套', desc:'磨毛格纹 · 双口袋', price:'¥299', originPrice:'¥369', sn:'', skuCount:0 },
+];
+let MINI_PRODUCT_CLICK = { enabled:false, path:'/pages/product/index' };
+
+function toggleMiniClick(){
+  MINI_PRODUCT_CLICK.enabled = !MINI_PRODUCT_CLICK.enabled;
+  go('marketing');
+  showToast(MINI_PRODUCT_CLICK.enabled ? '已开启商品点击，可配置商详页地址' : '已关闭商品点击');
+}
+
+function miniProductsPanel(){
+  const click = MINI_PRODUCT_CLICK;
+  return `
+    <div class="card p-4">
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <p class="text-[13px] font-semibold">商品点击与商详页</p>
+          <p class="mt-1 text-[11px] text-[#71717a]">开启后点击「本季新品」商品会跳转到下方配置的小程序商详页，并携带关联款号 sn</p>
+        </div>
+        <button class="relative h-7 w-12 shrink-0 rounded-full ${click.enabled?'bg-[#18181b]':'bg-[#e4e4e7]'}" onclick="toggleMiniClick()"><span class="absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all ${click.enabled?'left-6':'left-1'}"></span></button>
+      </div>
+      <div class="mt-3 grid grid-cols-2 gap-3 border-t border-[#e4e4e7] pt-3">
+        <div><label class="mb-1 block text-[11px] text-[#71717a]">商详页路径</label><input class="input h-8 text-xs" value="${click.path}" placeholder="/pages/product/index" /></div>
+        <div class="flex items-end"><p class="text-[11px] text-[#71717a]">留空默认使用 /pages/product/index；跳转时自动追加 ?sn=款号</p></div>
+      </div>
+    </div>
+    <div class="grid min-h-0 flex-1 grid-cols-2 gap-3 overflow-auto">
+      ${MINI_PRODUCTS.map((product, idx)=>`
+      <div class="card p-3">
+        <div class="flex items-start gap-3">
+          <span class="flex h-[84px] w-[74px] shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#fff1f2] to-[#ffe4e6] text-[9px] text-[#c7001a]">DAVE & BELLA</span>
+          <div class="min-w-0 flex-1">
+            <span class="badge badge-brand">${product.tag}</span>
+            <p class="mt-1 truncate text-[13px] font-medium">${product.name}</p>
+            <p class="mt-0.5 truncate text-[11px] text-[#71717a]">${product.desc}</p>
+            <p class="mt-1 text-[12px]"><span class="font-medium text-[#ff0f23]">${product.price}</span> <span class="ml-1 text-[11px] text-[#a1a1aa] line-through">${product.originPrice}</span></p>
+          </div>
+        </div>
+        <div class="mt-3">
+          <label class="mb-1 block text-[11px] text-[#71717a]">关联款号（商详页 SKU 来源）</label>
+          <input class="input h-8 text-xs tnum" value="${product.sn}" placeholder="例如 DB4252824" />
+          <p class="mt-1 text-[11px] ${product.sn?'text-[#16a34a]':'text-[#a1a1aa]'}">${product.sn?`已关联：${product.name} · 共 ${product.skuCount} 个 SKU`:'填写库存中的款号，商详页据此展示 SKU 列表；留空则该商品无法跳转'}</p>
+        </div>
+        <div class="mt-3">
+          <label class="mb-1 block text-[11px] text-[#71717a]">详描图片（商详页展示）</label>
+          <div class="flex gap-2">
+            <span class="flex h-14 w-14 items-center justify-center rounded-lg border border-dashed border-[#d4d4d8] text-[#a1a1aa]"><i data-lucide="image-plus" class="h-4 w-4"></i></span>
+            <button class="flex h-14 flex-1 items-center justify-center gap-1 rounded-lg border border-dashed border-[#d4d4d8] text-[11px] text-[#71717a]" onclick="showToast('已添加详描图占位，最多 3 张')"><i data-lucide="plus" class="h-3.5 w-3.5"></i>添加详描图</button>
+          </div>
+        </div>
+      </div>`).join('')}
+    </div>
+    <div class="flex items-center justify-between text-[12px] text-[#71717a]"><span>共 ${MINI_PRODUCTS.length} 件商品（最多 8 件）</span><button class="btn btn-sm btn-primary" onclick="showToast('已新增一件商品')"><i data-lucide="plus" class="h-3.5 w-3.5"></i>添加商品</button></div>
+  `;
 }
 
 /** 抽奖查询：手机号查会员资产 + 抽奖记录，对齐桌面端 DrawQueryDialog */

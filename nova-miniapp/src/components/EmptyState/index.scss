@@ -1,0 +1,31 @@
+.nb-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 16px;
+
+  // NutUI Empty 默认铺一层白色背景 + 32px 内边距，直接放在页面底色上会变成一个白块
+  .nut-empty {
+    padding: 0;
+    background: transparent;
+  }
+
+  .nut-empty-title {
+    font-size: 13px;
+    color: #71717a;
+  }
+
+  .nut-empty-description {
+    margin-top: 4px;
+    font-size: 10px;
+    color: #a1a1aa;
+  }
+}
+
+.nb-empty-action {
+  margin-top: 14px;
+  height: 34px;
+  padding: 0 18px;
+  font-size: 12px;
+  border-radius: 999px;
+}

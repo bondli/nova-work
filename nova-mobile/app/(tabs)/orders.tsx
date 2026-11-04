@@ -368,9 +368,15 @@ function OrderDetailSheet({
                     <Text style={styles.itemName} numberOfLines={1}>
                       {item.name}
                     </Text>
-                    <Text style={styles.itemMeta} numberOfLines={1}>
-                      {[item.color, item.size].filter(Boolean).join(' / ') || '—'} × {item.counts}
-                    </Text>
+                    <View style={styles.itemMetaRow}>
+                      <Text style={styles.itemMeta} numberOfLines={1}>
+                        {[item.color, item.size].filter(Boolean).join(' / ') || '—'} × {item.counts}
+                      </Text>
+                      {/* 退货/换货会把原商品行标记为 refund，这里在数量后直接透出 */}
+                      {item.status === 'refund' ? (
+                        <Badge text="已退换" tone="danger" style={styles.itemRefundBadge} />
+                      ) : null}
+                    </View>
                   </View>
                   <View style={styles.itemRight}>
                     <Pressable
@@ -520,6 +526,8 @@ function createStyles() {
     itemBarcodeText: { fontSize: fs(10), color: colors.muted, fontVariant: ['tabular-nums'] },
     itemCopied: { fontSize: fs(10), color: colors.brand },
     itemMeta: { fontSize: fs(10), color: colors.muted },
+    itemMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 4, minWidth: 0 },
+    itemRefundBadge: { alignSelf: 'center', flexShrink: 0 },
     itemAmount: { fontSize: fs(12), color: colors.fg, fontVariant: ['tabular-nums'] },
 
     totalRow: {

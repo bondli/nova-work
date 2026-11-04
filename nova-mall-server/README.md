@@ -19,13 +19,7 @@ nova-mall-server/
 │   ├── model/               # 与 POS 同库模型（member / order / inventory / marketing …）
 │   ├── router/
 │   │   ├── index.ts         # 路由汇总
-│   │   ├── member-controller.ts    # /member/login、/member/update、/member/getInfo
-│   │   ├── order-controller.ts     # /order/list、/order/detail、/order/itemList
-│   │   ├── activity-controller.ts  # /marketing/list、/marketing/detail
-│   │   ├── balance-controller.ts   # /balance/list
-│   │   ├── score-controller.ts     # /score/list
-│   │   ├── coupon-controller.ts    # /coupon/list
-│   │   └── common-controller.ts    # /common/upload（带上传令牌）
+│   │   └── mini-*-controller.ts    # 会员小程序 /mini/* 各域接口
 │   ├── service/ / utils/    # 业务与分页/DB 工具
 ├── ecosystem.config.cjs     # PM2 部署配置
 └── package.json
@@ -36,22 +30,14 @@ nova-mall-server/
 | 方法 | 路径 | 说明 |
 |---|---|---|
 | GET | `/health` | 健康检查（免鉴权） |
-| POST | `/member/login` | 会员登录（微信 / 手机号，见控制器实现） |
-| POST | `/member/update` | 更新会员资料 |
-| GET | `/member/getInfo` | 会员信息 |
-| GET | `/order/list`、`/order/detail`、`/order/itemList` | 会员订单列表 / 详情 / 商品明细 |
-| GET | `/marketing/list`、`/marketing/detail` | 营销活动 |
-| GET | `/balance/list` | 余额流水 |
-| GET | `/score/list` | 积分流水 |
-| GET | `/coupon/list` | 优惠券列表 |
-| POST | `/common/upload` | 文件上传（校验 `storage.uploadToken`） |
+| GET | `/files/mini-image/*` | 小程序素材图片（只读转发 POS 的 mini-image 目录，对外不暴露 POS 域名） |
 | GET | `/files/*` | 上传文件静态访问 |
 
 ## 本地开发
 
 ```bash
 npm install
-npm run dev        # concurrently：tsc -w + nodemon，默认端口 9599
+npm run dev        # concurrently：tsc -w + nodemon，默认端口 9566
 npm run typecheck
 npm run lint
 ```
@@ -64,8 +50,8 @@ npm run lint
 
 ```json
 {
-  "baseUrl": "http://127.0.0.1:9599",
-  "server": { "host": "127.0.0.1", "port": 9599 },
+  "baseUrl": "http://127.0.0.1:9566",
+  "server": { "host": "127.0.0.1", "port": 9566 },
   "database": {
     "host": "127.0.0.1",
     "port": 3306,
@@ -78,7 +64,7 @@ npm run lint
   "wechat": { "appId": "", "appSecret": "" },
   "storage": {
     "uploadDir": "~/.nova/mall-files",
-    "publicBaseUrl": "http://127.0.0.1:9599",
+    "publicBaseUrl": "http://127.0.0.1:9566",
     "uploadToken": "上传令牌（首次启动随机生成）"
   }
 }
@@ -96,7 +82,7 @@ npm run lint
 ### 1. 准备
 
 - Node.js ≥ 18（建议 20 LTS）、MySQL 8、PM2
-- 与 nova-pos-server 同一台机器时，注意端口 9599 与 9577 互不冲突；只允许内网或反向代理访问
+- 与 nova-pos-server 同一台机器时，注意端口 9566 与 9577 互不冲突；只允许内网或反向代理访问
 
 ```bash
 npm i -g pm2
@@ -120,7 +106,7 @@ pm2 startup                      # 开机自启
 ```bash
 pm2 restart nova-mall-server
 pm2 logs nova-mall-server
-curl http://127.0.0.1:9599/health  # {"code":0,"data":{"status":"ok","service":"nova-mall-server"}}
+curl http://127.0.0.1:9566/health  # {"code":0,"data":{"status":"ok","service":"nova-mall-server"}}
 ```
 
 ### 4. 更新发布
@@ -140,13 +126,13 @@ pm2 restart nova-mall-server --update-env
 
 ### 6. 反向代理（可选）
 
-- 转发到 `127.0.0.1:9599`，保留 `/files/` 路径（上传文件静态资源）；
+- 转发到 `127.0.0.1:9566`，保留 `/files/` 路径（上传文件静态资源）；
 - `baseUrl` / `storage.publicBaseUrl` 必须与对外访问地址一致（影响会员端拿到的文件链接）；
 - 微信登录回调域名需在小程序 / 公众号后台登记。
 
 ## 排查
 
-- 启动即退出：看 `Port 9599 is already in use`；数据库连接失败会直接抛出并退出。
+- 启动即退出：看 `Port 9566 is already in use`；数据库连接失败会直接抛出并退出。
 - 上传 403：检查请求携带的上传令牌与 `storage.uploadToken` 是否一致。
 - 文件链接是 127.0.0.1：`storage.publicBaseUrl` 未改成公网地址，改完要重启进程。
 - 会员看不到订单：本服务与 POS 共用库，确认 `database.database` 指向同一个库，且订单 `userPhone` 与会员手机号一致。

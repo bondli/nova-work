@@ -85,7 +85,18 @@ import {
   getMarketingDetail,
   getMarketingCouponList,
   offlineMarketing,
+  getMiniHomeContent,
+  saveMiniHomeContent,
+  uploadMiniHomeImage,
 } from './marketing-controller';
+
+import {
+  getRedeemItems,
+  createRedeemItem,
+  updateRedeemItem,
+  getRedeemOrders,
+  verifyRedeemOrder,
+} from './redeem-controller';
 
 import { uploadFile, opLogs } from './common-controller';
 
@@ -171,6 +182,16 @@ router.post('/marketing/delete', deleteMarketing); // 删除营销活动
 router.get('/marketing/queryDetail', getMarketingDetail); // 获取营销活动详情
 router.get('/marketing/queryCouponList', getMarketingCouponList); // 获取营销活动下属优惠券列表
 router.post('/marketing/offline', offlineMarketing); // 下线营销活动
+router.get('/marketing/miniHome', getMiniHomeContent); // 获取小程序首页素材配置
+router.post('/marketing/miniHome', saveMiniHomeContent); // 保存小程序首页素材配置
+router.post('/marketing/uploadImage', uploadMiniHomeImage); // 上传小程序素材图片
+
+// 积分兑换相关接口
+router.get('/redeem/items', getRedeemItems); // 兑换礼品列表
+router.post('/redeem/create', createRedeemItem); // 新增兑换礼品（管理员）
+router.post('/redeem/update', updateRedeemItem); // 修改兑换礼品（管理员）
+router.get('/redeem/orders', getRedeemOrders); // 礼品兑换记录
+router.post('/redeem/verify', verifyRedeemOrder); // 核销兑换记录（店员可操作）
 
 // 上传文件
 router.post('/common/uploadFile', uploadFile); // 上传文件

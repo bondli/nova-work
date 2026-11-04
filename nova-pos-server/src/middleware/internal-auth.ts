@@ -27,6 +27,10 @@ const ADMIN_ONLY_PREFIXES = [
   '/marketing/update',
   '/marketing/delete',
   '/marketing/offline',
+  '/marketing/miniHome',
+  '/marketing/uploadImage',
+  '/redeem/create',
+  '/redeem/update',
   '/user/update',
   '/user/list',
 ];
@@ -61,6 +65,7 @@ const CLERK_ALLOWED_WRITES = new Set([
   '/user/changePassword',
   '/data/getCoreData',
   '/common/uploadFile',
+  '/redeem/verify',
 ]);
 
 const READ_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);

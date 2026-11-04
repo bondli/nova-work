@@ -1,0 +1,24 @@
+@use '../../styles/tokens.scss' as *;
+
+/* 与 demo/.section-head 一致：上下留白由页面区块节奏控制 */
+.nb-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 18px 2px 8px;
+}
+
+.nb-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: $text;
+}
+
+.nb-section-more {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  color: $text-secondary;
+}

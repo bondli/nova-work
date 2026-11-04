@@ -2,7 +2,7 @@
 
 > 本文件面向 AI Coding Agent，遵循 **C.A.R.S** 框架（Commands / Architecture / Restrictions / Standards），用于让后续改动更准确、更少返工。
 >
-> 适用仓库：`nova-work` —— **DaveBella（内部代号 Nova）门店经营工作台**，5 个独立子项目 + 原型/文档目录。**每个子项目独立安装依赖、独立执行命令**，根目录没有 workspace，也没有 `package.json`。
+> 适用仓库：`nova-work` —— **DaveBella（内部代号 Nova）门店经营工作台**，6 个独立子项目 + 原型/文档目录。**每个子项目独立安装依赖、独立执行命令**，根目录没有 workspace，也没有 `package.json`。
 
 ---
 
@@ -85,6 +85,22 @@ npm run typecheck  # tsc --noEmit
 
 - Test / Lint / Format：**未配置**。
 
+### nova-miniapp（会员小程序，Taro + React + NutUI）
+
+```bash
+cd nova-miniapp
+npm install
+npm run dev        # taro build --type weapp --watch（微信开发者工具加载 dist/）
+npm run build      # taro build --type weapp → dist/
+npm run typecheck  # tsc --noEmit
+npm run lint       # eslint src --ext .ts,.tsx
+npm run test       # vitest run
+```
+
+- 产物目录是 `dist/`，用微信开发者工具打开该目录预览；appid 复用 `wx9a6777fceb2b3505`。
+- 接口地址在 `src/constants/index.ts` 里按构建模式切换：`API_BASE_URL_DEV`（本地 `http://127.0.0.1:9566`）/ `API_BASE_URL_PROD`（云域名），`taro build` 走生产值，`npm run dev` 走开发值；不再依赖 `.env`。
+- 构建依赖 `ajv@8` 必须保留为直接依赖（webpack5 的 schema 校验需要），不要因「非业务依赖」删除。
+
 ---
 
 ## 2. Architecture（架构与目录）
@@ -98,6 +114,7 @@ npm run typecheck  # tsc --noEmit
 | `nova-mall-server` | 同上（Express 4 + Sequelize 6 + MySQL + multer），额外 `dotenv`，含微信配置 |
 | `nova-mobile` | Expo **58** · React Native **0.88** · expo-router **58**（typed routes） · React **19.3** · TypeScript **6.0** · zustand **5** · TanStack Query **5** · expo-sqlite / camera / secure-store · lucide-react-native |
 | `nova-extension` | Chrome **MV3**（`minimum_chrome_version: 110`） · React **18** · TypeScript **5.6** · esbuild **0.24** + Tailwind CLI **3.4**（构建脚本 `scripts/build.mjs`） |
+| `nova-miniapp` | 微信小程序 · Taro **4.1.8**（webpack5，designWidth 375） · React **18.3** · TypeScript **5.6** · SCSS · NutUI React Taro **3.0**（`@nutui/nutui-react-taro` + `@nutui/icons-react-taro`） · zustand **5** |
 
 ### 2.2 系统数据流
 
@@ -108,7 +125,10 @@ nova-desktop（Electron）
 nova-mobile（Expo）：src/lib/api.ts → HTTP 直连 nova-pos-server（默认 http://127.0.0.1:9577，可在设置页改）
 nova-extension（MV3）：采集商品图 → POST nova-pos-server /inventory/uploadImage（x-upload-token）
 nova-mall-server：会员端（小程序/手机端会员）独立 API，数据同库不同路由
+nova-miniapp（Taro）：src/services/request.ts → HTTP 直连 nova-mall-server /mini/*（默认 http://127.0.0.1:9566）
 ```
+
+- **小程序素材图片统一走 mall-server**：图片由桌面端经 POS 上传后落在 `~/.nova/storage/mini-image`，mall 以只读静态目录 `/files/mini-image/*` 转发，并在 `/mini/home`、`/mini/products/:sn`、`/mini/marketings`、`/mini/activities/:id` 里把 POS 绝对地址改写成 mall 域名（`service/mini-assets.ts`）。目的是不让小程序端暴露 POS 的域名与路径，改动这些接口时不要绕过该改写。
 
 - **业务数据统一经 nova-pos-server 读写，禁止任何端直连 MySQL**（唯一例外：桌面端 Agent 的只读查询，走 `src/main/db/sql-guard.ts`，仅允许 SELECT）。
 - 桌面端渲染层是浏览器环境，所有网络请求必须经主进程白名单（见 3.3）。
@@ -171,7 +191,7 @@ nova-work/
 │
 ├── nova-mall-server/          # 会员端 API（小程序 / 手机端会员场景）
 │   └── src/
-│       ├── config.ts              # ~/.nova/mall-config.json；默认端口 9599
+│       ├── config.ts              # ~/.nova/mall-config.json；默认端口 9566
 │       ├── model/                 # 与 POS 同库模型（order / member / inventory / marketing …）
 │       └── router/                # activity / balance / coupon / member / order / score / common
 │
@@ -181,6 +201,21 @@ nova-work/
 │       ├── lib/                   # api.ts（HTTP + token）/ pos.ts（业务数据层）/ pricing.ts / money.ts / storage.ts / types.ts
 │       ├── components/ / stores/ / theme/
 │       └── AGENTS.md              # Expo 专项规则
+│
+├── nova-miniapp/              # 会员小程序（微信，Taro + React + NutUI）
+│   ├── config/index.ts            # designWidth 375、alias `@→src`、assets 拷贝、接口 baseURL
+│   ├── project.config.json        # 微信开发者工具配置（加载 dist/）
+│   └── src/
+│       ├── app.tsx / app.config.ts / app.scss   # 启动静默登录、15 个页面、原生 tabBar、NutUI 样式
+│       ├── pages/<domain>/        # home / discover / mine / orders / order-detail / activity-detail / points / draws
+│       │                          # coupons / balance / redeem / redeem-records / draw / product / profile-edit
+│       ├── components/            # 业务组件（BannerRail / CategoryGrid / BrandStoryCard / Wheel / RedeemPanel …）
+│       ├── services/              # request.ts（统一请求 + token）/ auth / home / profile / order / records / engage / redeem
+│       ├── stores/user.ts         # zustand：静默登录、手机号登录、资料刷新、登出
+│       ├── hooks/usePagedList.ts  # 分页列表（reachBottom 加载更多）
+│       ├── utils/                 # format.ts（金额/积分/时间）/ wheel.ts（转盘角度）
+│       ├── types/                 # api.ts（与 /mini/* 契约对齐）
+│       └── constants/             # token key、接口地址、兜底门店、签到积分
 │
 └── nova-extension/            # Chrome MV3 商品图片采集插件
     ├── manifest.json              # MV3；background ESM、content script、popup
@@ -202,6 +237,12 @@ nova-work/
 | `@shared/*` | `nova-desktop/src/shared/*` |
 | `@renderer/*` | `nova-desktop/src/renderer/src/*` |
 
+`nova-miniapp`（`config/index.ts` 的 `alias` + `tsconfig.json` 的 `paths`）：
+
+| 别名 | 指向 |
+|---|---|
+| `@/*` | `nova-miniapp/src/*` |
+
 ### 2.5 领域约定（跨端必须一致）
 
 - **订单类型**：`orderType` 取值 `sale` / `normal` / `income`（会员充值单为 `income`）。订单列表默认过滤 `normal`，但桌面列表需同时展示 `income` 并把「应付金额」列显示为「会员充值」；桌面端视图模型用 `isRecharge` 标记。
@@ -211,6 +252,9 @@ nova-work/
 - **库存不足不阻断**：门店实体可能有货、库存数据可能不准，买单允许负库存销售，服务端只记日志；收银台仅提示警告，商品仍加入清单。
 - **提交防重**：桌面 `BuyPage` 与手机 `buy` 页都用 `submitLockRef`（同步锁）+ loading 双重防抖，改动时不要移除。
 - **列表分页**：服务端 `DEFAULT_PAGE_SIZE = 20`；桌面页面不要把 `pageSize` 写死成 10，统一 20。
+- **小程序接口**：会员端统一走 `nova-mall-server` 的 `/mini/*`，成功 `{ success: true, data }`、失败 `{ success: false, code, message }`，列表额外带 `count`；不要复用面向小程序的旧 `/member/*` 裸返回结构。
+- **积分兑换**：v1 兑换成功后订单固定为 `pending_pickup`（到店自提），核销由 POS 二期接入；扣积分与写兑换单必须在同一事务，`requestId` 保证重试幂等。
+- **抽奖**：每次抽奖扣固定积分并受每日次数限制，`requestId` 唯一索引保证重试不重复扣分；奖品列表接口必须返回 `id`，客户端据此定位转盘扇区。
 
 ---
 
@@ -224,7 +268,8 @@ nova-work/
   - `nova-desktop`：单引号、**不加分号**；
   - `nova-pos-server` / `nova-mall-server`：单引号、**带分号**（Prettier 默认）；
   - `nova-mobile`：单引号、带分号；
-  - `nova-extension`：双引号、不加分号。
+  - `nova-extension`：双引号、不加分号；
+  - `nova-miniapp`：单引号、**不加分号**。
 - 禁止引入新的状态管理 / UI / HTTP / 表格库。已有选型：zustand、shadcn/ui + Radix、TanStack Query + TanStack Table、Express + Sequelize、expo-router。
 
 ### 3.2 UI 硬约束（桌面 / 手机）
@@ -234,6 +279,13 @@ nova-work/
 - 颜色用语义 token（`text-muted-foreground`、`bg-card`、`border-border`…），不要硬编码色值；间距遵循 4px 基线。
 - 列表统一用 `DataTable`（表头 sticky、内置加载/空/错误三态）；空态用 `EmptyState`（icon + title + description），**不要用一行文本充当空态**；筛选区用 `FilterBar`。
 - 页面根容器保持 `flex h-full flex-col gap-3 overflow-auto p-4` 的骨架，表格区域靠 `flex-1 min-h-0` 约束高度，让滚动只发生在表格内部。
+
+小程序（`nova-miniapp`）另有约束：
+
+- **能落 NutUI 组件的场景必须用 NutUI**（`Button / Cell / CellGroup / Grid / Segmented / Input / DatePicker / Popup / Tag / Empty / Skeleton / Progress …`），不要用 `View` + 手写样式复刻已有组件。
+- 图标统一 `@nutui/icons-react-taro`；禁止 emoji 图标、禁止手写内联 SVG 图标（转盘等自绘图形除外）。
+- 视觉以 [demo/miniapp.html](demo/miniapp.html) 为唯一基准：品牌红 `#ff0f23`（深色 `#c7001a`、浅底 `#fff1f2`），页面底色 `#f4f4f5`。
+- 单个页面只做编排，重复流程抽到 `src/components/<Feature>/`（如 `RedeemPanel`）；跨页复用逻辑放 `src/services` / `src/hooks`。
 
 ### 3.3 Electron 进程边界（极易踩坑）
 
@@ -268,6 +320,7 @@ nova-work/
 - 各子项目独立 `node_modules`，**不要建立 workspace / 根级 package.json**；也不要跨子项目相对路径引用源码。
 - 不要提交构建产物：`dist/`、`out/`、`release/`、`android/`、`ios/`、`*.tsbuildinfo`、`test-results/`（根 `.gitignore` 已覆盖）。
 - 手机端新增依赖必须 `npx expo install`；插件端构建产物是 `dist/`（Chrome 加载目录）。
+- 小程序新增依赖走 `npm install`；**不要引入 NutUI 之外的 UI / 状态管理 / HTTP 库**，产物 `dist/` 用微信开发者工具加载。
 - **禁止捏造文件**：写完文件立刻用 `ls` / `git status` 核实真实存在。
 
 ### 3.7 提交前自检
@@ -284,9 +337,10 @@ nova-work/
 - **改动完成固定动作**：`typecheck`（涉及的全部子项目）→ 本地真实环境验证（桌面看 Electron 窗口 / 手机看 Expo / 插件在 `chrome://extensions` 重载 `dist/` / 服务端看日志）。
 - **本地端口（务必用真实端口，本项目没有 3000）**：
   - POS 服务：`http://127.0.0.1:9577`（`~/.nova/server-config.json` 的 `server.port` 可覆盖）
-  - 会员端服务：`http://127.0.0.1:9599`（`~/.nova/mall-config.json`）
+  - 会员端服务：`http://127.0.0.1:9566`（`~/.nova/mall-config.json`）
   - 桌面端渲染层 dev：`http://localhost:5173`（electron-vite 默认）；调试体验直接用 Electron 窗口
   - 手机端：Expo 启动后按提示选择模拟器/真机；默认连 `http://127.0.0.1:9577`，可在 App 设置页改
+  - 会员小程序：`nova-miniapp` 构建产物 `dist/` 用微信开发者工具打开；接口默认 `http://127.0.0.1:9566`
   - MySQL：默认 `3306`
 - **脚本命名统一**：`dev` / `build` / `start` / `typecheck` / `lint` / `test` / `pack`；新增脚本在本文档同步登记。
 - **文档同步**：目录结构、端口、命令、接口契约（`docs/api-contract.md`）发生结构性变更时，同一提交内更新本 `AGENTS.md` 与相关文档。

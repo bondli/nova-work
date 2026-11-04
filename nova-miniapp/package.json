@@ -1,0 +1,58 @@
+{
+  "name": "nova-miniapp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dave & Bella 门店会员小程序（Taro + React + NutUI）",
+  "scripts": {
+    "dev": "taro build --type weapp --watch",
+    "build": "taro build --type weapp",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx",
+    "test": "vitest run"
+  },
+  "browserslist": [
+    "last 3 versions",
+    "Android >= 4.1",
+    "ios >= 8"
+  ],
+  "dependencies": {
+    "@babel/runtime": "^7.21.5",
+    "@nutui/icons-react-taro": "^3.0.2-beta.3",
+    "@nutui/nutui-react-taro": "^3.0.18",
+    "@tarojs/components": "4.1.8",
+    "@tarojs/react": "4.1.8",
+    "@tarojs/runtime": "4.1.8",
+    "@tarojs/taro": "4.1.8",
+    "ajv": "^8.20.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@babel/preset-react": "^7.24.1",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.6.1",
+    "@tarojs/cli": "4.1.8",
+    "@tarojs/helper": "4.1.8",
+    "@tarojs/plugin-framework-react": "4.1.8",
+    "@tarojs/plugin-html": "4.1.8",
+    "@tarojs/plugin-platform-weapp": "4.1.8",
+    "@tarojs/shared": "4.1.8",
+    "@tarojs/webpack5-runner": "4.1.8",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.2.0",
+    "@typescript-eslint/parser": "^6.2.0",
+    "babel-preset-taro": "4.1.8",
+    "eslint": "^8.57.0",
+    "eslint-plugin-import": "^2.12.0",
+    "eslint-plugin-react": "^7.8.2",
+    "eslint-plugin-react-hooks": "^4.2.0",
+    "postcss": "^8.4.18",
+    "sass": "^1.60.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0",
+    "webpack": "5.91.0"
+  }
+}

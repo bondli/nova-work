@@ -14,8 +14,12 @@ export type SessionPayload = {
   role: SessionRole;
 };
 
-/** 令牌有效期：12 小时，桌面端长期在线时由主进程自动续签 */
-export const TOKEN_TTL_SECONDS = 12 * 60 * 60;
+/**
+ * 令牌有效期：30 天，桌面端与手机端共用。
+ * 桌面端长期在线时仍由主进程用内部令牌自动续签，30 天只是兜底；
+ * 手机端没有续签通道，30 天避免店员每天重新登录。
+ */
+export const TOKEN_TTL_SECONDS = 30 * 24 * 60 * 60;
 
 export function signSessionToken(payload: SessionPayload): string {
   return jwt.sign(payload, getJwtSecret(), {

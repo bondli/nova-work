@@ -1,0 +1,113 @@
+@use './tokens.scss' as *;
+
+/* 页面骨架：与 demo 一致，左右 14px、上下 14/24px */
+.nb-page {
+  padding: 14px 14px 24px;
+  background: $bg;
+}
+
+.nb-card {
+  background: $card;
+  border: 1px solid $border;
+  border-radius: $radius-card;
+}
+
+.nb-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 18px 2px 8px;
+}
+
+.nb-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: $text;
+}
+
+.nb-section-more {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  color: $text-secondary;
+}
+
+/* 横向滚动区：负边距到屏幕边缘，符合 demo 的 hscroll */
+.nb-hscroll {
+  display: flex;
+  gap: 10px;
+  white-space: nowrap;
+  margin: 0 -14px;
+  padding: 0 14px 4px;
+}
+
+.nb-brand-mark {
+  font-family: Georgia, 'Times New Roman', serif;
+  letter-spacing: 0.01em;
+}
+
+.nb-tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.nb-muted {
+  color: $text-muted;
+}
+
+.nb-secondary {
+  color: $text-secondary;
+}
+
+.nb-price {
+  color: $brand-deep;
+  font-weight: 600;
+}
+
+.nb-origin-price {
+  color: $text-muted;
+  text-decoration: line-through;
+}
+
+/* 纯白按钮/胶囊，NutUI Button 的自定义外观都走这些类 */
+.nb-btn {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: $radius-btn;
+  border: 1px solid $border;
+  background: $card;
+  color: $text;
+  font-size: 12px;
+}
+
+.nb-btn-primary {
+  background: $brand;
+  border-color: $brand;
+  color: #fff;
+}
+
+.nb-btn-sm {
+  height: 28px;
+  padding: 0 11px;
+  font-size: 11px;
+}
+
+.nb-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: $radius-pill;
+  border: 1px solid $border;
+  background: $card;
+  color: #3f3f46;
+  font-size: 11px;
+}
+
+.nb-chip-brand {
+  border-color: $brand-border;
+  background: $brand-soft;
+  color: $brand-deep;
+}

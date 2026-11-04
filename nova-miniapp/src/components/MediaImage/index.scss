@@ -1,0 +1,27 @@
+@use '../../styles/tokens.scss' as *;
+
+.nb-media {
+  position: relative;
+  overflow: hidden;
+  background: $bg;
+
+  .nut-image {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.nb-media-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* demo: linear-gradient(135deg,#fff1f2,#ffe0e5) */
+  background: linear-gradient(135deg, #fff1f2, #ffe0e5);
+}
+
+.nb-media-fallback-text {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #ff4057;
+}

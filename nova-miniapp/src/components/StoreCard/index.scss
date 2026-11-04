@@ -1,0 +1,63 @@
+@use '../../styles/tokens.scss' as *;
+
+.nb-store-card {
+  overflow: hidden;
+}
+
+.nb-store-img {
+  height: 132px;
+}
+
+.nb-store-body {
+  padding: 12px;
+}
+
+.nb-store-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.nb-store-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text;
+}
+
+.nb-store-address {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  color: $text-secondary;
+}
+
+.nb-store-hours {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  color: $text-muted;
+}
+
+.nb-store-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.nb-store-button {
+  flex: 1;
+  height: 34px;
+  border: 1px solid $border;
+  border-radius: 9px;
+  background: $card;
+  color: $text;
+  font-size: 11px;
+}
+
+.nb-store-button-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}

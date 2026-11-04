@@ -1,8 +1,8 @@
 /**
  * 数据设置聚合层。
- * POS 服务地址写 ~/.nova/server-config.json；
+ * POS 服务地址写 ~/.nova/api-config.json（桌面端专用，不覆盖服务端配置）；
  * Agent 只读数据库写 ~/.nova/agent-config.json，两者互不覆盖。
- * 文件目录、POS 自身数据库属于服务端配置，不经过桌面端编辑。
+ * 文件目录、POS 自身监听地址与数据库属于服务端配置，不经过桌面端编辑。
  */
 import { z } from 'zod'
 import type { DataSettingsInput, DataSettingsView } from '@shared/types/data-config'
@@ -29,7 +29,7 @@ export async function getDataSettingsView(): Promise<DataSettingsView> {
   return {
     baseUrl: server.baseUrl,
     database: agent.database,
-    serverConfigPath: server.configPath,
+    apiConfigPath: server.configPath,
     agentConfigPath: agent.configPath
   }
 }

@@ -9,6 +9,16 @@ import type {
   CampaignSummary,
   CampaignType
 } from '@shared/types/campaign'
+import type { MiniHomeContent } from '@shared/types/mini-home'
+import type {
+  RedeemItem,
+  RedeemItemFilters,
+  RedeemItemInput,
+  RedeemItemStatus,
+  RedeemOrder,
+  RedeemOrderFilters,
+  RedeemOrderStatus
+} from '@shared/types/redeem'
 import { posGet, posPost } from '@renderer/lib/pos'
 
 /**
@@ -229,3 +239,184 @@ export async function deleteCampaign(id: string): Promise<{ id: string }> {
   await posPost('/marketing/delete', { id })
   return { id }
 }
+
+/** 小程序首页素材：服务端以文件为准，缺失时返回默认配置 */
+export async function fetchMiniHomeContent(): Promise<MiniHomeContent> {
+  const result = await posGet<{ data: MiniHomeContent }>('/marketing/miniHome')
+  return result.data
+}
+
+/** 保存后写入共享 JSON，mall-server `/mini/home` 立即生效 */
+export async function saveMiniHomeContent(content: MiniHomeContent): Promise<MiniHomeContent> {
+  const result = await posPost<{ data: MiniHomeContent }>('/marketing/miniHome', content)
+  return result.data
+}
+
+interface ServerRedeemItem {
+  id: number
+  name: string
+  image: string | null
+  description: string | null
+  detail: string | null
+  points: number | string
+  totalStock: number | string
+  stock: number | string
+  perMemberLimit: number | string
+  status: string
+  sort: number | string
+  redeemedCount?: number | string
+  createdAt: string
+  updatedAt: string
+}
+
+interface ServerRedeemOrder {
+  id: number
+  orderNo: string
+  phone: string
+  memberName?: string
+  itemId: number
+  itemName: string
+  itemImage: string | null
+  points: number | string
+  status: string
+  pickupCode: string
+  expiredAt: string
+  pickedAt: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+/** 服务端 DECIMAL / 字符串数字统一转 number，避免列表出现字符串比较 */
+function toNumber(value: number | string | null | undefined): number {
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : 0
+}
+
+/** 时间统一截到分钟，列表与抽屉保持同一展示粒度 */
+function toMinute(value: string | null): string {
+  return value ? String(value).slice(0, 16) : '—'
+}
+
+function toRedeemItem(raw: ServerRedeemItem): RedeemItem {
+  const totalStock = toNumber(raw.totalStock)
+  const stock = toNumber(raw.stock)
+  return {
+    id: Number(raw.id),
+    name: raw.name,
+    image: raw.image || '',
+    description: raw.description || '',
+    detail: raw.detail || '',
+    points: toNumber(raw.points),
+    totalStock,
+    stock,
+    perMemberLimit: toNumber(raw.perMemberLimit),
+    status: raw.status === 'inactive' ? 'inactive' : 'active',
+    sort: toNumber(raw.sort),
+    // 服务端已计算，缺失时按总库存减剩余库存兜底
+    redeemedCount: toNumber(raw.redeemedCount ?? Math.max(0, totalStock - stock)),
+    createdAt: toMinute(raw.createdAt),
+    updatedAt: toMinute(raw.updatedAt)
+  }
+}
+
+function toRedeemOrder(raw: ServerRedeemOrder): RedeemOrder {
+  const allowed: RedeemOrderStatus[] = ['pending_pickup', 'picked', 'cancelled', 'expired']
+  return {
+    id: Number(raw.id),
+    orderNo: raw.orderNo,
+    phone: raw.phone,
+    memberName: raw.memberName || '',
+    itemId: Number(raw.itemId),
+    itemName: raw.itemName,
+    itemImage: raw.itemImage || '',
+    points: toNumber(raw.points),
+    status: allowed.includes(raw.status as RedeemOrderStatus)
+      ? (raw.status as RedeemOrderStatus)
+      : 'pending_pickup',
+    pickupCode: raw.pickupCode,
+    expiredAt: toMinute(raw.expiredAt),
+    pickedAt: raw.pickedAt ? toMinute(raw.pickedAt) : null,
+    createdAt: toMinute(raw.createdAt),
+    updatedAt: toMinute(raw.updatedAt)
+  }
+}
+
+/** 兑换礼品列表：关键字 / 状态筛选 + 分页 */
+export async function fetchRedeemItems(
+  filters: RedeemItemFilters
+): Promise<{ rows: RedeemItem[]; total: number }> {
+  const result = await posGet<ServerList<ServerRedeemItem>>('/redeem/items', {
+    keyword: filters.keyword.trim() || undefined,
+    status: filters.status === 'all' ? undefined : filters.status,
+    current: filters.page,
+    pageSize: filters.pageSize
+  })
+  return {
+    rows: (result.data ?? []).map(toRedeemItem),
+    total: result.count ?? 0
+  }
+}
+
+/** 非 2xx 响应会带原始 JSON 文本，提取服务端的 error / message 交给弹窗提示 */
+function toRedeemError(error: unknown): Error {
+  if (!(error instanceof Error)) return new Error('操作失败')
+  try {
+    const parsed = JSON.parse(error.message) as { error?: unknown; message?: unknown }
+    const message = parsed?.error ?? parsed?.message
+    if (typeof message === 'string' && message) return new Error(message)
+  } catch {
+    // 非 JSON 响应保持原始错误信息
+  }
+  return error
+}
+
+/** 新增礼品，初始剩余库存等于总库存 */
+export async function createRedeemItem(input: RedeemItemInput): Promise<void> {
+  try {
+    await posPost('/redeem/create', input)
+  } catch (error) {
+    throw toRedeemError(error)
+  }
+}
+
+/** 修改礼品，服务端按总库存差值同步剩余库存 */
+export async function updateRedeemItem(id: number, input: RedeemItemInput): Promise<void> {
+  try {
+    await posPost('/redeem/update', { ...input, id })
+  } catch (error) {
+    throw toRedeemError(error)
+  }
+}
+
+/** 指定礼品的兑换记录，过期未核销的待取货记录由服务端判为 expired */
+export async function fetchRedeemOrders(
+  itemId: number,
+  filters: RedeemOrderFilters
+): Promise<{ rows: RedeemOrder[]; total: number }> {
+  const result = await posGet<ServerList<ServerRedeemOrder>>('/redeem/orders', {
+    itemId,
+    status: filters.status === 'all' ? undefined : filters.status,
+    current: filters.page,
+    pageSize: filters.pageSize
+  })
+  return {
+    rows: (result.data ?? []).map(toRedeemOrder),
+    total: result.count ?? 0
+  }
+}
+
+/** 核销：仅待取货且未过期可成功，重复核销由服务端返回 409 */
+export async function verifyRedeemOrder(id: number): Promise<void> {
+  try {
+    await posPost('/redeem/verify', { id })
+  } catch (error) {
+    throw toRedeemError(error)
+  }
+}
+
+/** 礼品状态取值，排序与筛选下拉保持一致 */
+export const REDEEM_ITEM_STATUS: Record<RedeemItemStatus, string> = {
+  active: '上架中',
+  inactive: '已下架'
+}
+

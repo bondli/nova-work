@@ -1,0 +1,82 @@
+@use '../../styles/tokens.scss' as *;
+
+.nb-balance-hero {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ff0f23, #b30012);
+  color: #ffffff;
+}
+
+.nb-balance-hero-label {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nb-balance-hero-value {
+  margin-top: 4px;
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.nb-balance-hero-note {
+  margin-top: 4px;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.nb-balance-note {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: $brand-soft;
+  font-size: 10px;
+  line-height: 1.7;
+  color: $brand-deep;
+}
+
+.nb-balance-note-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.nb-balance-title {
+  display: block;
+  margin: 16px 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: $text;
+}
+
+.nb-balance-list {
+  overflow: hidden;
+  border: 1px solid $border;
+  border-radius: $radius-card;
+  background: $card;
+}
+
+.nb-balance-loading {
+  padding: 8px;
+}
+
+.nb-balance-foot {
+  display: block;
+  margin-top: 12px;
+  font-size: 9px;
+  text-align: center;
+  color: $text-muted;
+}
+
+.nb-list-tip {
+  display: block;
+  padding: 8px 0;
+  font-size: 10px;
+  text-align: center;
+  color: $text-muted;
+}

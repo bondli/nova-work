@@ -8,7 +8,7 @@ import { RegisterForm } from './RegisterForm'
 
 type AuthMode = 'login' | 'register'
 
-/** 主进程未配置过服务地址时使用的兜底值，与 server-config 的默认值一致 */
+/** 主进程未配置过服务地址时使用的兜底值，与 api-config 的默认值一致 */
 const DEFAULT_SERVER = 'http://127.0.0.1:9577'
 
 /**
@@ -42,7 +42,7 @@ export function AuthPage() {
     }
   }, [])
 
-  /** 登录 / 注册前把改动的服务地址与内部令牌写入 ~/.nova/server-config.json */
+  /** 登录 / 注册前把改动的服务地址与内部令牌写入 ~/.nova/api-config.json */
   const prepareServer = async (): Promise<void> => {
     const value = serverAddress.trim()
     const token = internalToken.trim()

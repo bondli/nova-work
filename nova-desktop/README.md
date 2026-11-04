@@ -82,7 +82,7 @@ npm run dev        # electron-vite dev，渲染层默认 http://localhost:5173
 
 | 文件 / 目录 | 说明 |
 |---|---|
-| `server-config.json` | POS 服务地址与内部 token（与 nova-pos-server 共用） |
+| `api-config.json` | 桌面端的 POS 服务地址与内部 token（与服务端 `server-config.json` 分离） |
 | `settings.json` | 桌面端偏好设置 |
 | `session.json` | 登录会话 |
 | `agent-config.json` | 经营分析 Agent：模型配置 + MySQL 只读连接 |
@@ -109,5 +109,5 @@ npm run dev        # electron-vite dev，渲染层默认 http://localhost:5173
 ## 排查
 
 - 类型报错：`npm run typecheck`，先区分主进程（`tsconfig.node.json`）与渲染层（`tsconfig.web.json`）。
-- 页面接口 401 / 未授权：先确认路径是否已在 `src/main/api/endpoints.ts` 白名单，再确认 `~/.nova/server-config.json` 的 `baseUrl` 与 `auth.internalToken`。
+- 页面接口 401 / 未授权：先确认路径是否已在 `src/main/api/endpoints.ts` 白名单，再确认 `~/.nova/api-config.json` 的 `baseUrl` 与 `auth.internalToken`（令牌需与服务端 `~/.nova/server-config.json` 一致）。
 - POS 服务未启动：页面对应请求会超时或报连接失败，先确认 9577 端口在监听。

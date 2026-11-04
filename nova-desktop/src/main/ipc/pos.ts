@@ -4,7 +4,7 @@ import { basename } from 'node:path'
 import { z } from 'zod'
 import { IPC } from '@shared/ipc-channels'
 import type { PosExportInput } from '@shared/types/pos'
-import { posExportFile, posRequest, posUploadFile, PosClientError } from '../api/pos-client'
+import { posExportFile, posRequest, posUploadFile, posUploadImage, PosClientError } from '../api/pos-client'
 import { failure, internalFailure, success } from './helpers'
 
 /**
@@ -86,6 +86,28 @@ export function registerPosIpc(): void {
       const buffer = await readFile(filePaths[0])
       const uploaded = await posUploadFile({ filename: basename(filePaths[0]), buffer })
       return success({ ...uploaded, filename: basename(filePaths[0]) })
+    } catch (error) {
+      if (error instanceof PosClientError) return failure(error.code, error.message)
+      return internalFailure(error)
+    }
+  })
+
+  // 小程序素材图片：主进程弹出图片选择框，上传后返回可公开访问的绝对地址
+  ipcMain.handle(IPC.posUploadImage, async (event) => {
+    try {
+      const options: Electron.OpenDialogOptions = {
+        properties: ['openFile'],
+        filters: [{ name: '图片', extensions: ['jpg', 'jpeg', 'png'] }]
+      }
+      const parent = BrowserWindow.fromWebContents(event.sender)
+      const { canceled, filePaths } = parent
+        ? await dialog.showOpenDialog(parent, options)
+        : await dialog.showOpenDialog(options)
+      if (canceled || !filePaths[0]) return success(null)
+
+      const buffer = await readFile(filePaths[0])
+      const uploaded = await posUploadImage({ filename: basename(filePaths[0]), buffer })
+      return success(uploaded)
     } catch (error) {
       if (error instanceof PosClientError) return failure(error.code, error.message)
       return internalFailure(error)

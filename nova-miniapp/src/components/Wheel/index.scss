@@ -1,0 +1,95 @@
+@use '../../styles/tokens.scss' as *;
+
+.nb-wheel-wrap {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  margin: 0 auto;
+}
+
+.nb-wheel-pointer {
+  position: absolute;
+  left: 50%;
+  top: -10px;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-top: 15px solid $brand;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+  z-index: 3;
+}
+
+.nb-wheel-disc {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 50%;
+  border: 6px solid #fff;
+  box-shadow: 0 10px 30px rgba(199, 0, 26, 0.16), 0 0 0 1px $brand-border;
+  background: #fff;
+}
+
+.nb-wheel-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.nb-wheel-text {
+  position: absolute;
+  width: 64px;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.nb-wheel-button {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 78px;
+  height: 78px;
+  padding: 0;
+  border: 5px solid #fff;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff6a3d, #ff0f23 55%, #c7001a);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(199, 0, 26, 0.36);
+  z-index: 4;
+}
+
+.nb-wheel-button[disabled] {
+  opacity: 0.72;
+}
+
+/* 次数用完 / 积分不足：保留可点击态以提示原因，仅视觉弱化 */
+.nb-wheel-button-disabled {
+  opacity: 0.72;
+}
+
+.nb-wheel-button-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+
+.nb-wheel-button-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.nb-wheel-button-sub {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.8);
+}

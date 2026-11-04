@@ -58,14 +58,10 @@ export function AppRail() {
         isMac ? 'pt-9' : 'pt-2.5'
       )}
     >
-      <NavLink
-        to="/analysis"
-        title="Dave & Bella"
-        aria-label="返回经营分析"
-        className="app-no-drag mb-5 flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-secondary"
-      >
+      {/* 品牌标识仅做展示，不可点击、无 hover 反馈 */}
+      <div className="app-no-drag mb-5 flex h-9 w-9 items-center justify-center">
         <BrandMark className="h-8 w-8 text-primary" />
-      </NavLink>
+      </div>
 
       <nav className="app-no-drag flex flex-col items-center gap-1">
         {NAV_ITEMS.map((item) => (

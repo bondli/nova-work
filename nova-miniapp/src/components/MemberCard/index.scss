@@ -1,0 +1,134 @@
+@use '../../styles/tokens.scss' as *;
+
+.nb-member-card {
+  position: relative;
+  overflow: hidden;
+  padding: 18px;
+  border-radius: 18px;
+  color: #fff;
+  background: linear-gradient(135deg, #ff0f23 0%, #d70015 58%, #7f0010 100%);
+  box-shadow: 0 10px 26px rgba(255, 15, 35, 0.22);
+}
+
+/* demo 右上角的高光圆 */
+.nb-member-card::after {
+  content: '';
+  position: absolute;
+  right: -42px;
+  top: -52px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 70%);
+  pointer-events: none;
+}
+
+.nb-member-main {
+  position: relative;
+  z-index: 2;
+}
+
+.nb-member-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nb-member-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.nb-member-avatar-text {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.nb-member-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.nb-member-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nb-member-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.nb-member-phone {
+  margin-top: 2px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.75);
+  font-variant-numeric: tabular-nums;
+}
+
+.nb-member-profile {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.nb-member-assets {
+  display: flex;
+  margin-top: 16px;
+}
+
+.nb-member-asset {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.nb-member-asset-label {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.nb-member-asset-value {
+  margin-top: 4px;
+  font-size: 17px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.nb-member-asset-unit {
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.nb-member-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nb-member-rights {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}

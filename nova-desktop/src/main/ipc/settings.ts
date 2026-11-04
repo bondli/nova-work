@@ -108,7 +108,7 @@ export function registerSettingsIpc(getWindow: () => BrowserWindow | null): void
     }
   })
 
-  // 数据设置：POS 服务地址来自 server-config，数据库来自 agent-config，仅管理员可见
+  // 数据设置：POS 服务地址来自 api-config，数据库来自 agent-config，仅管理员可见
   ipcMain.handle(IPC.dataConfigGet, async () => {
     const user = await getSession()
     if (!user) return failure('UNAUTHENTICATED', '请先登录')

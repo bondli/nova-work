@@ -5,7 +5,12 @@
  */
 import { release } from 'node:os'
 
-import type { PosExportInput, PosRequestInput, PosUploadResult } from '@shared/types/pos'
+import type {
+  PosExportInput,
+  PosImageUploadResult,
+  PosRequestInput,
+  PosUploadResult
+} from '@shared/types/pos'
 import type { IpcErrorCode } from '@shared/types/ipc'
 import { getServerConfig } from '../services/server-config'
 import { getSession } from '../services/auth'
@@ -139,13 +144,10 @@ export async function posRequest(input: PosRequestInput): Promise<unknown> {
   }
 }
 
-/** 上传本地 Excel 到 /common/uploadFile，由服务端解析成 JSON 行数据 */
-export async function posUploadFile(input: {
-  filename: string
-  buffer: Buffer
-}): Promise<PosUploadResult> {
-  if (!isEndpointAllowed('POST', '/common/uploadFile')) {
-    throw new PosClientError('FORBIDDEN', '未授权的接口：POST /common/uploadFile')
+/** 上传文件的公共实现（multipart）：401 时刷新令牌重试一次 */
+async function uploadMultipart(path: string, filename: string, buffer: Buffer): Promise<unknown> {
+  if (!isEndpointAllowed('POST', path)) {
+    throw new PosClientError('FORBIDDEN', `未授权的接口：POST ${path}`)
   }
 
   const session = await getSession()
@@ -154,11 +156,11 @@ export async function posUploadFile(input: {
   }
 
   const config = await getServerConfig()
-  const url = `${config.baseUrl}/common/uploadFile`
+  const url = `${config.baseUrl}${path}`
 
   const upload = async (token: string): Promise<Response> => {
     const form = new FormData()
-    form.append('file', new Blob([new Uint8Array(input.buffer)]), input.filename)
+    form.append('file', new Blob([new Uint8Array(buffer)]), filename)
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS)
     try {
@@ -192,7 +194,7 @@ export async function posUploadFile(input: {
     const body: unknown = text ? JSON.parse(text) : null
     const businessError = toBusinessError(body)
     if (businessError) throw businessError
-    return body as PosUploadResult
+    return body
   } catch (error) {
     if (error instanceof PosClientError) throw error
     const networkError = toNetworkError(
@@ -206,6 +208,27 @@ export async function posUploadFile(input: {
       error instanceof Error ? error.message : '文件上传失败'
     )
   }
+}
+
+/** 上传本地 Excel 到 /common/uploadFile，由服务端解析成 JSON 行数据 */
+export async function posUploadFile(input: {
+  filename: string
+  buffer: Buffer
+}): Promise<PosUploadResult> {
+  return (await uploadMultipart('/common/uploadFile', input.filename, input.buffer)) as PosUploadResult
+}
+
+/** 上传小程序素材图片到 /marketing/uploadImage，返回可公开访问的绝对地址 */
+export async function posUploadImage(input: {
+  filename: string
+  buffer: Buffer
+}): Promise<PosImageUploadResult> {
+  const body = (await uploadMultipart(
+    '/marketing/uploadImage',
+    input.filename,
+    input.buffer
+  )) as { data: PosImageUploadResult }
+  return body.data
 }
 
 /** 请求服务端导出接口（如 /order/exportOrderItemList），成功时返回文件二进制 */

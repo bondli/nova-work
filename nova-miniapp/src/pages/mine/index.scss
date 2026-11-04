@@ -1,0 +1,234 @@
+@use '../../styles/tokens.scss' as *;
+
+.nb-quick-card {
+  margin-top: 12px;
+  padding: 4px 0;
+
+  .nut-grid {
+    background: transparent;
+  }
+
+  // NutUI 默认给宫格上下 16px 内边距、文案 8px 外边距，两行叠加后行距过大
+  .nut-grid-item-content {
+    padding: 0;
+  }
+
+  .nut-grid-item-text {
+    margin-top: 0;
+  }
+}
+
+.nb-quick-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 0;
+}
+
+.nb-quick-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: $brand-soft;
+}
+
+.nb-quick-label {
+  font-size: 11px;
+  color: #3f3f46;
+}
+
+.nb-recent-order {
+  padding: 12px;
+}
+
+.nb-recent-order-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nb-recent-order-sn {
+  font-size: 11px;
+  color: $text-secondary;
+  font-variant-numeric: tabular-nums;
+}
+
+.nb-recent-order-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.nb-recent-order-name {
+  font-size: 12px;
+  color: $text;
+}
+
+.nb-recent-order-amount {
+  font-size: 15px;
+  font-weight: 600;
+  color: $brand;
+  font-variant-numeric: tabular-nums;
+}
+
+.nb-recent-order-meta {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  color: $text-muted;
+  font-variant-numeric: tabular-nums;
+}
+
+.nb-mine-menu {
+  margin-top: 12px;
+  overflow: hidden;
+  border: 1px solid $border;
+  border-radius: $radius-card;
+  background: $card;
+
+  .nut-cell-group-title {
+    display: none;
+  }
+
+  .nut-cell {
+    border-radius: 0;
+  }
+}
+
+.nb-menu-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: $text;
+}
+
+.nb-menu-extra {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 11px;
+  color: $text-muted;
+}
+
+/* 门店地址单行省略，箭头不参与压缩 */
+.nb-menu-extra-text {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-align: right;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.nb-menu-arrow {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.nb-logout-button {
+  height: 42px;
+  margin-top: 16px;
+  border: 1px solid $border;
+  border-radius: 10px;
+  background: $card;
+  color: $danger;
+  font-size: 13px;
+}
+
+.nb-mine-foot {
+  display: block;
+  margin-top: 16px;
+  font-size: 10px;
+  text-align: center;
+  color: $text-muted;
+}
+
+/* 资料浮层 */
+.nb-profile-list {
+  overflow: hidden;
+  border: 1px solid $border;
+  border-radius: 12px;
+}
+
+.nb-profile-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 14px;
+  border-bottom: 1px solid $bg;
+  font-size: 12px;
+}
+
+.nb-profile-row:last-child {
+  border-bottom: 0;
+}
+
+.nb-profile-label {
+  color: $text;
+}
+
+.nb-profile-value {
+  color: $text-secondary;
+  font-variant-numeric: tabular-nums;
+}
+
+.nb-profile-note {
+  display: block;
+  margin-top: 12px;
+  font-size: 10px;
+  line-height: 1.6;
+  color: $text-muted;
+}
+
+.nb-profile-edit {
+  height: 42px;
+  margin-top: 12px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+/* 退出确认 */
+.nb-logout-desc {
+  display: block;
+  font-size: 12px;
+  line-height: 1.7;
+  color: $text-secondary;
+}
+
+.nb-logout-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.nb-logout-cancel {
+  flex: 1;
+  height: 42px;
+  border: 1px solid $border;
+  border-radius: 10px;
+  background: $card;
+  color: $text;
+  font-size: 13px;
+}
+
+.nb-logout-confirm {
+  flex: 1;
+  height: 42px;
+  border: 1px solid $danger;
+  border-radius: 10px;
+  background: $danger;
+  color: #fff;
+  font-size: 13px;
+}

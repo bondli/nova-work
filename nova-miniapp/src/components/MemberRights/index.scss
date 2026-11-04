@@ -1,0 +1,48 @@
+@use '../../styles/tokens.scss' as *;
+
+.nb-rights-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nb-rights-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid $border;
+  border-radius: $radius-card;
+  background: $card;
+}
+
+.nb-rights-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 12px;
+}
+
+.nb-rights-icon-brand {
+  background: $brand-soft;
+}
+
+.nb-rights-icon-amber {
+  background: #fffbeb;
+}
+
+.nb-rights-icon-rose {
+  background: #fef2f2;
+}
+
+.nb-rights-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.6;
+  color: $text;
+}

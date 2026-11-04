@@ -28,6 +28,11 @@ const MemberDrawRecord = sequelize.define('MemberDrawRecord', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  requestId: {
+    comment: '客户端请求幂等标识',
+    type: DataTypes.STRING(64),
+    allowNull: true,
+  },
 }, {
   // 这是其他模型参数
   tableName: 'MemberDrawRecord',

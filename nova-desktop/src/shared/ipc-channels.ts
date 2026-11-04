@@ -26,6 +26,7 @@ export const IPC = {
   posRequest: 'pos:request',
   posExport: 'pos:export',
   posUpload: 'pos:upload',
+  posUploadImage: 'pos:upload-image',
   printHtml: 'print:html',
   agentList: 'agent:list',
   agentCreate: 'agent:session.create',

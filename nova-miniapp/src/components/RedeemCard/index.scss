@@ -1,0 +1,101 @@
+@use '../../styles/tokens.scss' as *;
+
+.nb-redeem-card {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid $border;
+  border-radius: 14px;
+  background: $card;
+}
+
+.nb-redeem-img {
+  width: 76px;
+  height: 76px;
+  flex-shrink: 0;
+  border-radius: 10px;
+}
+
+.nb-redeem-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+  min-width: 0;
+}
+
+.nb-redeem-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.nb-redeem-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.nb-redeem-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  font-weight: 500;
+  color: $text;
+}
+
+.nb-redeem-desc {
+  margin-top: 2px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 10px;
+  color: $text-secondary;
+}
+
+.nb-redeem-points {
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $brand-deep;
+}
+
+.nb-redeem-points-unit {
+  font-size: 10px;
+  font-weight: 400;
+  color: $text-secondary;
+}
+
+.nb-redeem-button {
+  height: 28px;
+  padding: 0 11px;
+  border-radius: 8px;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.nb-redeem-button-on {
+  background: $brand;
+  border-color: $brand;
+  color: #fff;
+}
+
+.nb-redeem-stock {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+
+  .nut-progress {
+    flex: 1;
+    height: 4px;
+  }
+}
+
+.nb-redeem-stock-text {
+  font-size: 9px;
+  color: $text-muted;
+  white-space: nowrap;
+}

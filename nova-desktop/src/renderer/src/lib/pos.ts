@@ -5,6 +5,7 @@
 import type {
   PosExportInput,
   PosExportResult,
+  PosImageUploadResult,
   PosRequestInput,
   PosUploadResult
 } from '@shared/types/pos'
@@ -38,4 +39,9 @@ export async function posExport(input: PosExportInput): Promise<PosExportResult>
 /** 让用户选择本地 Excel，主进程上传解析；取消时返回 null */
 export async function posUploadFile(): Promise<PosUploadResult | null> {
   return unwrap(await window.nova.pos.upload())
+}
+
+/** 让用户选择本地图片上传为小程序素材，返回服务端地址；取消时返回 null */
+export async function posUploadImage(): Promise<PosImageUploadResult | null> {
+  return unwrap(await window.nova.pos.uploadImage())
 }
