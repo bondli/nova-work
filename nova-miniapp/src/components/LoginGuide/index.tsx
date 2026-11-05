@@ -57,7 +57,7 @@ export default function LoginGuide({ scene, onLoggedIn }: LoginGuideProps) {
         <View className='nb-login-action'>
           <AuthButton text='微信授权手机号登录' onLoggedIn={onLoggedIn} />
         </View>
-        <Text className='nb-login-note'>手机号即门店会员号；未注册会员请先到店登记</Text>
+        <Text className='nb-login-note'>手机号即门店会员号；首次登录将自动注册成为会员</Text>
       </View>
       <Text className='nb-login-foot'>仅首页无需登录，会员功能均需授权手机号</Text>
     </View>

@@ -30,17 +30,32 @@ export const createMember = async (req: Request, res: Response) => {
       },
     });
     if (resultCheckExists === null) {
-      const result = await Member.create({ phone, name, birthday });
-      // 创建会员权益（第二单可以消费的5元抵扣券）
-      await MemberCoupon.create({
-        phone,
-        couponId: uuidv4(),
-        couponCondition: 0, // 无门槛
-        couponDesc: '入会权益(第二单可用)',
-        couponValue: 5,
-        couponCount: 1,
-        couponStatus: 'active',
-        couponExpiredTime: dayjs().add(1, 'year').toDate(), // 1年后过期
+      // 入会即赠 10 积分：会员积分余额与积分流水同事务写入，避免只改一处
+      const result = await withTransaction(async (transaction) => {
+        const member = await Member.create({ phone, name, birthday }, { transaction });
+
+        await member.update({ point: 10 }, { transaction });
+        await MemberScore.create(
+          { phone, point: 10, type: 'earn', reason: '入会赠送' },
+          { transaction },
+        );
+
+        // 创建会员权益（第二单可以消费的5元抵扣券）
+        await MemberCoupon.create(
+          {
+            phone,
+            couponId: uuidv4(),
+            couponCondition: 0, // 无门槛
+            couponDesc: '入会权益(第二单可用)',
+            couponValue: 5,
+            couponCount: 1,
+            couponStatus: 'active',
+            couponExpiredTime: dayjs().add(1, 'year').toDate(), // 1年后过期
+          },
+          { transaction },
+        );
+
+        return member;
       });
 
       res.status(200).json(result.toJSON());

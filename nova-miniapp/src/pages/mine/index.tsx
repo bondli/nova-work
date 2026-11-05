@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Text, View } from '@tarojs/components'
-import Taro, { useDidShow } from '@tarojs/taro'
+import Taro, { useDidShow, useShareAppMessage } from '@tarojs/taro'
 import { Button, Cell, CellGroup, Grid, GridItem } from '@nutui/nutui-react-taro'
 import { ArrowRight, Coupon, Gift, LocationF, Message, Order, Received, Star, Tips, Wallet } from '@nutui/icons-react-taro'
 import BottomSheet from '@/components/BottomSheet'
@@ -38,6 +38,13 @@ export default function MinePage() {
   const [storeVisible, setStoreVisible] = useState(false)
   const [rightsVisible, setRightsVisible] = useState(false)
   const firstShow = useRef(true)
+
+  // 开启右上角「···」面板的「转发给朋友」
+  useShareAppMessage(() => ({
+    title: 'Dave & Bella · 我的会员中心',
+    path: '/pages/mine/index',
+    imageUrl: store.image || undefined,
+  }))
 
   const loadRecentOrder = async () => {
     try {

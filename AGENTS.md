@@ -255,6 +255,7 @@ nova-work/
 - **小程序接口**：会员端统一走 `nova-mall-server` 的 `/mini/*`，成功 `{ success: true, data }`、失败 `{ success: false, code, message }`，列表额外带 `count`；不要复用面向小程序的旧 `/member/*` 裸返回结构。
 - **积分兑换**：v1 兑换成功后订单固定为 `pending_pickup`（到店自提），核销由 POS 二期接入；扣积分与写兑换单必须在同一事务，`requestId` 保证重试幂等。
 - **抽奖**：每次抽奖扣固定积分并受每日次数限制，`requestId` 唯一索引保证重试不重复扣分；奖品列表接口必须返回 `id`，客户端据此定位转盘扇区。
+- **入会赠送**：小程序首次登录自动注册会员、POS 新增会员均赠送 10 积分并写 `MemberScore`（reason=`入会赠送`）；新会员（无 `orderType='normal'` 购物记录）首次抽奖直接发「满 100 减 5 元券」，不走加权抽取。
 
 ---
 

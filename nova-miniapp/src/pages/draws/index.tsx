@@ -5,6 +5,7 @@ import { Image, Cell, CellGroup } from '@nutui/nutui-react-taro'
 import { Gift } from '@nutui/icons-react-taro'
 import sadFaceIcon from '@/assets/sad-face.svg'
 import EmptyState from '@/components/EmptyState'
+import StatusTag from '@/components/StatusTag'
 import { usePagedList } from '@/hooks/usePagedList'
 import { getDrawRecords } from '@/services/records'
 import type { DrawRecord, DrawRecordExtra } from '@/types/api'
@@ -51,6 +52,8 @@ export default function DrawsPage() {
           {list.map((record) => {
             const extra = readExtra(record)
             const win = (extra.prizeType ?? (record.award === '谢谢参与' ? 'none' : 'points')) !== 'none'
+            // info 区分抽奖来源：含「积分」的是小程序积分抽奖，其余为门店线下抽奖
+            const isPointDraw = (record.info ?? '').includes('积分')
             return (
               <Cell
                 key={record.id}
@@ -60,12 +63,15 @@ export default function DrawsPage() {
                       {win ? <Gift size={16} color='#ff0f23' /> : <Image src={sadFaceIcon} width={16} height={16} fit='contain' />}
                     </View>
                     <View className='nb-draws-info'>
-                      <Text className='nb-draws-name'>{record.award || '谢谢参与'}</Text>
+                      <View className='nb-draws-title'>
+                        <Text className='nb-draws-name'>{record.award || '谢谢参与'}</Text>
+                        {!isPointDraw && record.info ? <StatusTag text={record.info} tone='neutral' /> : null}
+                      </View>
                       <Text className='nb-draws-time'>{formatDateTime(record.createdAt)}</Text>
                     </View>
                   </View>
                 }
-                extra={<Text className='nb-draws-cost'>-{extra.cost ?? 10} 积分</Text>}
+                extra={isPointDraw ? <Text className='nb-draws-cost'>-{extra.cost ?? 10} 积分</Text> : null}
               />
             )
           })}

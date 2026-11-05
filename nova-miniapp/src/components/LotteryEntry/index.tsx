@@ -19,7 +19,10 @@ const DEFAULT_PRIZES = ['50 积分', '100 积分', '10 元券', '30 元券', '�
 export default function LotteryEntry({ config, fallbackPoints, onDraw, onRecords }: LotteryEntryProps) {
   const points = config?.points ?? fallbackPoints
   const cost = config?.cost ?? 10
-  const prizeNames = config?.prizes?.length ? config.prizes.map((item) => item.name) : DEFAULT_PRIZES
+  // 奖项列表来自奖池接口（/mini/lottery/config），只罗列真实奖品，谢谢参与不算奖品
+  const prizeNames = config?.prizes?.length
+    ? config.prizes.filter((item) => item.prizeType !== 'none').map((item) => item.name)
+    : DEFAULT_PRIZES
 
   return (
     <View className='nb-lottery-card'>
@@ -36,7 +39,7 @@ export default function LotteryEntry({ config, fallbackPoints, onDraw, onRecords
         </View>
         <Text className='nb-lottery-sub'>{cost} 积分抽一次，100% 中奖（含谢谢参与）</Text>
         <View className='nb-lottery-prizes'>
-          {prizeNames.slice(0, 5).map((name) => (
+          {prizeNames.map((name) => (
             <Text key={name} className='nb-lottery-prize'>
               {name}
             </Text>

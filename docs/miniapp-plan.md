@@ -190,18 +190,11 @@ sequenceDiagram
 - **独立页面** `pages/draw/index`：发现页抽奖卡只做入口，点击进入大转盘页；页面含 6 扇区转盘、顶部指针、中心「抽奖」按钮、今日剩余次数、当前积分与抽奖规则。
 - 交互：点击中心按钮 → 转盘旋转 5 圈后停在服务端返回的奖品扇区（前端只负责动画落点，结果以服务端为准）→ 弹出结果层（收下 / 再抽一次）；旋转期间按钮禁用，防止连点。
 - 单次消耗 **10 积分**，每日上限 **5 次**（配置可调）。
-- 奖池（权重初始值，可在表内调整）：
-
-| 奖品 | 类型 | 权重 |
-|---|---|---|
-| 谢谢参与 | none | 40 |
-| 10 积分 | points | 25 |
-| 50 积分 | points | 15 |
-| 100 积分 | points | 8 |
-| 满 100 减 10 券 | coupon | 8 |
-| 满 200 减 30 券 | coupon | 4 |
+- 奖池以 `LotteryPrize` 表中 `status='active'` 的记录为准（当前 5 个奖品 + 谢谢参与，共 6 项）；转盘固定 6 扇区，增删奖品时必须保持 6 条 active 记录。发现页奖项列表由 `/mini/lottery/config` 实时返回，不在前端写死。
 
 - 流程：客户端生成 `requestId`（uuid）→ 服务端事务内锁会员 → 校验积分与次数 → 扣 10 分 → 加权抽奖 → 发奖 → 写 `MemberDrawRecord` + `MemberScore`。
+- 新会员首抽保底：无购物记录（`Order` 无 `orderType='normal'`）且无历史抽奖记录视为新会员首次抽奖，跳过加权抽取，直接发「满 100 减 5 元券」（30 天有效），`extra.newMember=true`。
+- 入会赠送：小程序首次登录自动注册会员时赠送 10 积分（`MemberScore` reason=`入会赠送`），POS 新增会员同样赠送 10 积分。
 - 幂等：`MemberDrawRecord(phone, requestId)` 唯一索引；重复提交直接返回原结果，不重复扣分。
 - 抽奖结果弹层：中奖/未中奖两态，展示奖品与「收下 / 再抽一次」。
 - 抽奖记录：`award` 存奖品名，`extra` 存 `{ requestId, cost, prizeId }`；列表展示奖品、时间、消耗、是否中奖。
@@ -305,7 +298,7 @@ nova-mall-server/src/
 
 | 方法 | 路径 | 入参 | 返回/说明 |
 |---|---|---|---|
-| POST | `/mini/auth/login` | `{ code, phoneCode, encryptedData?, iv? }` | `{ token, expiresIn, member }`；非会员 404 `MEMBER_NOT_FOUND` |
+| POST | `/mini/auth/login` | `{ code, phoneCode, encryptedData?, iv? }` | `{ token, expiresIn, member }`；手机号未注册时自动创建普通会员 |
 | POST | `/mini/auth/silent` | `{ code }` | `{ token, expiresIn, member }` 或 `{ needPhoneAuth: true }` |
 | GET | `/mini/profile` | - | 会员摘要（含 point/balance/coupon/actual/level） |
 | PATCH | `/mini/profile` | `{ name?, birthday? }` | 更新后的会员摘要 |

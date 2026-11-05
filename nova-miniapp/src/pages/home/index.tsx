@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ScrollView, Text, View } from '@tarojs/components'
-import Taro, { useLoad } from '@tarojs/taro'
+import Taro, { useLoad, useShareAppMessage } from '@tarojs/taro'
 import { Button, Skeleton } from '@nutui/nutui-react-taro'
 import { Heart } from '@nutui/icons-react-taro'
 import AuthButton from '@/components/AuthButton'
@@ -23,6 +23,13 @@ export default function HomePage() {
   const [home, setHome] = useState<HomeData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  // 开启右上角「···」面板里的「转发给朋友」：未声明 onShareAppMessage 时该项点了没反应
+  useShareAppMessage(() => ({
+    title: 'Dave & Bella · 童装会员礼遇',
+    path: '/pages/home/index',
+    imageUrl: home?.store.image || undefined,
+  }))
 
   const load = async () => {
     setLoading(true)

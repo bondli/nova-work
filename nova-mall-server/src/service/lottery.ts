@@ -6,11 +6,22 @@ import { AppError } from '../middleware/error';
 import { LotteryPrize } from '../model/lotteryPrize';
 import { Member } from '../model/member';
 import { MemberDrawRecord } from '../model/memberDrawRecord';
+import { Order } from '../model/order';
 import { sequelize } from '../model/index';
 import { issueCoupon } from './coupon';
 import { changePoints } from './points';
 
 const DRAW_INFO = '积分抽奖';
+
+/** 新会员首抽保底券：满 100 减 5 元，30 天有效（不占奖池库存，也不走加权抽取） */
+const NEW_MEMBER_COUPON = {
+  condition: 100,
+  value: 5,
+  /** 与奖池 LotteryPrize.name 保持一致，客户端按奖品名定位转盘扇区 */
+  name: '满 100 减 5 券',
+  desc: '满 100 减 5 元券',
+  validDays: 30,
+} as const;
 
 export interface LotteryCouponSnapshot {
   couponId: string;
@@ -38,6 +49,8 @@ interface DrawExtra {
   prizeType?: string;
   pointsAdded?: number;
   coupon?: LotteryCouponSnapshot | null;
+  /** 新会员首抽保底标记，便于排查与去重 */
+  newMember?: boolean;
 }
 
 const safeParseExtra = (value: unknown): DrawExtra => {
@@ -60,6 +73,18 @@ const countTodayDraws = async (phone: string, transaction?: Transaction): Promis
     where: { phone, createdAt: { [Op.gte]: start, [Op.lte]: end } },
     transaction,
   });
+};
+
+/**
+ * 新会员首抽判定：名下没有购物记录（orderType='normal'）即为新会员；
+ * 且此前没有任何抽奖记录才算「首次抽奖」，避免无消费记录的老用户反复拿保底券。
+ */
+const isNewMemberFirstDraw = async (phone: string, transaction: Transaction): Promise<boolean> => {
+  const [orderCount, drawCount] = await Promise.all([
+    Order.count({ where: { userPhone: phone, orderType: 'normal' }, transaction }),
+    MemberDrawRecord.count({ where: { phone }, transaction }),
+  ]);
+  return orderCount === 0 && drawCount === 0;
 };
 
 export const getLotteryConfig = async (phone: string) => {
@@ -274,7 +299,10 @@ export const drawLottery = async (phone: string, requestId: string): Promise<Lot
         lock: transaction.LOCK.UPDATE,
       });
 
-      let prize = pickPrize(prizes, resolveWeights(prizes, cost));
+      // 新会员首抽保底：跳过加权抽取，直接发满 100 减 5 券（其余会员抽奖逻辑不变）
+      const newMemberFirstDraw = await isNewMemberFirstDraw(phone, transaction);
+
+      let prize = newMemberFirstDraw ? null : pickPrize(prizes, resolveWeights(prizes, cost));
       if (prize) {
         const stock = prize.get('stock') as number | null;
         if (stock !== null) {
@@ -290,12 +318,35 @@ export const drawLottery = async (phone: string, requestId: string): Promise<Lot
 
       await changePoints(phone, -cost, 'draw', '积分抽奖', { requestId }, transaction);
 
-      const prizeType = prize ? (prize.get('prizeType') as string) : 'none';
-      const prizeName = prize ? (prize.get('name') as string) : '谢谢参与';
+      const prizeType = newMemberFirstDraw ? 'coupon' : prize ? (prize.get('prizeType') as string) : 'none';
+      const prizeName = newMemberFirstDraw
+        ? NEW_MEMBER_COUPON.name
+        : prize
+          ? (prize.get('name') as string)
+          : '谢谢参与';
       let pointsAdded = 0;
       let coupon: LotteryCouponSnapshot | null = null;
 
-      if (prize && prizeType === 'points') {
+      if (newMemberFirstDraw) {
+        const issued = await issueCoupon(
+          phone,
+          {
+            condition: NEW_MEMBER_COUPON.condition,
+            value: NEW_MEMBER_COUPON.value,
+            desc: NEW_MEMBER_COUPON.desc,
+            validDays: NEW_MEMBER_COUPON.validDays,
+            extra: { requestId, newMember: true },
+          },
+          transaction,
+        );
+        coupon = {
+          couponId: issued.get('couponId') as string,
+          condition: Number(issued.get('couponCondition') ?? 0),
+          value: Number(issued.get('couponValue') ?? 0),
+          desc: (issued.get('couponDesc') as string) ?? NEW_MEMBER_COUPON.desc,
+          validDays: NEW_MEMBER_COUPON.validDays,
+        };
+      } else if (prize && prizeType === 'points') {
         pointsAdded = Number(prize.get('points') ?? 0);
         if (pointsAdded > 0) {
           await changePoints(
@@ -336,6 +387,7 @@ export const drawLottery = async (phone: string, requestId: string): Promise<Lot
         prizeType,
         pointsAdded,
         coupon,
+        ...(newMemberFirstDraw ? { newMember: true } : {}),
       };
 
       const record = await MemberDrawRecord.create(

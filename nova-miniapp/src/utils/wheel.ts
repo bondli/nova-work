@@ -1,4 +1,5 @@
 // 大转盘落点计算：奖品扇区中心停在顶部指针处，并额外旋转 turns 圈
+// 转盘样式固定 6 扇区：奖池需保持 6 项（谢谢参与 + 5 个奖品）
 export const WHEEL_SECTOR_COUNT = 6
 
 export function nextWheelRotation(

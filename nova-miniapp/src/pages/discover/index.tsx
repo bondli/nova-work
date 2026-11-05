@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Text, View } from '@tarojs/components'
-import Taro, { useDidShow } from '@tarojs/taro'
+import Taro, { useDidShow, useShareAppMessage } from '@tarojs/taro'
 import { Gift, Store } from '@nutui/icons-react-taro'
 import EmptyState from '@/components/EmptyState'
 import LoginGuide from '@/components/LoginGuide'
@@ -26,6 +26,13 @@ export default function DiscoverPage() {
   const [loading, setLoading] = useState(false)
   const [signing, setSigning] = useState(false)
   const firstShow = useRef(true)
+
+  // 开启右上角「···」面板的「转发给朋友」
+  useShareAppMessage(() => ({
+    title: 'Dave & Bella · 会员签到与积分礼遇',
+    path: '/pages/discover/index',
+    imageUrl: 'https://davebella.top/pos2/mini-image/mini-20261104203517-b051157d.jpg',
+  }))
 
   const loadAll = async () => {
     setLoading(true)
