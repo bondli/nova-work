@@ -43,7 +43,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "build": "npm run typecheck && expo export --platform android",
-    "pack": "expo prebuild --platform android --no-install && cd android && ./gradlew assembleRelease"
+    "pack": "expo prebuild --platform android --no-install && cd android && ./gradlew assembleRelease && cd .. && node scripts/copy-apk.mjs"
   },
   "private": true
 }

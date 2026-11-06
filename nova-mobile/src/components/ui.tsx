@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Check, ChevronDown, ScanLine, UserRound } from 'lucide-react-native';
 import { router } from 'expo-router';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   ActivityIndicator,
+  Animated,
   Modal,
   Pressable,
   RefreshControl,
@@ -618,23 +619,58 @@ export function SheetModal({
 }) {
   const insets = useSafeAreaInsets();
   const top = placement === 'top';
+
+  // Modal 自身用 fade（遮罩淡入淡出），sheet 内容用 Animated 自行滑入/滑出，
+  // 避免 animationType="slide" 时半透明遮罩也跟着上下移动的突兀感。
+  const [showModal, setShowModal] = useState(visible);
+  const slide = useRef(new Animated.Value(visible ? 0 : 1)).current;
+
+  useEffect(() => {
+    if (visible) {
+      setShowModal(true);
+      // 下一帧再启动动画，确保 Modal 已挂载、初始位移已应用
+      requestAnimationFrame(() => {
+        Animated.timing(slide, {
+          toValue: 0,
+          duration: 260,
+          useNativeDriver: true,
+        }).start();
+      });
+    } else if (showModal) {
+      Animated.timing(slide, {
+        toValue: 1,
+        duration: 220,
+        useNativeDriver: true,
+      }).start(({ finished }) => {
+        if (finished) setShowModal(false);
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible]);
+
+  const sheetTranslate = slide.interpolate({
+    inputRange: [0, 1],
+    outputRange: top ? ['0%', '-100%'] : ['0%', '100%'],
+  });
+
   return (
     <Modal
-      visible={visible}
+      visible={showModal}
       transparent
-      animationType={top ? 'fade' : 'slide'}
+      animationType="fade"
       statusBarTranslucent
       navigationBarTranslucent
       onRequestClose={onClose}
     >
       <View style={[styles.modalRoot, top && styles.modalRootTop]}>
         <Pressable style={styles.modalBackdrop} onPress={onClose} />
-        <View
+        <Animated.View
           style={[
             styles.sheet,
             top
               ? [styles.sheetTop, { paddingTop: insets.top + 8 }]
               : { paddingBottom: Math.max(24, insets.bottom + 12) },
+            { transform: [{ translateY: sheetTranslate }] },
           ]}
         >
           <View style={styles.sheetHandle} />
@@ -649,7 +685,7 @@ export function SheetModal({
           <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.sheetBody}>
             {children}
           </ScrollView>
-        </View>
+        </Animated.View>
         {/* 抽屉内同样渲染提示层，避免 Toast 被 Modal 遮挡 */}
         <ToastHost />
       </View>
