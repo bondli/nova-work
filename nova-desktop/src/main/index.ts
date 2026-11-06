@@ -11,6 +11,7 @@ import { registerIpc } from './ipc'
 import { closeMysql } from './db/mysql'
 import { closeAgentDb, initAgentDb } from './agent/db'
 import { applyAutoLaunch, applyTheme, getSettings } from './services/settings'
+import { initAppIcon } from './services/app-icon'
 import { startScheduler, stopScheduler } from './services/scheduler'
 
 app.setName('DaveBella')
@@ -48,6 +49,9 @@ if (!hasSingleInstanceLock) {
     const settings = await getSettings()
     applyTheme(settings.appearance.theme)
     applyAutoLaunch(settings.launch.autoLaunch)
+
+    // 应用图标随主题切换：必须在 applyTheme 之后初始化，确保 shouldUseDarkColors 已生效
+    initAppIcon()
 
     mainWindow = createMainWindow()
     mainWindow.on('closed', () => {

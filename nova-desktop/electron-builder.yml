@@ -10,13 +10,23 @@ asar: true
 # sql.js 通过 __dirname 读取同目录 wasm，必须从 asar 解包后才能被加载
 asarUnpack:
   - node_modules/sql.js/dist/*.wasm
+# 运行时主题切换需要两套图标，打包到 Resources/assets 供主进程读取
+extraResources:
+  - from: assets
+    to: assets
+    filter:
+      - "icon.png"
+      - "icon-light.png"
+      - "icon.icns"
+      - "icon-light.icns"
+      - "icon.ico"
+      - "icon-light.ico"
 mac:
   icon: assets/icon.icns
   target:
     - target: dmg
       arch:
         - arm64
-        - x64
   identity: null
   hardenedRuntime: false
 win:
