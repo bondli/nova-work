@@ -90,8 +90,8 @@ function SectionCard({
   children: ReactNode
 }) {
   return (
-    <Card className="gap-0">
-      <CardHeader className="border-b border-border py-3">
+    <Card className="gap-0 py-0">
+      <CardHeader className="border-b border-border px-4 pt-3 !pb-2">
         <CardTitle className="flex items-center gap-2 text-sm">
           {title}
           {count !== undefined ? (
@@ -99,7 +99,7 @@ function SectionCard({
           ) : null}
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-3 pt-3">{children}</CardContent>
+      <CardContent className="flex flex-col gap-3 p-4">{children}</CardContent>
     </Card>
   )
 }

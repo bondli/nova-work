@@ -40,7 +40,7 @@ export const NAV_ITEMS: NavItem[] = [
     path: '/orders',
     label: '订单',
     title: '订单中心',
-    description: '查询、退换货、对账；导出在商品明细抽屉',
+    description: '查询、退换货、对账；导出在订单商品抽屉',
     icon: ReceiptText
   },
   {
@@ -54,21 +54,21 @@ export const NAV_ITEMS: NavItem[] = [
     path: '/members',
     label: '会员',
     title: '会员中心',
-    description: '会员画像、积分、余额与优惠券',
+    description: '会员设置、积分、余额与优惠券',
     icon: Users
   },
   {
     path: '/marketing',
     label: '营销',
     title: '营销中心',
-    description: '活动名称、时间与类型筛选，活动效果与核销',
+    description: '营销活动、积分兑换商品、小程序素材更新',
     icon: Megaphone
   },
   {
     path: '/data',
     label: '数据',
     title: '数据中心',
-    description: '事实数据看板，不含 AI 与导购业绩',
+    description: '事实数据看板，不含 AI 经营分析',
     icon: ChartColumn
   }
 ]

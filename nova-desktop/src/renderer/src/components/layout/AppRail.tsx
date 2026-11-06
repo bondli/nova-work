@@ -54,7 +54,7 @@ export function AppRail() {
   return (
     <aside
       className={cn(
-        'app-drag flex w-[78px] shrink-0 flex-col items-center border-r border-border bg-card',
+        'app-drag flex w-[78px] shrink-0 flex-col items-center border-r border-border bg-muted dark:bg-background',
         isMac ? 'pt-9' : 'pt-2.5'
       )}
     >
