@@ -3,6 +3,10 @@ productName: DaveBella
 directories:
   output: release
   buildResources: assets
+# Electron 二进制走国内镜像，避免每次打包从 GitHub 下载超时
+# 下载 URL 会基于此 mirror 构造，缓存 key 也与之绑定，与本地已缓存的 zip 命中
+electronDownload:
+  mirror: https://npmmirror.com/mirrors/electron/
 files:
   - out/**/*
   - package.json
