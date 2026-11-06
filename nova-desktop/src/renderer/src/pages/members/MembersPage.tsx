@@ -216,6 +216,10 @@ export function MembersPage() {
         error={error ? (error as Error).message : undefined}
         sort={sort}
         onSortChange={handleSortChange}
+        onRowClick={(member) => {
+          setDetailId(member.id)
+          setDetailOpen(true)
+        }}
         empty={{
           icon: UserRound,
           title: '暂无会员',

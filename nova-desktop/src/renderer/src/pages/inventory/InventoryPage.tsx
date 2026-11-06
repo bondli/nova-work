@@ -256,6 +256,7 @@ export function InventoryPage() {
         error={error ? (error as Error).message : undefined}
         sort={sort}
         onSortChange={handleSortChange}
+        onRowClick={(row) => setDetailRow(row)}
         empty={{
           icon: Package,
           title: '暂无库存',

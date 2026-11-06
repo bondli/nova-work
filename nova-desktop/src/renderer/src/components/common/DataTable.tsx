@@ -55,6 +55,8 @@ interface DataTableProps<TData> {
   /** 表格下方固定区（如分页条） */
   footer?: ReactNode
   onRowClick?: (row: TData) => void
+  /** 行双击回调；双击操作列内的按钮时不会触发，避免与按钮单击冲突 */
+  onRowDoubleClick?: (row: TData) => void
   stickyHeader?: boolean
   /** 当前表头排序；传入后会在带 sortKey 的列上渲染排序按钮 */
   sort?: SortState | null
@@ -80,6 +82,7 @@ export function DataTable<TData>({
   toolbar,
   footer,
   onRowClick,
+  onRowDoubleClick,
   stickyHeader = true,
   sort,
   onSortChange,
@@ -215,10 +218,29 @@ export function DataTable<TData>({
                     key={getRowKey(row.original)}
                     className={cn(
                       'border-border/60 hover:bg-surface',
-                      onRowClick && 'cursor-pointer'
+                      (onRowClick || onRowDoubleClick) && 'cursor-pointer'
                     )}
-                    tabIndex={onRowClick ? 0 : undefined}
-                    onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+                    tabIndex={onRowClick || onRowDoubleClick ? 0 : undefined}
+                    onClick={
+                      onRowClick
+                        ? (event) => {
+                            // 单击操作列内的按钮 / 链接时不触发行点击，避免与按钮行为冲突
+                            const target = event.target as HTMLElement
+                            if (target.closest('button, a, [role="button"]')) return
+                            onRowClick(row.original)
+                          }
+                        : undefined
+                    }
+                    onDoubleClick={
+                      onRowDoubleClick
+                        ? (event) => {
+                            // 双击操作列内的按钮 / 链接时不触发行双击，避免与按钮行为冲突
+                            const target = event.target as HTMLElement
+                            if (target.closest('button, a, [role="button"]')) return
+                            onRowDoubleClick(row.original)
+                          }
+                        : undefined
+                    }
                     onKeyDown={
                       onRowClick
                         ? (event) => {

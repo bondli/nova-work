@@ -269,6 +269,7 @@ export function OrdersPage() {
         rowKey="no"
         isLoading={isLoading}
         error={error ? (error as Error).message : undefined}
+        onRowClick={(order) => setDetailNo(order.no)}
         empty={{
           icon: ReceiptText,
           title: '暂无订单',
