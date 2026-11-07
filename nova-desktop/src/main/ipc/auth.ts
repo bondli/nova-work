@@ -2,6 +2,7 @@ import { ipcMain } from 'electron'
 import { z } from 'zod'
 import { IPC } from '@shared/ipc-channels'
 import { AuthServiceError, changePassword, getSession, login, logout, register } from '../services/auth'
+import { startShareRelay, stopShareRelay } from './share'
 import { failure, internalFailure, success } from './helpers'
 
 /**
@@ -43,7 +44,9 @@ export function registerAuthIpc(): void {
       return failure('INVALID_INPUT', parsed.error.issues[0]?.message ?? '登录参数不合法')
     }
     try {
-      return success(await login(parsed.data))
+      const result = await login(parsed.data)
+      startShareRelay()
+      return success(result)
     } catch (error) {
       return toFailure(error)
     }
@@ -55,7 +58,9 @@ export function registerAuthIpc(): void {
       return failure('INVALID_INPUT', parsed.error.issues[0]?.message ?? '注册参数不合法')
     }
     try {
-      return success(await register(parsed.data))
+      const result = await register(parsed.data)
+      startShareRelay()
+      return success(result)
     } catch (error) {
       return toFailure(error)
     }
@@ -63,6 +68,7 @@ export function registerAuthIpc(): void {
 
   ipcMain.handle(IPC.authLogout, async () => {
     try {
+      stopShareRelay()
       await logout()
       return success(null)
     } catch (error) {
@@ -72,7 +78,10 @@ export function registerAuthIpc(): void {
 
   ipcMain.handle(IPC.authSession, async () => {
     try {
-      return success(await getSession())
+      const session = await getSession()
+      // 应用启动时恢复会话：若已有登录态，启动文件共享中继
+      if (session) startShareRelay()
+      return success(session)
     } catch (error) {
       return internalFailure(error)
     }

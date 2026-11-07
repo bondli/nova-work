@@ -5,6 +5,7 @@ import { registerNotificationIpc } from './notifications'
 import { registerPosIpc } from './pos'
 import { registerPrintIpc } from './print'
 import { registerSettingsIpc } from './settings'
+import { registerShareIpc } from './share'
 
 /** 应用启动时注册全部 IPC 处理器 */
 export function registerIpc(getWindow: () => BrowserWindow | null): void {
@@ -14,4 +15,5 @@ export function registerIpc(getWindow: () => BrowserWindow | null): void {
   registerSettingsIpc(getWindow)
   registerAgentIpc(getWindow)
   registerNotificationIpc(getWindow)
+  registerShareIpc(getWindow)
 }

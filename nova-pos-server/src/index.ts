@@ -4,7 +4,7 @@ import cors from 'cors';
 import logger from './logger';
 import { sequelize } from './model/index';
 import router from './router/index';
-import { issueSessionToken, mobileLogin } from './router/auth-controller';
+import { issueSessionToken, mobileLogin, issueShareToken } from './router/auth-controller';
 import { createUser, userLogin } from './router/user-controller';
 import { contextMiddleware } from './middleware/context';
 import { createRateLimit, LOGIN_RATE_LIMIT } from './middleware/rate-limit';
@@ -79,6 +79,9 @@ app.post('/auth/token', internalTokenAuth, issueSessionToken);
 // 手机端登录：手机端没有内部令牌，改为账号口令 + 限流，一次请求签发 JWT
 app.post('/auth/mobile-login', createRateLimit(LOGIN_RATE_LIMIT), mobileLogin);
 
+// 文件共享群组令牌：桌面端用内部令牌换取（在业务鉴权之前）
+app.post('/auth/share-token', internalTokenAuth, issueShareToken);
+
 // 登录与注册：登录前还没有 JWT，只能靠内部令牌鉴权，同样必须在业务鉴权之前注册
 app.post('/user/login', internalTokenAuth, userLogin);
 app.post('/user/register', internalTokenAuth, createUser);
@@ -113,6 +116,9 @@ app.use(
 app.use(internalAuth);
 // 添加请求上下文中间件
 app.use(contextMiddleware);
+
+// 文件共享群组令牌：手机端用 JWT 换取（在业务鉴权之后）
+app.post('/auth/share-token/mobile', issueShareToken);
 
 app.use(router);
 

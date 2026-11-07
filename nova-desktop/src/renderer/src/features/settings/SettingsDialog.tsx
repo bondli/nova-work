@@ -11,6 +11,7 @@ import { GeneralSettingsTab } from './GeneralSettingsTab'
 import { TaskSettingsTab } from './TaskSettingsTab'
 import { ModelSettingsTab } from './ModelSettingsTab'
 import { DataSettingsTab } from './DataSettingsTab'
+import { FileShareTab } from './FileShareTab'
 import { SettingsNav, type SettingsTabKey } from './SettingsNav'
 
 /**
@@ -42,8 +43,10 @@ export function SettingsDialog() {
               <TaskSettingsTab />
             ) : tab === 'model' ? (
               <ModelSettingsTab />
-            ) : (
+            ) : tab === 'data' ? (
               <DataSettingsTab />
+            ) : (
+              <FileShareTab />
             )}
           </div>
         </div>

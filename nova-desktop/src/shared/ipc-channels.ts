@@ -43,7 +43,15 @@ export const IPC = {
   agentReveal: 'agent:session.reveal',
   notifyList: 'notify:list',
   notifyRead: 'notify:read',
-  notifyReadAll: 'notify:read-all'
+  notifyReadAll: 'notify:read-all',
+  // 文件共享
+  shareLocalList: 'share:local-list',
+  shareLocalUpload: 'share:local-upload',
+  shareLocalDelete: 'share:local-delete',
+  shareDevices: 'share:devices',
+  shareRemoteList: 'share:remote-list',
+  shareRemoteDownload: 'share:remote-download',
+  shareStatus: 'share:status'
 } as const
 
 /** 单向事件通道：主进程主动推送给渲染层 */
@@ -51,5 +59,7 @@ export const IPC_EVENT = {
   authChanged: 'auth:event',
   analysisEvent: 'analysis:event',
   /** 新的经营报告通知（含定时任务完成） */
-  notificationEvent: 'notify:event'
+  notificationEvent: 'notify:event',
+  /** 文件共享中继状态变更（连接/设备上下线） */
+  shareStatus: 'share:status:event'
 } as const

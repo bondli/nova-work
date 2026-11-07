@@ -10,6 +10,7 @@ import logger from '../logger';
 import { User } from '../model/user';
 import { hashPassword, isHashedPassword, verifyPassword } from '../auth/password';
 import { signSessionToken, TOKEN_TTL_SECONDS } from '../auth/jwt';
+import { getRelayUrl, getShareGroupToken } from '../config';
 
 const sessionRequestSchema = z.object({
   userId: z.string().min(1),
@@ -86,4 +87,15 @@ export const mobileLogin = async (request: Request, response: Response): Promise
     console.log(error);
     response.status(500).json({ code: 500, message: '服务暂时不可用，请稍后重试' });
   }
+};
+
+/**
+ * 文件共享群组令牌：桌面端（内部令牌）与手机端（JWT）共用此 handler。
+ * 返回 groupToken（供 nova-relay 鉴权分组）与 relayUrl。
+ */
+export const issueShareToken = (_request: Request, response: Response): void => {
+  response.json({
+    groupToken: getShareGroupToken(),
+    relayUrl: getRelayUrl(),
+  });
 };

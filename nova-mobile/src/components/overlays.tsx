@@ -83,6 +83,17 @@ function ProfileSheet() {
             <Text style={styles.menuText}>操作日志</Text>
             <Ionicons name="chevron-forward" size={15} color={colors.faint} />
           </Pressable>
+          <Pressable
+            style={styles.menuRow}
+            onPress={() => {
+              close();
+              router.push('/share');
+            }}
+          >
+            <Ionicons name="folder-open-outline" size={16} color={colors.muted} />
+            <Text style={styles.menuText}>共享文件</Text>
+            <Ionicons name="chevron-forward" size={15} color={colors.faint} />
+          </Pressable>
           <Pressable style={styles.menuRow} onPress={() => setConfirming(true)}>
             <Ionicons name="log-out-outline" size={16} color={colors.danger} />
             <Text style={[styles.menuText, { color: colors.danger }]}>退出登录</Text>

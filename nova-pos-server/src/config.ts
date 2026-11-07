@@ -44,6 +44,13 @@ type StorageSection = {
   uploadToken?: string;
 };
 
+type RelaySection = {
+  /** nova-relay 服务地址，桌面端/手机端通过 /auth/share-token 获取 */
+  url?: string;
+  /** 群组签名密钥，与 nova-relay 共用，用于校验 groupToken */
+  groupSecret?: string;
+};
+
 type NovaServerConfig = {
   baseUrl?: string;
   token?: string;
@@ -51,6 +58,7 @@ type NovaServerConfig = {
   server?: { host?: string; port?: number | string };
   database?: DatabaseSection;
   storage?: StorageSection;
+  relay?: RelaySection;
 };
 
 let cached: NovaServerConfig | null = null;
@@ -123,6 +131,10 @@ function normalize(file: NovaServerConfig, legacy: DatabaseSection | null): Nova
       miniImageDir,
       logDir,
       uploadToken: file.storage?.uploadToken ?? randomSecret(16),
+    },
+    relay: {
+      url: file.relay?.url ?? 'http://127.0.0.1:8722',
+      groupSecret: file.relay?.groupSecret ?? randomSecret(32),
     },
   };
 }
@@ -273,4 +285,28 @@ export function getLogDir(): string {
 /** 插件上传商品图片时的令牌；配置缺失时拒绝上传 */
 export function getUploadToken(): string {
   return getServerConfig().storage?.uploadToken ?? '';
+}
+
+/** nova-relay 服务地址 */
+export function getRelayUrl(): string {
+  return getServerConfig().relay?.url ?? '';
+}
+
+/** 群组签名密钥，与 nova-relay 共用 */
+export function getRelayGroupSecret(): string {
+  return getServerConfig().relay?.groupSecret ?? '';
+}
+
+/**
+ * 生成文件共享群组令牌。
+ * storeKey 取 POS 自身 baseUrl（同门店所有设备连同一 POS，自然同组），
+ * groupToken = storeKey + ':' + HMAC-SHA256(groupSecret, storeKey)。
+ * nova-relay 解析 storeKey 并校验 HMAC，通过后归入该群组。
+ */
+export function getShareGroupToken(): string {
+  const config = getServerConfig();
+  const storeKey = config.baseUrl ?? 'http://127.0.0.1:9577';
+  const groupSecret = config.relay?.groupSecret ?? '';
+  const signature = crypto.createHmac('sha256', groupSecret).update(storeKey).digest('hex');
+  return `${storeKey}:${signature}`;
 }

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 import { ApiError, apiPost, configureApi } from '@/src/lib/api';
+import { useShareStore } from '@/src/lib/share/store';
 import { DEFAULT_BASE_URL, clearSession, loadSession, saveBaseUrl, saveSession } from '@/src/lib/storage';
 import type { LoginResult, SessionUser } from '@/src/lib/types';
 
@@ -32,6 +33,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       token: stored.token ?? null,
       user: stored.user ?? null,
     });
+    // 已有登录态时启动文件共享中继
+    if (stored.token) useShareStore.getState().start();
   },
 
   login: async ({ baseUrl, username, password }) => {
@@ -44,6 +47,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     configureApi({ token: result.token });
     await saveSession({ baseUrl, token: result.token, user: result.user });
     set({ baseUrl, token: result.token, user: result.user });
+    useShareStore.getState().start();
   },
 
   updateBaseUrl: async (baseUrl) => {
@@ -53,6 +57,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   logout: async () => {
+    useShareStore.getState().stop();
     configureApi({ token: null });
     await clearSession();
     set({ token: null, user: null });

@@ -1,8 +1,8 @@
-import { AlarmClock, Brain, Database, SlidersHorizontal, type LucideIcon } from 'lucide-react'
+import { AlarmClock, Brain, Database, FolderOpen, SlidersHorizontal, type LucideIcon } from 'lucide-react'
 import { Button } from '@renderer/components/ui/button'
 import { cn } from '@renderer/lib/utils'
 
-export type SettingsTabKey = 'general' | 'task' | 'model' | 'data'
+export type SettingsTabKey = 'general' | 'task' | 'model' | 'data' | 'share'
 
 interface SettingsNavItem {
   key: SettingsTabKey
@@ -14,7 +14,8 @@ const NAV_ITEMS: SettingsNavItem[] = [
   { key: 'general', label: '通用设置', icon: SlidersHorizontal },
   { key: 'task', label: '任务设置', icon: AlarmClock },
   { key: 'model', label: '模型设置', icon: Brain },
-  { key: 'data', label: '数据设置', icon: Database }
+  { key: 'data', label: '数据设置', icon: Database },
+  { key: 'share', label: '文件共享', icon: FolderOpen }
 ]
 
 interface SettingsNavProps {

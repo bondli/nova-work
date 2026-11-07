@@ -33,6 +33,7 @@ import type {
   ModelConfigView,
   ModelTestResult
 } from '../shared/types/model-config'
+import type { RelayStatus } from '../main/share-files/relay-client'
 
 /**
  * Preload 桥接层。
@@ -152,6 +153,25 @@ const api = {
       ipcRenderer.on(IPC_EVENT.notificationEvent, listener)
       return () => {
         ipcRenderer.removeListener(IPC_EVENT.notificationEvent, listener)
+      }
+    }
+  },
+  share: {
+    localList: () => ipcRenderer.invoke(IPC.shareLocalList) as Promise<IpcResult<Array<{ name: string; size: number; mtime: number }>>>,
+    localUpload: () => ipcRenderer.invoke(IPC.shareLocalUpload) as Promise<IpcResult<{ name: string; path: string } | null>>,
+    localDelete: (name: string) => ipcRenderer.invoke(IPC.shareLocalDelete, name) as Promise<IpcResult<null>>,
+    devices: () => ipcRenderer.invoke(IPC.shareDevices) as Promise<IpcResult<RelayStatus>>,
+    remoteList: (deviceId: string) => ipcRenderer.invoke(IPC.shareRemoteList, deviceId) as Promise<IpcResult<Array<{ name: string; size: number; mtime: number }>>>,
+    remoteDownload: (deviceId: string, name: string) => ipcRenderer.invoke(IPC.shareRemoteDownload, { deviceId, name }) as Promise<IpcResult<{ filePath: string | null }>>,
+    status: () => ipcRenderer.invoke(IPC.shareStatus) as Promise<IpcResult<RelayStatus>>,
+    /** 订阅中继状态变更；返回取消订阅函数 */
+    onStatus: (callback: (status: RelayStatus) => void): (() => void) => {
+      const listener = (_event: Electron.IpcRendererEvent, status: RelayStatus): void => {
+        callback(status)
+      }
+      ipcRenderer.on(IPC_EVENT.shareStatus, listener)
+      return () => {
+        ipcRenderer.removeListener(IPC_EVENT.shareStatus, listener)
       }
     }
   }

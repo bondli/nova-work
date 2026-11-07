@@ -312,7 +312,7 @@ nova-work/
 
 ### 3.5 数据与跨端一致性
 
-- 用户运行数据落在 `~/.nova/`（`server-config.json`、`mall-config.json`、上传目录、日志等），**禁止提交**。
+- 用户运行数据落在 `~/.nova/`（`server-config.json`、`api-config.json`、`mall-config.json`、上传目录、日志等），**禁止提交**。
 - 桌面端与 POS 服务端的类型对不上时，以服务端返回字段为准，在 `features/*/api.ts` 做映射；字段名不一致曾导致过 `undefined` 显示 bug。
 - 改 `nova-desktop/src/shared/**` 类型时，同时检查引用它的渲染层与主进程（`typecheck:node` + `typecheck:web` 都要过）。
 
