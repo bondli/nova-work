@@ -1,10 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Check, ChevronDown, ScanLine, UserRound } from 'lucide-react-native';
 import { router } from 'expo-router';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   ActivityIndicator,
-  Animated,
   Modal,
   Pressable,
   RefreshControl,
@@ -620,57 +619,27 @@ export function SheetModal({
   const insets = useSafeAreaInsets();
   const top = placement === 'top';
 
-  // Modal 自身用 fade（遮罩淡入淡出），sheet 内容用 Animated 自行滑入/滑出，
-  // 避免 animationType="slide" 时半透明遮罩也跟着上下移动的突兀感。
-  const [showModal, setShowModal] = useState(visible);
-  const slide = useRef(new Animated.Value(visible ? 0 : 1)).current;
-
-  useEffect(() => {
-    if (visible) {
-      setShowModal(true);
-      // 下一帧再启动动画，确保 Modal 已挂载、初始位移已应用
-      requestAnimationFrame(() => {
-        Animated.timing(slide, {
-          toValue: 0,
-          duration: 260,
-          useNativeDriver: true,
-        }).start();
-      });
-    } else if (showModal) {
-      Animated.timing(slide, {
-        toValue: 1,
-        duration: 220,
-        useNativeDriver: true,
-      }).start(({ finished }) => {
-        if (finished) setShowModal(false);
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible]);
-
-  const sheetTranslate = slide.interpolate({
-    inputRange: [0, 1],
-    outputRange: top ? ['0%', '-100%'] : ['0%', '100%'],
-  });
-
+  // 这里刻意不使用任何进出场动画：
+  // 1) animationType="slide" 会让半透明遮罩跟着一起上移，观感很差；
+  // 2) 华为 P40 等机型上，Modal 在「挂载瞬间就是 visible=true」时会出现只显示遮罩、
+  //    内容不渲染的问题，因此调用方需常驻挂载本组件、只切换 visible，这里保持无状态直出。
   return (
     <Modal
-      visible={showModal}
+      visible={visible}
       transparent
-      animationType="fade"
+      animationType="none"
       statusBarTranslucent
-      navigationBarTranslucent
+      hardwareAccelerated
       onRequestClose={onClose}
     >
       <View style={[styles.modalRoot, top && styles.modalRootTop]}>
         <Pressable style={styles.modalBackdrop} onPress={onClose} />
-        <Animated.View
+        <View
           style={[
             styles.sheet,
             top
               ? [styles.sheetTop, { paddingTop: insets.top + 8 }]
               : { paddingBottom: Math.max(24, insets.bottom + 12) },
-            { transform: [{ translateY: sheetTranslate }] },
           ]}
         >
           <View style={styles.sheetHandle} />
@@ -685,7 +654,7 @@ export function SheetModal({
           <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.sheetBody}>
             {children}
           </ScrollView>
-        </Animated.View>
+        </View>
         {/* 抽屉内同样渲染提示层，避免 Toast 被 Modal 遮挡 */}
         <ToastHost />
       </View>
@@ -842,7 +811,9 @@ function createStyles() {
     tab: {
       flex: 1,
       minWidth: 0,
-      height: 26,
+      // 用 minHeight + 垂直内边距代替固定高度，避免华为等机型放大系统字体后上下被裁切
+      minHeight: 26,
+      paddingVertical: 3,
       paddingHorizontal: 4,
       borderRadius: 7,
       alignItems: 'center',
@@ -856,7 +827,7 @@ function createStyles() {
       shadowOffset: { width: 0, height: 1 },
       elevation: 1,
     },
-    tabText: { fontSize: fs(12), color: colors.muted },
+    tabText: { fontSize: fs(12), color: colors.muted, textAlign: 'center', includeFontPadding: false },
     tabTextActive: { color: colors.fg, fontWeight: '600' },
 
     search: {

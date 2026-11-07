@@ -47,7 +47,9 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: colors.brand,
         tabBarInactiveTintColor: colors.muted,
-        tabBarLabelStyle: { fontSize: font.caption - 1, fontWeight: '500' },
+        // 不跟随系统字体缩放：华为等机型把系统字体调大后，底部标签会超出 tab 高度被裁切
+        tabBarAllowFontScaling: false,
+        tabBarLabelStyle: { fontSize: font.caption - 1, fontWeight: '500', includeFontPadding: false },
         tabBarStyle: styles.tabBar,
         tabBarItemStyle: styles.tabItem,
         tabBarButton: TabBarButton,
@@ -107,11 +109,11 @@ const styles = themedStyles(createStyles);
 function createStyles() {
   return StyleSheet.create({
     tabBar: {
-      paddingTop: 6,
+      paddingTop: 4,
       borderTopColor: colors.border,
       backgroundColor: colors.card,
     },
-    tabItem: { paddingVertical: 0 },
+    tabItem: { paddingVertical: 2 },
     tabPressed: { opacity: 0.55 },
   });
 }

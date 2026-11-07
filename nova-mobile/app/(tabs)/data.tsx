@@ -59,24 +59,15 @@ function delta(current: number, previous: number): number | undefined {
 interface BarDatum {
   month: string;
   amounts: number;
-  cost?: number;
-  rate?: number;
 }
 
-function BarChart({ data, showCost }: { data: BarDatum[]; showCost: boolean }) {
+// 手机端不展示成本与利润率（任何角色都不展示），只画销售额
+function BarChart({ data }: { data: BarDatum[] }) {
   const [selected, setSelected] = useState<number | null>(null);
-  const max = useMemo(
-    () => Math.max(1, ...data.map((item) => Math.max(item.amounts, showCost ? item.cost ?? 0 : 0))),
-    [data, showCost],
-  );
+  const max = useMemo(() => Math.max(1, ...data.map((item) => item.amounts)), [data]);
   const active = selected !== null ? data[selected] : null;
 
   function tooltip(item: BarDatum): string {
-    if (showCost) {
-      return `${item.month.replace('-', '/')} 销售额 ${formatYuan(item.amounts)} · 成本 ${formatYuan(
-        item.cost ?? 0,
-      )} · 利润率 ${(item.rate ?? 0).toFixed(1)}%`;
-    }
     return `${item.month.replace('-', '/')} 销售额 ${formatYuan(item.amounts)}`;
   }
 
@@ -85,7 +76,6 @@ function BarChart({ data, showCost }: { data: BarDatum[]; showCost: boolean }) {
       <View style={styles.chart}>
         {data.map((item, index) => {
           const primaryHeight = Math.max(3, Math.round((item.amounts / max) * 108));
-          const costHeight = Math.max(3, Math.round(((item.cost ?? 0) / max) * 108));
           const on = selected === index;
           return (
             <Pressable
@@ -97,9 +87,6 @@ function BarChart({ data, showCost }: { data: BarDatum[]; showCost: boolean }) {
             >
               <View style={styles.bars}>
                 <View style={[styles.barPrimary, on && styles.barPrimaryOn, { height: primaryHeight }]} />
-                {showCost ? (
-                  <View style={[styles.barCost, on && styles.barCostOn, { height: costHeight }]} />
-                ) : null}
               </View>
               <Text style={[styles.chartLabel, on && styles.chartLabelOn]} numberOfLines={1}>
                 {item.month.slice(5)}
@@ -148,7 +135,6 @@ export default function DataScreen() {
   const previous = statsQuery.data?.previous;
   const months = monthQuery.data ?? [];
   const salerMonths = salerQuery.data ?? [];
-  const latestRate = months.length > 0 ? months[months.length - 1]?.rate : undefined;
 
   return (
     <Screen title="数据" scroll>
@@ -195,7 +181,7 @@ export default function DataScreen() {
           ) : salerMonths.length === 0 ? (
             <Empty text="暂无营业额数据" />
           ) : (
-            <BarChart data={salerMonths} showCost={false} />
+            <BarChart data={salerMonths} />
           )}
         </Card>
       ) : null}
@@ -203,26 +189,13 @@ export default function DataScreen() {
       <Card>
         <View style={styles.chartHead}>
           <Text style={styles.chartTitle}>店铺营业额</Text>
-          {isAdmin ? (
-            <View style={styles.legend}>
-              <View style={[styles.legendDot, { backgroundColor: colors.brand }]} />
-              <Text style={styles.legendText}>销售额</Text>
-              <View style={[styles.legendDot, { backgroundColor: colors.brandBorder }]} />
-              <Text style={styles.legendText}>成本</Text>
-            </View>
-          ) : null}
         </View>
         {monthQuery.isLoading ? (
           <Loading text="加载中…" />
         ) : months.length === 0 ? (
           <Empty text="暂无营业额数据" />
         ) : (
-          <>
-            <BarChart data={months} showCost={isAdmin} />
-            {isAdmin && latestRate !== undefined ? (
-              <Text style={styles.chartFoot}>最近一月利润率 {latestRate.toFixed(1)}%</Text>
-            ) : null}
-          </>
+          <BarChart data={months} />
         )}
       </Card>
     </Screen>
@@ -243,21 +216,15 @@ function createStyles() {
       gap: 8,
     },
     chartTitle: { fontSize: fs(12), fontWeight: '600', color: colors.fg },
-    legend: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-    legendDot: { width: 6, height: 6, borderRadius: 3, marginLeft: 4 },
-    legendText: { fontSize: fs(9), color: colors.muted },
 
     chart: { flexDirection: 'row', alignItems: 'flex-end', height: 134, gap: 2, marginTop: 6 },
     chartCol: { flex: 1, minWidth: 0, alignItems: 'center', gap: 6 },
     bars: { height: 110, flexDirection: 'row', alignItems: 'flex-end', gap: 2 },
     barPrimary: { width: 7, borderRadius: 2, backgroundColor: 'rgba(79,70,229,0.8)' },
     barPrimaryOn: { backgroundColor: colors.brand },
-    barCost: { width: 5, borderRadius: 2, backgroundColor: colors.brandBorder },
-    barCostOn: { backgroundColor: colors.brandLight },
     chartLabel: { fontSize: fs(8), color: colors.faint },
     chartLabelOn: { color: colors.brand, fontWeight: '600' },
     chartTooltip: { minHeight: 26, marginTop: 4, fontSize: fs(9), lineHeight: fs(13), color: colors.faint },
     chartTooltipOn: { color: colors.muted, fontVariant: ['tabular-nums'] },
-    chartFoot: { fontSize: fs(9), color: colors.faint, textAlign: 'right' },
   });
 }

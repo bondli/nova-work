@@ -241,26 +241,25 @@ export default function BuyScreen() {
         </View>
       ) : null}
 
-      {barcodeOpen ? (
-        <BarcodeSheet
-          onClose={() => setBarcodeOpen(false)}
-          onSuccess={(name) => {
-            setBarcodeOpen(false);
-            showToast(`已加入买单：${name}`);
-          }}
-        />
-      ) : null}
+      {/* 常驻挂载、只切换 visible：华为 P40 上「挂载即 visible」的 Modal 会只出遮罩不出内容 */}
+      <BarcodeSheet
+        visible={barcodeOpen}
+        onClose={() => setBarcodeOpen(false)}
+        onSuccess={(name) => {
+          setBarcodeOpen(false);
+          showToast(`已加入买单：${name}`);
+        }}
+      />
 
-      {memberOpen ? (
-        <MemberSheet
-          onClose={() => setMemberOpen(false)}
-          onSuccess={(next) => {
-            setMember(next);
-            setMemberOpen(false);
-            showToast(`已关联会员 ${next.name}`);
-          }}
-        />
-      ) : null}
+      <MemberSheet
+        visible={memberOpen}
+        onClose={() => setMemberOpen(false)}
+        onSuccess={(next) => {
+          setMember(next);
+          setMemberOpen(false);
+          showToast(`已关联会员 ${next.name}`);
+        }}
+      />
 
       <SheetModal
         visible={payOpen}
@@ -414,9 +413,11 @@ function DiscountInput({ value, onCommit }: { value: number; onCommit: (next: nu
 }
 
 function BarcodeSheet({
+  visible,
   onClose,
   onSuccess,
 }: {
+  visible: boolean;
   onClose: () => void;
   onSuccess: (name: string) => void;
 }) {
@@ -444,7 +445,7 @@ function BarcodeSheet({
   }
 
   return (
-    <SheetModal visible title="输入条码" placement="top" onClose={onClose}>
+    <SheetModal visible={visible} title="输入条码" placement="top" onClose={onClose}>
       <Text style={styles.fieldLabel}>商品条码</Text>
       <TextInput
         value={value}
@@ -466,9 +467,11 @@ function BarcodeSheet({
 }
 
 function MemberSheet({
+  visible,
   onClose,
   onSuccess,
 }: {
+  visible: boolean;
   onClose: () => void;
   onSuccess: (member: BuyMember) => void;
 }) {
@@ -498,7 +501,7 @@ function MemberSheet({
   }
 
   return (
-    <SheetModal visible title="添加会员" placement="top" onClose={onClose}>
+    <SheetModal visible={visible} title="添加会员" placement="top" onClose={onClose}>
       <Text style={styles.fieldLabel}>会员手机号</Text>
       <TextInput
         value={phone}
