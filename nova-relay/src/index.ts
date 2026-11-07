@@ -22,7 +22,7 @@ import express, { Request, Response } from 'express'
 import { WebSocketServer, WebSocket } from 'ws'
 
 const PORT = Number(process.env.PORT ?? 8722)
-const HEARTBEAT_MS = 30_000
+const HEARTBEAT_MS = 15_000
 
 type Role = 'desktop' | 'phone'
 

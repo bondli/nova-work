@@ -57,8 +57,8 @@ export class ShareRelayClient {
   private peers = new Map<string, Peer>()
   private lastError: string | null = null
 
-  /** 待响应的 RPC：id → { resolve, reject, timer } */
-  private pending = new Map<string, { resolve: (v: unknown) => void; reject: (e: Error) => void; timer: ReturnType<typeof setTimeout> }>()
+  /** 待响应的 RPC：id → { resolve, reject, timer, to } */
+  private pending = new Map<string, { resolve: (v: unknown) => void; reject: (e: Error) => void; timer: ReturnType<typeof setTimeout>; to?: string }>()
   /** 进行中的下载：id → { chunks: Map<index, base64>, total, name } */
   private downloads = new Map<string, { name: string; chunks: Map<number, string>; total: number | null }>()
 
@@ -130,6 +130,7 @@ export class ShareRelayClient {
           reject(e)
         },
         timer,
+        to: deviceId,
       })
       this.downloads.set(id, { name, chunks: new Map(), total: null })
       this.send('share:download-start', { name }, { id, to: deviceId })
@@ -293,14 +294,20 @@ export class ShareRelayClient {
       case 'relay:error': {
         // 如果是某个 pending RPC 的错误，reject 它
         const id = msg.id
+        const message = String(msg.payload?.message ?? '中继错误')
         if (id && this.pending.has(id)) {
           const pend = this.pending.get(id)!
           clearTimeout(pend.timer)
+          // 目标设备离线：同步把该 peer 标记为离线，避免继续对它发请求
+          if (message === '目标设备离线' && pend.to) {
+            const peer = this.peers.get(pend.to)
+            if (peer) peer.online = false
+          }
           this.pending.delete(id)
           this.downloads.delete(id)
-          pend.reject(new Error(String(msg.payload?.message ?? '中继错误')))
+          pend.reject(new Error(message))
         } else {
-          this.lastError = String(msg.payload?.message ?? '中继错误')
+          this.lastError = message
           this.emit()
         }
         return
@@ -422,6 +429,7 @@ export class ShareRelayClient {
         resolve: (v) => { clearTimeout(timer); this.pending.delete(id); resolve(v as T) },
         reject: (e) => { clearTimeout(timer); this.pending.delete(id); reject(e) },
         timer,
+        to,
       })
       this.send(type, payload, { id, to })
     })

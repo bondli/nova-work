@@ -8,6 +8,7 @@ import { join } from 'node:path'
 import { isDevelopment } from './env'
 import { createMainWindow } from './window'
 import { registerIpc } from './ipc'
+import { stopShareRelay } from './ipc/share'
 import { closeMysql } from './db/mysql'
 import { closeAgentDb, initAgentDb } from './agent/db'
 import { applyAutoLaunch, applyTheme, getSettings } from './services/settings'
@@ -84,6 +85,7 @@ if (!hasSingleInstanceLock) {
   })
 
   app.on('will-quit', () => {
+    stopShareRelay() // 干净关闭中继 WS，让对端立即收到离线通知
     stopScheduler()
     closeAgentDb()
     void closeMysql()

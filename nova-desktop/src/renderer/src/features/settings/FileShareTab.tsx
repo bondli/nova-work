@@ -46,6 +46,7 @@ export function FileShareTab() {
   const [activeDevice, setActiveDevice] = useState<Peer | null>(null)
   const [remoteFiles, setRemoteFiles] = useState<ShareFile[]>([])
   const [remoteLoading, setRemoteLoading] = useState(false)
+  const [remoteError, setRemoteError] = useState<string | null>(null)
   const [localFiles, setLocalFiles] = useState<ShareFile[]>([])
   const [localLoading, setLocalLoading] = useState(false)
   const [downloading, setDownloading] = useState<string | null>(null)
@@ -98,12 +99,19 @@ export function FileShareTab() {
     setActiveDevice(peer)
     setRemoteLoading(true)
     setRemoteFiles([])
+    setRemoteError(null)
     try {
       const res = await window.nova.share.remoteList(peer.deviceId)
       const files = unwrap(res)
       if (files) setRemoteFiles(files)
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : '获取文件列表失败')
+      const msg = e instanceof Error ? e.message : '获取文件列表失败'
+      // 设备离线/中继未连接：不弹 toast，内联提示即可（状态已由 relay-client 同步）
+      if (msg === '目标设备离线' || msg === '中继未连接') {
+        setRemoteError(msg)
+      } else {
+        toast.error(msg)
+      }
     } finally {
       setRemoteLoading(false)
     }
@@ -167,6 +175,12 @@ export function FileShareTab() {
                 <div className="flex flex-1 items-center justify-center text-muted-foreground">
                   <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> 加载中…
                 </div>
+              ) : remoteError ? (
+                <EmptyState
+                  icon={Monitor}
+                  title={remoteError === '目标设备离线' ? '该设备已离线' : '中继未连接'}
+                  description="请等待对方重新上线后再试"
+                />
               ) : remoteFiles.length === 0 ? (
                 <EmptyState icon={HardDrive} title="该设备暂无共享文件" description="等待对方上传文件到共享目录" />
               ) : (
@@ -189,20 +203,20 @@ export function FileShareTab() {
           ) : (status?.peers.length ?? 0) === 0 ? (
             <EmptyState icon={Monitor} title="暂无其他设备" description="同门店其他设备登录后会出现在这里" />
           ) : (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="flex flex-col gap-2">
               {status?.peers.map((peer) => (
                 <button
                   key={peer.deviceId}
                   type="button"
                   onClick={() => enterDevice(peer)}
                   disabled={!peer.online}
-                  className="flex items-center gap-3 rounded-lg border border-border bg-card p-4 text-left transition hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 text-left transition hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent">
                     {peer.role === 'desktop' ? <Monitor className="h-5 w-5" /> : <Smartphone className="h-5 w-5" />}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-ui font-medium">{peer.name}</p>
+                    <p className="break-words text-ui font-medium">{peer.name}</p>
                     <p className="text-meta text-muted-foreground">{peer.role === 'desktop' ? '桌面端' : '手机端'}</p>
                   </div>
                   <span className={`inline-block h-2 w-2 shrink-0 rounded-full ${peer.online ? 'bg-emerald-500' : 'bg-muted-foreground'}`} />
