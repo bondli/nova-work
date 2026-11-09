@@ -571,7 +571,13 @@ export class ShareRelayClient {
       return
     }
 
-    if (msg.id && this.pending.has(msg.id) && msg.type !== 'share:chunk' && msg.type !== 'share:download-end') {
+    // RPC 响应（带 id 且是我们发起的）。
+    // 排除所有下载控制帧，避免把控制帧 payload 误当文件内容 resolve 出去。
+    const isDownloadControl =
+      msg.type === 'share:chunk' ||
+      msg.type === 'share:chunk-ack' ||
+      msg.type.startsWith('share:download-')
+    if (msg.id && this.pending.has(msg.id) && !isDownloadControl) {
       const pend = this.pending.get(msg.id)!
       clearTimeout(pend.timer)
       this.pending.delete(msg.id)

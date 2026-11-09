@@ -76,6 +76,8 @@ function base64Bytes(data: string): number {
 
 interface DownloadState {
   name: string
+  /** 发送方设备 ID，直连协商时用于回传结果 */
+  senderId?: string
   chunks: Map<number, string>
   total: number | null
   size: number
@@ -208,6 +210,7 @@ export class ShareRelayClient {
       this.pending.set(id, pend)
       this.downloads.set(id, {
         name,
+        senderId: deviceId,
         chunks: new Map(),
         total: null,
         size: 0,
@@ -447,6 +450,18 @@ export class ShareRelayClient {
       return
     }
 
+    // 发送方提供局域网直连地址：探测可达后直接用 HTTP 拉取，失败回落中继分片
+    if (msg.type === 'share:download-direct' && msg.id) {
+      const dl = this.downloads.get(msg.id)
+      if (dl) {
+        if (msg.payload?.size != null) dl.size = Number(msg.payload.size)
+        dl.resetTimer(DOWNLOAD_PREPARE_TIMEOUT_MS)
+        const urls = Array.isArray(msg.payload?.urls) ? msg.payload.urls.map(String) : []
+        void this.tryDirectDownload(msg.id, dl, urls)
+      }
+      return
+    }
+
     // 下载分片（本机作为接收方）
     if (msg.type === 'share:chunk' && msg.id) {
       const dl = this.downloads.get(msg.id)
@@ -493,8 +508,13 @@ export class ShareRelayClient {
       return
     }
 
-    // RPC 响应（带 id 且是我们发起的）
-    if (msg.id && this.pending.has(msg.id) && msg.type !== 'share:chunk' && msg.type !== 'share:download-end') {
+    // RPC 响应（带 id 且是我们发起的）。
+    // 注意排除所有下载控制帧：它们复用下载 id，若误走这里会把控制帧 payload 当成文件内容返回。
+    const isDownloadControl =
+      msg.type === 'share:chunk' ||
+      msg.type === 'share:chunk-ack' ||
+      msg.type.startsWith('share:download-')
+    if (msg.id && this.pending.has(msg.id) && !isDownloadControl) {
       const pend = this.pending.get(msg.id)!
       clearTimeout(pend.timer)
       this.pending.delete(msg.id)
@@ -670,6 +690,64 @@ export class ShareRelayClient {
         }
       })
     })
+  }
+
+  /**
+   * 局域网直连下载（本机作为接收方）：逐个探测对端给出的地址，
+   * 能通就用 HTTP 流式拉取；全部不可达或中途失败时通知对端回退中继分片。
+   */
+  private async tryDirectDownload(id: string, dl: DownloadState, urls: string[]): Promise<void> {
+    for (const url of urls) {
+      if (this.downloads.get(id) !== dl) return
+      if (!(await this.probeDirect(url))) continue
+      if (this.downloads.get(id) !== dl) return
+      try {
+        this.send('share:download-direct-result', { ok: true }, { id, to: dl.senderId })
+        const response = await fetch(url)
+        if (!response.ok || !response.body) throw new Error(`直连下载失败 (${response.status})`)
+        const total = Number(response.headers.get('content-length') ?? 0) || dl.size
+        const reader = response.body.getReader()
+        const parts: Buffer[] = []
+        let received = 0
+        for (;;) {
+          const { done, value } = await reader.read()
+          if (done) break
+          if (value) {
+            parts.push(Buffer.from(value))
+            received += value.byteLength
+            dl.received = received
+            dl.resetTimer(DOWNLOAD_PREPARE_TIMEOUT_MS)
+            dl.onProgress?.({ name: dl.name, received, total: total || received })
+          }
+        }
+        const buffer = Buffer.concat(parts)
+        this.send('share:download-direct-done', { ok: true }, { id, to: dl.senderId })
+        this.pending.get(id)?.resolve(buffer)
+        return
+      } catch {
+        // 直连中途失败：告知对端回退中继分片，并清空接收状态
+        this.send('share:download-direct-done', { ok: false }, { id, to: dl.senderId })
+        dl.chunks.clear()
+        dl.received = 0
+        dl.resetTimer(DOWNLOAD_PREPARE_TIMEOUT_MS)
+        return
+      }
+    }
+    this.send('share:download-direct-result', { ok: false }, { id, to: dl.senderId })
+  }
+
+  /** HEAD 探测局域网直连地址是否可达（超时 2s） */
+  private async probeDirect(url: string): Promise<boolean> {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), DIRECT_PROBE_TIMEOUT_MS)
+    try {
+      const res = await fetch(url, { method: 'HEAD', signal: controller.signal })
+      return res.ok
+    } catch {
+      return false
+    } finally {
+      clearTimeout(timer)
+    }
   }
 
   // ===== 发送 =====
