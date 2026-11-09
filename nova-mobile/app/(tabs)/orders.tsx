@@ -30,8 +30,9 @@ import {
 } from '@/src/components/ui';
 import { formatDateTime, formatTime, groupNumber } from '@/src/lib/format';
 import { formatYuan } from '@/src/lib/money';
-import { fetchCoreStats, queryMemberDetail, queryOrderItems, queryOrders } from '@/src/lib/pos';
+import { fetchCoreStats, loadClerks, queryMemberDetail, queryOrderItems, queryOrders } from '@/src/lib/pos';
 import type { OrderRow } from '@/src/lib/types';
+import { useAuthStore } from '@/src/stores/auth';
 import { useUiStore } from '@/src/stores/ui';
 import { colors, fs, useThemeRevision } from '@/src/theme/tokens';
 import { themedStyles } from '@/src/theme/styles';
@@ -294,6 +295,25 @@ function OrderDetailSheet({
 }) {
   const visible = Boolean(order);
   const [copiedSku, setCopiedSku] = useState<string | null>(null);
+  const user = useAuthStore((state) => state.user);
+
+  // 订单里存的 salerName 是下单时写入的，历史订单可能落的是用户名；
+  // 这里按 salerId 从员工表解析真实姓名，与桌面端保持一致的展示口径
+  const clerksQuery = useQuery({
+    queryKey: ['clerks'],
+    queryFn: () =>
+      loadClerks({ id: user?.id ?? '0', name: user?.realName || user?.name || '' }),
+    staleTime: 5 * 60_000,
+    enabled: visible,
+  });
+  const salerLabel = useMemo(() => {
+    if (!order) return '—';
+    const matched =
+      order.salerId != null
+        ? clerksQuery.data?.find((clerk) => clerk.id === order.salerId)
+        : undefined;
+    return matched?.name || order.salerName || '—';
+  }, [order, clerksQuery.data]);
 
   const itemsQuery = useQuery({
     queryKey: ['order-items', order?.orderSn ?? ''],
@@ -327,7 +347,7 @@ function OrderDetailSheet({
             </View>
           </View>
           <Text style={styles.detailTime}>
-            {formatDateTime(order.createdAt)} · 导购 {order.salerName || '—'}
+            {formatDateTime(order.createdAt)} · 导购 {salerLabel}
           </Text>
 
           <View style={styles.infoGroup}>

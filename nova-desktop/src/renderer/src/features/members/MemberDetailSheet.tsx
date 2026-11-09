@@ -2,6 +2,7 @@ import { UserRound } from 'lucide-react'
 import { Skeleton } from '@renderer/components/ui/skeleton'
 import { TableCell, TableRow } from '@renderer/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@renderer/components/ui/tabs'
+import { CopyableText } from '@renderer/components/common/CopyText'
 import { DetailEmptyRow, DetailTable, DETAIL_CELL } from '@renderer/components/common/DetailTable'
 import { EmptyState } from '@renderer/components/common/EmptyState'
 import { Money } from '@renderer/components/common/Money'
@@ -114,7 +115,9 @@ export function MemberDetailSheet({ open, onOpenChange, memberId }: MemberDetail
                 ) : (
                   member.orders.map((order) => (
                     <TableRow key={order.no} className="border-border/60 hover:bg-surface">
-                      <TableCell className={cn(DETAIL_CELL, 'tnum')}>{order.no}</TableCell>
+                      <TableCell className={DETAIL_CELL}>
+                        <CopyableText text={order.no} textClassName="tnum" label="订单号" />
+                      </TableCell>
                       <TableCell className={DETAIL_CELL}>
                         {order.orderAmount
                           ? `¥${order.orderAmount.toFixed(2)}`

@@ -239,7 +239,6 @@ export function InventoryPage() {
             />
             <Input
               className="h-8 w-[230px] pl-8 tnum"
-              placeholder="扫描条码或输入款号 / 商品名称"
               aria-label="条码、款号或商品名称"
               value={draft.query}
               onChange={(event) => handleQueryChange(event.target.value)}
@@ -256,7 +255,6 @@ export function InventoryPage() {
         error={error ? (error as Error).message : undefined}
         sort={sort}
         onSortChange={handleSortChange}
-        onRowClick={(row) => setDetailRow(row)}
         empty={{
           icon: Package,
           title: '暂无库存',

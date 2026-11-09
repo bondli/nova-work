@@ -112,7 +112,7 @@ export default function MinePage() {
     logout()
     setLogoutVisible(false)
     Taro.showToast({ title: '已退出登录', icon: 'none' })
-    void Taro.switchTab({ url: '/pages/home/index' })
+    void Taro.switchTab({ url: '/pages/index/index' })
   }
 
   if (!token || !member) {

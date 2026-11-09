@@ -7,6 +7,8 @@ import { appPreferences, type FontSizePreference, type ThemePreference } from '.
 const lightColors = {
   bg: '#f4f4f5',
   card: '#ffffff',
+  /** 浮层（底部抽屉 / 弹窗）底色：浅色与卡片一致 */
+  sheet: '#ffffff',
   subtle: '#fafafa',
   fg: '#18181b',
   muted: '#71717a',
@@ -39,6 +41,8 @@ export type Palette = { [K in keyof typeof lightColors]: string };
 const darkColors: Palette = {
   bg: '#09090b',
   card: '#18181b',
+  /** 浮层底色比页面/卡片更亮一档，深色下能清晰辨认抽屉起点 */
+  sheet: '#1e1e22',
   subtle: '#232326',
   fg: '#fafafa',
   muted: '#a1a1aa',

@@ -22,7 +22,7 @@ function renderStock(counts: number) {
 
 /**
  * 库存列表列定义，列顺序与文案对齐老系统 Inventory/columns：
- * 款号（含名称 / 图片预览）、条码、名称、颜色、尺码、吊牌价、[成本价]、库存、销量、操作。
+ * 款号（含名称 / 图片预览）、条码、颜色、尺码、吊牌价、[成本价]、库存、销量、操作。
  */
 export function createInventoryColumns({
   canViewCost,
@@ -49,7 +49,12 @@ export function createInventoryColumns({
             </span>
           </button>
           <div className="min-w-0">
-            <p className="truncate font-medium">{row.original.styleNo}</p>
+            <CopyableText
+              text={row.original.styleNo}
+              textClassName="font-medium"
+              label="款号"
+              className="max-w-full"
+            />
             <p className="mt-0.5 truncate text-meta text-muted-foreground">{row.original.name}</p>
           </div>
         </div>
@@ -62,7 +67,6 @@ export function createInventoryColumns({
         <CopyableText text={row.original.sku} textClassName="tnum text-ui" label="条码" />
       )
     },
-    { accessorKey: 'name', header: '名称' },
     { accessorKey: 'color', header: '颜色' },
     { accessorKey: 'size', header: '尺码' },
     {

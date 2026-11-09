@@ -173,6 +173,21 @@ const api = {
       return () => {
         ipcRenderer.removeListener(IPC_EVENT.shareStatus, listener)
       }
+    },
+    /** 订阅本机下载进度；返回取消订阅函数 */
+    onProgress: (
+      callback: (progress: { deviceId: string; name: string; received: number; total: number }) => void
+    ): (() => void) => {
+      const listener = (
+        _event: Electron.IpcRendererEvent,
+        progress: { deviceId: string; name: string; received: number; total: number }
+      ): void => {
+        callback(progress)
+      }
+      ipcRenderer.on(IPC_EVENT.shareProgress, listener)
+      return () => {
+        ipcRenderer.removeListener(IPC_EVENT.shareProgress, listener)
+      }
     }
   }
 }

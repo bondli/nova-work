@@ -125,6 +125,11 @@ export function BuyPage() {
     setReceived(pricing.payable.toFixed(2))
   }, [pricing.payable])
 
+  // 进入买单页自动聚焦条码输入框，扫码枪可直接输入
+  useEffect(() => {
+    scanRef.current?.focus()
+  }, [])
+
   /** 查询并加入清单；重复 SKU 只累加数量 */
   async function submitScan(raw: string): Promise<void> {
     const value = raw.trim()
@@ -321,7 +326,6 @@ export function BuyPage() {
               <Input
                 ref={scanRef}
                 className="h-10 pl-9 text-body"
-                placeholder="扫描条码或输入款号 / SKU，回车加入清单"
                 aria-label="扫码或输入款号"
                 value={scanValue}
                 disabled={scanning}

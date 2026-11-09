@@ -61,5 +61,7 @@ export const IPC_EVENT = {
   /** 新的经营报告通知（含定时任务完成） */
   notificationEvent: 'notify:event',
   /** 文件共享中继状态变更（连接/设备上下线） */
-  shareStatus: 'share:status:event'
+  shareStatus: 'share:status:event',
+  /** 文件下载进度（本机从其他设备下载时推送） */
+  shareProgress: 'share:progress:event'
 } as const

@@ -207,7 +207,7 @@ nova-work/
 │   ├── project.config.json        # 微信开发者工具配置（加载 dist/）
 │   └── src/
 │       ├── app.tsx / app.config.ts / app.scss   # 启动静默登录、15 个页面、原生 tabBar、NutUI 样式
-│       ├── pages/<domain>/        # home / discover / mine / orders / order-detail / activity-detail / points / draws
+│       ├── pages/<domain>/        # index / discover / mine / orders / order-detail / activity-detail / points / draws
 │       │                          # coupons / balance / redeem / redeem-records / draw / product / profile-edit
 │       ├── components/            # 业务组件（BannerRail / CategoryGrid / BrandStoryCard / Wheel / RedeemPanel …）
 │       ├── services/              # request.ts（统一请求 + token）/ auth / home / profile / order / records / engage / redeem

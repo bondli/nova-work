@@ -1,6 +1,6 @@
 export default {
   pages: [
-    'pages/home/index',
+    'pages/index/index',
     'pages/discover/index',
     'pages/mine/index',
     'pages/orders/index',
@@ -32,7 +32,7 @@ export default {
     borderStyle: 'white',
     list: [
       {
-        pagePath: 'pages/home/index',
+        pagePath: 'pages/index/index',
         text: '首页',
         iconPath: 'assets/tab/home-normal.png',
         selectedIconPath: 'assets/tab/home-active.png'

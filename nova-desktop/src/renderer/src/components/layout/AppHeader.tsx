@@ -30,7 +30,6 @@ export function AppHeader() {
 
       <div className="min-w-0">
         <h1 className="truncate text-title font-semibold">{page.title}</h1>
-        <p className="truncate text-meta text-muted-foreground">{page.description}</p>
       </div>
 
       <div className="app-no-drag ml-auto flex items-center gap-2">

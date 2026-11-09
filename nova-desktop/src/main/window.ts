@@ -2,7 +2,7 @@
  * 主窗口创建与安全基线配置。
  * 渲染层不直接接触 Node，所有能力通过 preload 白名单暴露。
  */
-import { BrowserWindow, session } from 'electron'
+import { BrowserWindow, Menu, session } from 'electron'
 import { join } from 'node:path'
 import { isDevelopment } from './env'
 import { registerIconWindow } from './services/app-icon'
@@ -38,6 +38,51 @@ export function createMainWindow(): BrowserWindow {
 
   window.webContents.on('will-navigate', (event) => {
     event.preventDefault()
+  })
+
+  // 右键菜单：输入框 / 可编辑区域提供剪切、复制、粘贴、全选；
+  // 非编辑区域若有选中文字则只提供复制。
+  // Electron 默认不会弹出自带菜单，需要手动注册。
+  window.webContents.on('context-menu', (_event, params) => {
+    const { isEditable, editFlags } = params
+    const hasSelection = params.selectionText.length > 0
+
+    const template: Electron.MenuItemConstructorOptions[] = []
+
+    if (isEditable) {
+      template.push(
+        {
+          label: '剪切',
+          enabled: editFlags.canCut,
+          click: () => window.webContents.cut()
+        },
+        {
+          label: '复制',
+          enabled: editFlags.canCopy,
+          click: () => window.webContents.copy()
+        },
+        {
+          label: '粘贴',
+          enabled: editFlags.canPaste,
+          click: () => window.webContents.paste()
+        },
+        { type: 'separator' },
+        {
+          label: '全选',
+          enabled: editFlags.canSelectAll,
+          click: () => window.webContents.selectAll()
+        }
+      )
+    } else if (hasSelection) {
+      template.push({
+        label: '复制',
+        click: () => window.webContents.copy()
+      })
+    }
+
+    if (template.length === 0) return
+    const menu = Menu.buildFromTemplate(template)
+    menu.popup({ window })
   })
 
   if (!isDevelopment) {

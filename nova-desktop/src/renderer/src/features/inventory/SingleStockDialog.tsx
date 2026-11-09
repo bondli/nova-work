@@ -158,7 +158,6 @@ export function SingleStockDialog({ open, onOpenChange }: SingleStockDialogProps
               <Input
                 id="single-stock-sn"
                 className={INPUT_CLASS}
-                placeholder="输入款号"
                 value={form.sn}
                 onChange={(event) => update('sn', event.target.value)}
               />
@@ -167,7 +166,6 @@ export function SingleStockDialog({ open, onOpenChange }: SingleStockDialogProps
               <Input
                 id="single-stock-name"
                 className={INPUT_CLASS}
-                placeholder="输入商品名称"
                 value={form.name}
                 onChange={(event) => update('name', event.target.value)}
               />
@@ -176,7 +174,6 @@ export function SingleStockDialog({ open, onOpenChange }: SingleStockDialogProps
               <Input
                 id="single-stock-brand"
                 className={INPUT_CLASS}
-                placeholder="输入品牌"
                 value={form.brand}
                 onChange={(event) => update('brand', event.target.value)}
               />
@@ -185,7 +182,6 @@ export function SingleStockDialog({ open, onOpenChange }: SingleStockDialogProps
               <Input
                 id="single-stock-sku"
                 className={INPUT_CLASS}
-                placeholder="输入条码"
                 value={form.sku}
                 onChange={(event) => update('sku', event.target.value)}
               />
@@ -194,7 +190,6 @@ export function SingleStockDialog({ open, onOpenChange }: SingleStockDialogProps
               <Input
                 id="single-stock-color"
                 className={INPUT_CLASS}
-                placeholder="输入颜色"
                 value={form.color}
                 onChange={(event) => update('color', event.target.value)}
               />
@@ -203,7 +198,6 @@ export function SingleStockDialog({ open, onOpenChange }: SingleStockDialogProps
               <Input
                 id="single-stock-size"
                 className={INPUT_CLASS}
-                placeholder="输入尺码"
                 value={form.size}
                 onChange={(event) => update('size', event.target.value)}
               />
@@ -216,7 +210,6 @@ export function SingleStockDialog({ open, onOpenChange }: SingleStockDialogProps
                 min={0}
                 step="0.01"
                 inputMode="decimal"
-                placeholder="输入吊牌价"
                 value={form.originalPrice}
                 onChange={(event) => update('originalPrice', event.target.value)}
               />
@@ -229,7 +222,6 @@ export function SingleStockDialog({ open, onOpenChange }: SingleStockDialogProps
                 min={0}
                 step="0.01"
                 inputMode="decimal"
-                placeholder="输入成本价"
                 value={form.costPrice}
                 onChange={(event) => update('costPrice', event.target.value)}
               />
@@ -242,7 +234,6 @@ export function SingleStockDialog({ open, onOpenChange }: SingleStockDialogProps
                 min={0}
                 step={1}
                 inputMode="numeric"
-                placeholder="输入库存"
                 value={form.counts}
                 onChange={(event) => update('counts', event.target.value)}
               />

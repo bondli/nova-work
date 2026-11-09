@@ -101,9 +101,21 @@ export function registerShareIpc(getWindow: () => BrowserWindow | null): void {
     if (!parsed.success) return failure('INVALID_INPUT', '参数不合法')
     if (!relayClient) return failure('INTERNAL_ERROR', '中继未启动')
     try {
-      const buffer = await relayClient.downloadRemote(parsed.data.deviceId, parsed.data.name)
+      const { deviceId, name } = parsed.data
+      // 进度实时推给渲染层，避免大文件只看到「下载中」而无反馈
+      const buffer = await relayClient.downloadRemote(deviceId, name, (progress) => {
+        const win = getMainWindow?.()
+        if (win) {
+          win.webContents.send(IPC_EVENT.shareProgress, {
+            deviceId,
+            name: progress.name,
+            received: progress.received,
+            total: progress.total,
+          })
+        }
+      })
       const options: Electron.SaveDialogOptions = {
-        defaultPath: parsed.data.name,
+        defaultPath: name,
         title: '保存文件',
       }
       const parent = BrowserWindow.fromWebContents(event.sender)

@@ -50,6 +50,8 @@ export function FileShareTab() {
   const [localFiles, setLocalFiles] = useState<ShareFile[]>([])
   const [localLoading, setLocalLoading] = useState(false)
   const [downloading, setDownloading] = useState<string | null>(null)
+  /** 当前下载进度（主进程实时推送） */
+  const [progress, setProgress] = useState<{ received: number; total: number } | null>(null)
 
   // 订阅中继状态变更
   useEffect(() => {
@@ -57,6 +59,14 @@ export function FileShareTab() {
     void window.nova.share.status().then((res) => {
       const ok = unwrap(res)
       if (ok) setStatus(ok)
+    })
+    return off
+  }, [])
+
+  // 订阅下载进度：只保留当前下载文件的进度
+  useEffect(() => {
+    const off = window.nova.share.onProgress((p) => {
+      setProgress({ received: p.received, total: p.total })
     })
     return off
   }, [])
@@ -119,6 +129,7 @@ export function FileShareTab() {
 
   const handleDownload = async (peer: Peer, name: string) => {
     setDownloading(name)
+    setProgress(null)
     try {
       const res = await window.nova.share.remoteDownload(peer.deviceId, name)
       const ok = unwrap(res)
@@ -131,7 +142,14 @@ export function FileShareTab() {
       toast.error(e instanceof Error ? e.message : '下载失败')
     } finally {
       setDownloading(null)
+      setProgress(null)
     }
+  }
+
+  /** 下载进度百分比；总大小未知时返回 null */
+  function downloadPercent(): number | null {
+    if (!progress || !progress.total) return null
+    return Math.min(100, Math.round((progress.received / progress.total) * 100))
   }
 
   return (
@@ -186,17 +204,35 @@ export function FileShareTab() {
               ) : (
                 <FileTable
                   files={remoteFiles}
-                  action={(file) => (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={downloading === file.name}
-                      onClick={() => handleDownload(activeDevice, file.name)}
-                    >
-                      {downloading === file.name ? <RefreshCw className="mr-1 h-3.5 w-3.5 animate-spin" /> : <Download className="mr-1 h-3.5 w-3.5" />}
-                      {downloading === file.name ? '下载中' : '下载'}
-                    </Button>
-                  )}
+                  action={(file) => {
+                    const isDownloading = downloading === file.name
+                    const percent = isDownloading ? downloadPercent() : null
+                    return (
+                      <div className="flex flex-col items-end gap-1">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={isDownloading}
+                          onClick={() => handleDownload(activeDevice, file.name)}
+                        >
+                          {isDownloading ? <RefreshCw className="mr-1 h-3.5 w-3.5 animate-spin" /> : <Download className="mr-1 h-3.5 w-3.5" />}
+                          {isDownloading
+                            ? percent === null
+                              ? '下载中'
+                              : `下载中 ${percent}%`
+                            : '下载'}
+                        </Button>
+                        {isDownloading && percent !== null ? (
+                          <div className="h-1 w-24 overflow-hidden rounded-full bg-muted">
+                            <div
+                              className="h-full rounded-full bg-primary transition-[width]"
+                              style={{ width: `${percent}%` }}
+                            />
+                          </div>
+                        ) : null}
+                      </div>
+                    )
+                  }}
                 />
               )}
             </div>
@@ -260,30 +296,26 @@ export function FileShareTab() {
   )
 }
 
-/** 文件列表表格 */
+/** 文件列表：与手机端一致，文件名一行、大小与时间一行，右侧操作按钮 */
 function FileTable({ files, action }: { files: ShareFile[]; action: (file: ShareFile) => React.ReactNode }) {
   return (
-    <div className="min-h-0 flex-1 overflow-auto rounded-lg border border-border">
-      <table className="w-full text-sm">
-        <thead className="sticky top-0 bg-card">
-          <tr className="border-b border-border text-left text-meta text-muted-foreground">
-            <th className="px-4 py-2 font-medium">文件名</th>
-            <th className="px-4 py-2 font-medium">大小</th>
-            <th className="px-4 py-2 font-medium">修改时间</th>
-            <th className="px-4 py-2 text-right font-medium">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          {files.map((file) => (
-            <tr key={file.name} className="border-b border-border last:border-0 hover:bg-accent/40">
-              <td className="px-4 py-2.5 font-medium">{file.name}</td>
-              <td className="px-4 py-2.5 text-muted-foreground">{formatBytes(file.size)}</td>
-              <td className="px-4 py-2.5 text-muted-foreground">{formatTime(file.mtime)}</td>
-              <td className="px-4 py-2.5 text-right">{action(file)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-auto">
+      {files.map((file) => (
+        <div
+          key={file.name}
+          className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2.5"
+        >
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-ui font-medium" title={file.name}>
+              {file.name}
+            </p>
+            <p className="mt-0.5 text-meta text-muted-foreground">
+              {formatBytes(file.size)} · {formatTime(file.mtime)}
+            </p>
+          </div>
+          <div className="shrink-0">{action(file)}</div>
+        </div>
+      ))}
     </div>
   )
 }

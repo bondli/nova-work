@@ -5,12 +5,17 @@
  * - 自动重连（指数退避）+ ping 心跳
  * - 处理远程 RPC：share:list（列文件）、share:download-start（分片下发）
  * - 主动调用：listRemote / downloadRemote
+ *
+ * 大文件传输采用「窗口 + 逐片 ACK」流控：发送方每发 SEND_WINDOW_CHUNKS 片就等待
+ * 接收方回执，避免一次性灌满中继与接收端内存导致断连/超时；接收方用空闲超时
+ * （每收到一片重置）替代固定总时长，120MB 以上文件不会再被 2 分钟总超时中断。
  */
 import WebSocket from 'ws'
 import { randomUUID } from 'node:crypto'
 import { getServerConfig } from '../services/server-config'
 import { getDeviceIdentity } from './device'
-import { listShareFiles, readShareFile, type ShareFileInfo } from './service'
+import { lanShareServer } from './lan-server'
+import { listShareFiles, readShareFile, statShareFile, type ShareFileInfo } from './service'
 
 /** 同组设备 */
 export interface Peer {
@@ -26,6 +31,13 @@ export interface RelayStatus {
   lastError: string | null
 }
 
+/** 下载进度（接收方视角） */
+export interface ShareProgress {
+  name: string
+  received: number
+  total: number
+}
+
 interface RelayEnvelope {
   type: string
   id?: string
@@ -35,13 +47,43 @@ interface RelayEnvelope {
   sender?: { deviceId: string; name: string; role: string }
 }
 
-/** 分片大小：256KB，base64 后约 341KB，远低于 relay 4MB 上限 */
+/** 分片大小：256KB。中继链路带宽有限，分片过大会让中继积压几十 MB、心跳超时误判断连 */
 const CHUNK_SIZE = 256 * 1024
 /** 首版单文件上限 300MB */
 const MAX_FILE_SIZE = 300 * 1024 * 1024
 const RECONNECT_DELAYS = [1_000, 2_000, 5_000, 10_000, 30_000]
 const PING_INTERVAL_MS = 25_000
 const RPC_TIMEOUT_MS = 30_000
+/** 滑动窗口：在途最多 4 片（约 1.4MB）；链路慢时也不会把中继/心跳缓冲打满 */
+const SEND_WINDOW_CHUNKS = 4
+/** 等待 ACK 进展的超时；超时说明链路已不可用 */
+const WINDOW_ACK_TIMEOUT_MS = 60_000
+/** 首片 ACK 超时：超过就认为对端不支持 ACK（旧版本），降级为无流控直发 */
+const FIRST_ACK_TIMEOUT_MS = 15_000
+/** 接收方空闲超时：连续这么久没收到分片才判定失败 */
+const DOWNLOAD_IDLE_TIMEOUT_MS = 60_000
+/** 发送方读取/准备文件的超时：接收方收到 accept 后放宽到这个时长 */
+const DOWNLOAD_PREPARE_TIMEOUT_MS = 180_000
+/** 局域网直连：等待接收方探测直连地址的时间 */
+const DIRECT_PROBE_TIMEOUT_MS = 3_000
+/** 局域网直连：等待接收方完成直连下载的时间 */
+const DIRECT_DONE_TIMEOUT_MS = 10 * 60_000
+
+/** base64 长度换算为原始字节数（含 padding 误差） */
+function base64Bytes(data: string): number {
+  return Math.floor((data.length * 3) / 4)
+}
+
+interface DownloadState {
+  name: string
+  chunks: Map<number, string>
+  total: number | null
+  size: number
+  received: number
+  /** 重置空闲超时定时器；可指定本次超时时长 */
+  resetTimer: (timeoutMs?: number) => void
+  onProgress?: (progress: ShareProgress) => void
+}
 
 export class ShareRelayClient {
   private ws: WebSocket | null = null
@@ -59,8 +101,16 @@ export class ShareRelayClient {
 
   /** 待响应的 RPC：id → { resolve, reject, timer, to } */
   private pending = new Map<string, { resolve: (v: unknown) => void; reject: (e: Error) => void; timer: ReturnType<typeof setTimeout>; to?: string }>()
-  /** 进行中的下载：id → { chunks: Map<index, base64>, total, name } */
-  private downloads = new Map<string, { name: string; chunks: Map<number, string>; total: number | null }>()
+  /** 进行中的下载（本机作为接收方）：id → 状态 */
+  private downloads = new Map<string, DownloadState>()
+  /** 发送窗口 ACK 状态（本机作为发送方）：downloadId → 已确认片数 + 进展通知 */
+  private ackState = new Map<string, { received: number; canceled: boolean; flowControl: boolean; notify: (() => void) | null }>()
+  /** 局域网直连协商：等待接收方回应是否使用直连 */
+  private directResults = new Map<string, { resolve: (ok: boolean) => void; timer: ReturnType<typeof setTimeout> }>()
+  /** 局域网直连协商：等待接收方报告直连下载结果 */
+  private directDones = new Map<string, { resolve: (ok: boolean) => void; timer: ReturnType<typeof setTimeout> }>()
+  /** 接收方已取消的下载 ID（协商阶段还没进入分片发送时也要能中止） */
+  private canceledDownloads = new Set<string>()
 
   constructor(private onStatusChange: (status: RelayStatus) => void) {}
 
@@ -87,6 +137,18 @@ export class ShareRelayClient {
     this.connected = false
     for (const d of this.downloads.values()) d.chunks.clear()
     this.downloads.clear()
+    this.ackState.clear()
+    for (const item of this.directResults.values()) {
+      clearTimeout(item.timer)
+      item.resolve(false)
+    }
+    this.directResults.clear()
+    for (const item of this.directDones.values()) {
+      clearTimeout(item.timer)
+      item.resolve(false)
+    }
+    this.directDones.clear()
+    this.canceledDownloads.clear()
     for (const p of this.pending.values()) {
       clearTimeout(p.timer)
       p.reject(new Error('中继已断开'))
@@ -107,32 +169,52 @@ export class ShareRelayClient {
     return this.call<ShareFileInfo[]>('share:list', {}, deviceId)
   }
 
-  /** 下载远程设备文件，返回 Buffer */
-  async downloadRemote(deviceId: string, name: string): Promise<Buffer> {
+  /** 下载远程设备文件，返回 Buffer；onProgress 用于渲染层展示进度 */
+  async downloadRemote(
+    deviceId: string,
+    name: string,
+    onProgress?: (progress: ShareProgress) => void
+  ): Promise<Buffer> {
     const id = randomUUID()
     return new Promise<Buffer>((resolve, reject) => {
-      const timer = setTimeout(() => {
-        this.downloads.delete(id)
-        this.pending.delete(id)
-        reject(new Error('下载超时'))
-      }, RPC_TIMEOUT_MS * 4) // 下载超时放宽到 2 分钟
-
-      this.pending.set(id, {
-        resolve: (v) => {
+      let timer: ReturnType<typeof setTimeout>
+      const pend = {
+        resolve: (v: unknown) => {
           clearTimeout(timer)
           this.pending.delete(id)
+          this.downloads.delete(id)
           resolve(v as Buffer)
         },
-        reject: (e) => {
+        reject: (e: Error) => {
           clearTimeout(timer)
           this.pending.delete(id)
           this.downloads.delete(id)
           reject(e)
         },
-        timer,
+        timer: undefined as unknown as ReturnType<typeof setTimeout>,
         to: deviceId,
+      }
+      // 空闲超时：每收到一片都会重置，避免大文件被固定总时长打断
+      const resetTimer = (timeoutMs: number = DOWNLOAD_IDLE_TIMEOUT_MS): void => {
+        clearTimeout(timer)
+        timer = setTimeout(() => {
+          this.downloads.delete(id)
+          this.pending.delete(id)
+          reject(new Error('下载超时（长时间无数据）'))
+        }, timeoutMs)
+        pend.timer = timer
+      }
+      resetTimer()
+      this.pending.set(id, pend)
+      this.downloads.set(id, {
+        name,
+        chunks: new Map(),
+        total: null,
+        size: 0,
+        received: 0,
+        resetTimer,
+        onProgress,
       })
-      this.downloads.set(id, { name, chunks: new Map(), total: null })
       this.send('share:download-start', { name }, { id, to: deviceId })
     })
   }
@@ -249,8 +331,9 @@ export class ShareRelayClient {
       if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return
       this.ws.ping()
       this.pongTimeout = setTimeout(() => {
+        // 传输期间链路可能因带宽满而延迟 pong，放宽到 60s，避免误判断线
         try { this.ws?.terminate() } catch { /* ignore */ }
-      }, 10_000)
+      }, 60_000)
     }, PING_INTERVAL_MS)
     this.pingTimer.unref?.()
   }
@@ -306,7 +389,8 @@ export class ShareRelayClient {
           this.pending.delete(id)
           this.downloads.delete(id)
           pend.reject(new Error(message))
-        } else {
+        } else if (!id) {
+          // 无 id 的错误才是全局状态；带 id 的多为旧版本对端对未知消息的拒绝，忽略以免污染状态栏
           this.lastError = message
           this.emit()
         }
@@ -316,7 +400,54 @@ export class ShareRelayClient {
         break
     }
 
-    // 下载分片（请求方收到）
+    // 分片 ACK（本机作为发送方收到）：推进滑动窗口
+    if (msg.type === 'share:chunk-ack' && msg.id) {
+      const state = this.ackState.get(msg.id)
+      if (state) {
+        const received = Number(msg.payload?.received ?? state.received)
+        if (received > state.received) state.received = received
+        state.notify?.()
+      }
+      return
+    }
+
+    // 接收方取消下载：停止发送并释放窗口状态
+    if (msg.type === 'share:download-cancel' && msg.id) {
+      const state = this.ackState.get(msg.id)
+      if (state) {
+        state.canceled = true
+        state.notify?.()
+        state.notify = null
+      } else {
+        this.canceledDownloads.add(msg.id)
+      }
+      this.directResults.get(msg.id)?.resolve(false)
+      this.directDones.get(msg.id)?.resolve(false)
+      return
+    }
+
+    // 局域网直连协商：接收方回应是否可以直连
+    if (msg.type === 'share:download-direct-result' && msg.id) {
+      this.directResults.get(msg.id)?.resolve(Boolean(msg.payload?.ok))
+      return
+    }
+    // 局域网直连协商：接收方报告直连下载成功 / 失败
+    if (msg.type === 'share:download-direct-done' && msg.id) {
+      this.directDones.get(msg.id)?.resolve(Boolean(msg.payload?.ok))
+      return
+    }
+
+    // 发送方开始准备文件（大文件读取可能较久）：先放宽空闲超时
+    if (msg.type === 'share:download-accept' && msg.id) {
+      const dl = this.downloads.get(msg.id)
+      if (dl) {
+        if (msg.payload?.size != null) dl.size = Number(msg.payload.size)
+        dl.resetTimer(DOWNLOAD_PREPARE_TIMEOUT_MS)
+      }
+      return
+    }
+
+    // 下载分片（本机作为接收方）
     if (msg.type === 'share:chunk' && msg.id) {
       const dl = this.downloads.get(msg.id)
       if (dl) {
@@ -324,6 +455,19 @@ export class ShareRelayClient {
         const data = String(msg.payload?.data ?? '')
         dl.chunks.set(index, data)
         if (msg.payload?.total != null) dl.total = Number(msg.payload.total)
+        if (msg.payload?.size != null) dl.size = Number(msg.payload.size)
+        dl.received += base64Bytes(data)
+        dl.resetTimer()
+        // 回执：发送方据此推进下一个窗口
+        const senderId = msg.sender?.deviceId
+        if (senderId) {
+          this.send('share:chunk-ack', { index, received: dl.chunks.size }, { id: msg.id, to: senderId })
+        }
+        dl.onProgress?.({
+          name: dl.name,
+          received: dl.received,
+          total: dl.size || dl.received,
+        })
         return
       }
     }
@@ -340,14 +484,9 @@ export class ShareRelayClient {
             bufs.push(Buffer.from(b64, 'base64'))
           }
           const buffer = Buffer.concat(bufs)
-          this.downloads.delete(msg.id)
-          clearTimeout(pend.timer)
-          this.pending.delete(msg.id)
+          dl.onProgress?.({ name: dl.name, received: buffer.length, total: buffer.length })
           pend.resolve(buffer)
         } catch (e) {
-          this.downloads.delete(msg.id)
-          clearTimeout(pend.timer)
-          this.pending.delete(msg.id)
           pend.reject(e instanceof Error ? e : new Error('下载失败'))
         }
       }
@@ -383,16 +522,90 @@ export class ShareRelayClient {
         case 'share:download-start': {
           const name = String(msg.payload?.name ?? '')
           if (!name) throw new Error('文件名必填')
-          const buffer = await readShareFile(name)
-          if (buffer.length > MAX_FILE_SIZE) {
+          const downloadId = msg.id
+          const target = msg.sender?.deviceId
+          const { size } = await statShareFile(name)
+          if (size > MAX_FILE_SIZE) {
             throw new Error(`文件超过 ${MAX_FILE_SIZE / 1024 / 1024}MB 上限`)
           }
-          const total = Math.ceil(buffer.length / CHUNK_SIZE) || 1
-          for (let i = 0; i < total; i++) {
-            const slice = buffer.subarray(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE)
-            this.send('share:chunk', { name, index: i, total, data: slice.toString('base64') }, { id: msg.id, to: msg.sender?.deviceId })
+          // 先告诉对方「已收到、正在准备」，避免大文件读取期间被误判超时
+          this.send('share:download-accept', { name, size }, { id: downloadId, to: target })
+
+          // 1) 优先尝试局域网直连：把本机局域网地址发给接收方探测。
+          //    探测/下载失败会自动回落到下面的中继分片传输。
+          if (downloadId) {
+            const urls = await lanShareServer.offer(name)
+            if (urls.length > 0) {
+              this.send('share:download-direct', { name, size, urls }, { id: downloadId, to: target })
+              const accepted = await this.waitDirectResult(downloadId, DIRECT_PROBE_TIMEOUT_MS)
+              if (accepted) {
+                const completed = await this.waitDirectDone(downloadId, DIRECT_DONE_TIMEOUT_MS)
+                if (completed) {
+                  this.canceledDownloads.delete(downloadId)
+                  lanShareServer.touch()
+                  return
+                }
+              }
+            }
+            // 直连协商期间被取消：直接结束，不再回退分片
+            if (this.canceledDownloads.delete(downloadId)) return
           }
-          this.send('share:download-end', { name, size: buffer.length }, { id: msg.id, to: msg.sender?.deviceId })
+
+          // 2) 回退：走中继分片传输
+          const buffer = await readShareFile(name)
+          const total = Math.ceil(buffer.length / CHUNK_SIZE) || 1
+          if (downloadId) this.ackState.set(downloadId, { received: 0, canceled: false, flowControl: true, notify: null })
+          try {
+            const state = downloadId ? this.ackState.get(downloadId) : undefined
+            let sent = 0
+            const sendChunk = (index: number): void => {
+              const slice = buffer.subarray(index * CHUNK_SIZE, (index + 1) * CHUNK_SIZE)
+              this.send(
+                'share:chunk',
+                { name, index, total, size: buffer.length, data: slice.toString('base64') },
+                { id: downloadId, to: target }
+              )
+            }
+            // 滑动窗口：在途片数低于窗口就继续发，收到 ACK 即补发
+            while (sent < total) {
+              if (state?.canceled) throw new Error('对方已取消下载')
+              if (state && !state.flowControl) {
+                // 对端不支持 ACK（旧版本）：退化为连续直发，避免长时间卡住
+                while (sent < total) sendChunk(sent++)
+                break
+              }
+              while (sent < total && sent - (state?.received ?? 0) < SEND_WINDOW_CHUNKS) {
+                sendChunk(sent++)
+              }
+              if (sent >= total && (state?.received ?? 0) >= sent) break
+              try {
+                await this.waitForProgress(
+                  downloadId!,
+                  (state?.received ?? 0) === 0 ? FIRST_ACK_TIMEOUT_MS : WINDOW_ACK_TIMEOUT_MS
+                )
+              } catch (e) {
+                // 首片就等不到 ACK：判定为旧版本对端，降级后继续发送
+                if (state && state.received === 0) {
+                  state.flowControl = false
+                  continue
+                }
+                throw e
+              }
+            }
+            // 流控模式下等全部确认后发结束帧，保证落盘顺序
+            if (downloadId && state && state.flowControl) {
+              while (state.received < total) {
+                if (state.canceled) throw new Error('对方已取消下载')
+                await this.waitForProgress(downloadId)
+              }
+            }
+            this.send('share:download-end', { name, size: buffer.length }, { id: downloadId, to: target })
+          } finally {
+            if (downloadId) {
+              this.ackState.delete(downloadId)
+              this.canceledDownloads.delete(downloadId)
+            }
+          }
           return
         }
         default:
@@ -400,8 +613,63 @@ export class ShareRelayClient {
           return
       }
     } catch (err) {
-      await replyError(err instanceof Error ? err.message : String(err))
+      const message = err instanceof Error ? err.message : String(err)
+      // 接收方主动取消时不回错误帧，避免对方状态栏出现异常提示
+      if (!message.includes('取消')) await replyError(message)
     }
+  }
+
+  /** 等待接收方 ACK 推进（任意一片）；长时间无进展视为链路失败 */
+  private waitForProgress(downloadId: string, timeoutMs: number = WINDOW_ACK_TIMEOUT_MS): Promise<void> {
+    const state = this.ackState.get(downloadId)
+    if (!state) return Promise.resolve()
+    return new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        state.notify = null
+        reject(new Error('传输超时，请稍后重试'))
+      }, timeoutMs)
+      state.notify = () => {
+        clearTimeout(timer)
+        state.notify = null
+        resolve()
+      }
+    })
+  }
+
+  /** 局域网直连：等待接收方回应是否可直连 */
+  private waitDirectResult(downloadId: string, timeoutMs: number): Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
+      const timer = setTimeout(() => {
+        this.directResults.delete(downloadId)
+        resolve(false)
+      }, timeoutMs)
+      this.directResults.set(downloadId, {
+        timer,
+        resolve: (ok) => {
+          clearTimeout(timer)
+          this.directResults.delete(downloadId)
+          resolve(ok)
+        }
+      })
+    })
+  }
+
+  /** 局域网直连：等待接收方报告直连下载结果 */
+  private waitDirectDone(downloadId: string, timeoutMs: number): Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
+      const timer = setTimeout(() => {
+        this.directDones.delete(downloadId)
+        resolve(false)
+      }, timeoutMs)
+      this.directDones.set(downloadId, {
+        timer,
+        resolve: (ok) => {
+          clearTimeout(timer)
+          this.directDones.delete(downloadId)
+          resolve(ok)
+        }
+      })
+    })
   }
 
   // ===== 发送 =====

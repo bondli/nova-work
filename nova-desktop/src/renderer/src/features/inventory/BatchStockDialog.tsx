@@ -135,13 +135,7 @@ export function BatchStockDialog({ open, onOpenChange, action }: BatchStockDialo
       setFormError(meta.billLabel)
       return
     }
-    if (action === 'batch-in') {
-      const skus = rows.map((row) => text(row.条码))
-      if (new Set(skus).size !== skus.length) {
-        setFormError('数据存在重复条码，请检查 Excel')
-        return
-      }
-    }
+    // 重复条码已在服务端预处理阶段合并数量，这里不再拦截
 
     commit.mutate(
       { action, rows, billNo: billNo.trim() },

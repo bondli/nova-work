@@ -111,7 +111,7 @@ function MemberCard({ member, onChangeMember }: { member: BuyMember | null; onCh
         </>
       ) : (
         <div className="flex items-center justify-between gap-2">
-          <p className="text-ui text-muted-foreground">未选择会员，本单不享会员权益</p>
+          <p className="text-ui text-muted-foreground">未选择会员</p>
           <Button type="button" variant="outline" size="sm" onClick={onChangeMember}>
             选择会员
           </Button>
@@ -433,7 +433,6 @@ function PaymentInfoCard({
         <span className="w-14 shrink-0 text-ui text-muted-foreground">备注</span>
         <Input
           className="h-9 min-w-0 flex-1 text-ui"
-          placeholder="选填，将随订单保存"
           aria-label="订单备注"
           value={note}
           onChange={(event) => onNoteChange(event.target.value)}

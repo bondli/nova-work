@@ -73,7 +73,7 @@ export function InventoryDetailSheet({ row, canViewCost, onClose }: InventoryDet
     ? [
         { label: '商品名称', value: row.name },
         { label: '品牌', value: row.brand || '—' },
-        { label: '款号', value: row.styleNo },
+        { label: '款号', value: <CopyableText text={row.styleNo} label="款号" /> },
         { label: '条码', value: <CopyableText text={row.sku} label="条码" /> },
         { label: '颜色', value: row.color || '—' },
         { label: '尺码', value: row.size || '—' },

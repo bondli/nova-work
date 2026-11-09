@@ -33,6 +33,8 @@ interface Connection {
   name: string
   group: string
   isAlive: boolean
+  /** 最近一次收到业务消息的时间：大文件传输时 ACK 持续回流，可作为存活的补充判据 */
+  lastMessageAt: number
 }
 
 /** 群组注册表：groupKey → Map<deviceId, Connection> */
@@ -149,7 +151,7 @@ wss.on('connection', (ws: WebSocket, req) => {
     try { old.ws.close(4000, 'duplicate connection') } catch { /* ignore */ }
   }
 
-  const conn: Connection = { ws, role: role!, deviceId, name: deviceName, group: groupKey, isAlive: true }
+  const conn: Connection = { ws, role: role!, deviceId, name: deviceName, group: groupKey, isAlive: true, lastMessageAt: Date.now() }
   group.set(deviceId, conn)
 
   ws.on('pong', () => { conn.isAlive = true })
@@ -157,6 +159,7 @@ wss.on('connection', (ws: WebSocket, req) => {
   handleConnect(conn)
 
   ws.on('message', (raw: Buffer | ArrayBuffer | Buffer[]) => {
+    conn.lastMessageAt = Date.now()
     let msg: Record<string, unknown>
     try {
       msg = JSON.parse(raw.toString())
@@ -285,8 +288,13 @@ const heartbeatTimer = setInterval(() => {
   for (const group of groups.values()) {
     for (const conn of group.values()) {
       if (!conn.isAlive) {
-        try { conn.ws.terminate() } catch { /* ignore */ }
-        continue
+        // 传输大文件时数据积压会把 ping/pong 延迟十几秒，只要最近 45s 仍有业务消息就视为存活
+        if (Date.now() - conn.lastMessageAt < 45_000) {
+          conn.isAlive = true
+        } else {
+          try { conn.ws.terminate() } catch { /* ignore */ }
+          continue
+        }
       }
       conn.isAlive = false
       try { conn.ws.ping() } catch { /* ignore */ }

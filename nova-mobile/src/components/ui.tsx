@@ -1,9 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Check, ChevronDown, ScanLine, UserRound } from 'lucide-react-native';
 import { router } from 'expo-router';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import {
   ActivityIndicator,
+  Animated,
+  Dimensions,
+  Easing,
   Modal,
   Pressable,
   RefreshControl,
@@ -22,7 +25,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { useAuthStore } from '@/src/stores/auth';
 import { useUiStore } from '@/src/stores/ui';
-import { colors, font, HIT_SIZE, radius, space, fs } from '@/src/theme/tokens';
+import { colors, font, HIT_SIZE, radius, space, fs, useThemeMode } from '@/src/theme/tokens';
 import { themedStyles } from '@/src/theme/styles';
 import { BrandLogo } from './brand';
 import { ToastHost } from './toast';
@@ -618,14 +621,59 @@ export function SheetModal({
 }) {
   const insets = useSafeAreaInsets();
   const top = placement === 'top';
+  // 深色模式下页面与抽屉底色接近，需要额外加强层次（更亮的浮层底色 + 更深的遮罩 + 顶部描边）
+  const dark = useThemeMode() === 'dark';
 
-  // 这里刻意不使用任何进出场动画：
-  // 1) animationType="slide" 会让半透明遮罩跟着一起上移，观感很差；
-  // 2) 华为 P40 等机型上，Modal 在「挂载瞬间就是 visible=true」时会出现只显示遮罩、
-  //    内容不渲染的问题，因此调用方需常驻挂载本组件、只切换 visible，这里保持无状态直出。
+  // 内部维护 Modal 的真实显隐：退出动画播放完成后再卸载，避免内容瞬间消失
+  const offscreen = top ? -Dimensions.get('window').height : Dimensions.get('window').height;
+  const [modalVisible, setModalVisible] = useState(visible);
+  // 动画值用 useState 懒初始化，避免渲染期访问 ref.current（react-hooks/refs 规则）
+  const [translateY] = useState(() => new Animated.Value(offscreen));
+  const [backdropOpacity] = useState(() => new Animated.Value(0));
+
+  useEffect(() => {
+    if (visible) {
+      // 进入：下一帧挂载 Modal 并播放入场动画，setState 放在 rAF 回调里
+      requestAnimationFrame(() => {
+        setModalVisible(true);
+        translateY.setValue(offscreen);
+        backdropOpacity.setValue(0);
+        Animated.parallel([
+          Animated.timing(backdropOpacity, {
+            toValue: 1,
+            duration: 220,
+            useNativeDriver: true,
+          }),
+          Animated.timing(translateY, {
+            toValue: 0,
+            duration: 280,
+            easing: Easing.out(Easing.cubic),
+            useNativeDriver: true,
+          }),
+        ]).start();
+      });
+    } else {
+      // 退出：先播放动画，结束后再卸载 Modal
+      Animated.parallel([
+        Animated.timing(backdropOpacity, {
+          toValue: 0,
+          duration: 180,
+          useNativeDriver: true,
+        }),
+        Animated.timing(translateY, {
+          toValue: offscreen,
+          duration: 220,
+          easing: Easing.in(Easing.cubic),
+          useNativeDriver: true,
+        }),
+      ]).start(() => setModalVisible(false));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible]);
+
   return (
     <Modal
-      visible={visible}
+      visible={modalVisible}
       transparent
       animationType="none"
       statusBarTranslucent
@@ -633,16 +681,22 @@ export function SheetModal({
       onRequestClose={onClose}
     >
       <View style={[styles.modalRoot, top && styles.modalRootTop]}>
-        <Pressable style={styles.modalBackdrop} onPress={onClose} />
-        <View
+        <Animated.View
+          style={[styles.modalBackdrop, dark && styles.modalBackdropDark, { opacity: backdropOpacity }]}
+        >
+          <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+        </Animated.View>
+        <Animated.View
           style={[
             styles.sheet,
+            dark && styles.sheetDark,
+            { transform: [{ translateY }] },
             top
               ? [styles.sheetTop, { paddingTop: insets.top + 8 }]
               : { paddingBottom: Math.max(24, insets.bottom + 12) },
           ]}
         >
-          <View style={styles.sheetHandle} />
+          <View style={[styles.sheetHandle, dark && styles.sheetHandleDark]} />
           {title ? (
             <View style={styles.sheetHeader}>
               <Text style={styles.sheetTitle}>{title}</Text>
@@ -654,7 +708,7 @@ export function SheetModal({
           <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.sheetBody}>
             {children}
           </ScrollView>
-        </View>
+        </Animated.View>
         {/* 抽屉内同样渲染提示层，避免 Toast 被 Modal 遮挡 */}
         <ToastHost />
       </View>
@@ -671,11 +725,13 @@ export function AppDialog({
   onClose: () => void;
   children: ReactNode;
 }) {
+  // 深色下同样需要比页面更亮的弹窗底色，避免和背景糊在一起
+  const dark = useThemeMode() === 'dark';
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.dialogRoot}>
-        <Pressable style={styles.modalBackdrop} onPress={onClose} />
-        <View style={styles.dialog}>{children}</View>
+        <Pressable style={[styles.modalBackdrop, dark && styles.modalBackdropDark]} onPress={onClose} />
+        <View style={[styles.dialog, dark && styles.dialogDark]}>{children}</View>
       </View>
     </Modal>
   );
@@ -946,14 +1002,27 @@ function createStyles() {
     modalRoot: { flex: 1, justifyContent: 'flex-end' },
     modalRootTop: { justifyContent: 'flex-start' },
     modalBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.42)' },
+    /** 深色模式下加深遮罩，让浮层与页面有明显分界 */
+    modalBackdropDark: { backgroundColor: 'rgba(0,0,0,0.68)' },
     sheet: {
       width: '100%',
       maxHeight: '88%',
-      backgroundColor: colors.card,
+      backgroundColor: colors.sheet,
       borderTopLeftRadius: 20,
       borderTopRightRadius: 20,
       paddingHorizontal: 16,
       paddingTop: 8,
+      // 浮层整体投影，强化「从底部浮起」的层次
+      shadowColor: '#000',
+      shadowOpacity: 0.18,
+      shadowRadius: 20,
+      shadowOffset: { width: 0, height: -8 },
+      elevation: 24,
+    },
+    /** 深色浮层额外加顶部描边，进一步区分页面与抽屉 */
+    sheetDark: {
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
     },
     sheetTop: {
       borderTopLeftRadius: 0,
@@ -970,6 +1039,8 @@ function createStyles() {
       backgroundColor: colors.border,
       marginBottom: 12,
     },
+    /** 深色下顶部拖拽条改成更亮的灰，方便识别浮层起点 */
+    sheetHandleDark: { backgroundColor: colors.faint, width: 44 },
     sheetHeader: { flexDirection: 'row', alignItems: 'center' },
     sheetTitle: { fontSize: fs(15), fontWeight: '600', color: colors.fg, flex: 1 },
     sheetClose: {
@@ -983,7 +1054,21 @@ function createStyles() {
     sheetBody: { paddingTop: 4, paddingBottom: 8 },
 
     dialogRoot: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-    dialog: { width: '100%', backgroundColor: colors.card, borderRadius: 18, padding: 16 },
+    dialog: {
+      width: '100%',
+      backgroundColor: colors.sheet,
+      borderRadius: 18,
+      padding: 16,
+      shadowColor: '#000',
+      shadowOpacity: 0.18,
+      shadowRadius: 20,
+      shadowOffset: { width: 0, height: 8 },
+      elevation: 24,
+    },
+    dialogDark: {
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
+    },
 
     infoBlock: { backgroundColor: colors.subtle, borderRadius: 10, padding: 12, gap: 6 },
     infoLabel: { fontSize: fs(10), fontWeight: '500', color: colors.muted },

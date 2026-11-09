@@ -50,8 +50,18 @@ export function listRemoteFiles(deviceId: string): Promise<ShareFileInfo[]> {
   return relayClient.listRemote(deviceId)
 }
 
-/** 供页面调用：下载远程设备文件，返回本地 uri */
-export function downloadRemoteFile(deviceId: string, name: string): Promise<string> {
+/** 供页面调用：下载远程设备文件，返回本地 uri；onProgress 用于展示进度 */
+export function downloadRemoteFile(
+  deviceId: string,
+  name: string,
+  onProgress?: (received: number, total: number) => void
+): Promise<string> {
   if (!relayClient) return Promise.reject(new Error('中继未启动'))
-  return relayClient.downloadRemote(deviceId, name)
+  return relayClient.downloadRemote(deviceId, name, onProgress)
+}
+
+/** 供页面调用：取消进行中的下载 */
+export function cancelRemoteDownload(name: string): boolean {
+  if (!relayClient) return false
+  return relayClient.cancelDownload(name)
 }

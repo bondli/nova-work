@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Package, Printer, ReceiptText, TicketPercent } from 'lucide-react'
 import type { Order, OrderItem, OrderItemStatus } from '@shared/types/order'
 import { TableCell, TableRow } from '@renderer/components/ui/table'
@@ -48,7 +49,7 @@ export function OrderDetailSheet({
   const open = Boolean(orderNo)
   const coupons = order?.coupons ?? []
 
-  const info: Array<{ label: string; value: string }> = order
+  const info: Array<{ label: string; value: ReactNode; wrap?: boolean }> = order
     ? [
         { label: '订单号', value: order.no },
         { label: '订单时间', value: order.paidAt },
@@ -57,11 +58,19 @@ export function OrderDetailSheet({
         { label: '实付金额', value: order.amount.toFixed(2) },
         { label: '支付方式', value: PAYMENT_LABEL[order.payment] },
         { label: '商品数量', value: String(order.itemCount) },
-        { label: '会员', value: order.memberPhone || '—' },
+        {
+          label: '会员',
+          value: order.memberPhone ? (
+            <CopyableText text={order.memberPhone} label="会员手机号" />
+          ) : (
+            '—'
+          )
+        },
         { label: '导购员', value: order.clerk || '—' },
         { label: '使用积分', value: order.usePoint ? String(order.usePoint) : '—' },
         { label: '使用余额', value: order.balanceUsed ? order.balanceUsed.toFixed(2) : '—' },
-        { label: '备注', value: order.remark || '—' }
+        // 备注可能较长，单独占满一行并换行展示完整内容
+        { label: '备注', value: order.remark || '—', wrap: true }
       ]
     : []
 
@@ -124,11 +133,28 @@ export function OrderDetailSheet({
           <SectionTitle>订单信息</SectionTitle>
           <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border text-ui">
             {info.map((item) => (
-              <div key={item.label} className="flex bg-card">
-                <dt className="w-[92px] shrink-0 bg-surface px-3 py-2 text-meta text-muted-foreground">
+              <div
+                key={item.label}
+                className={item.wrap ? 'col-span-2 flex bg-card' : 'flex bg-card'}
+              >
+                <dt
+                  className={
+                    item.wrap
+                      ? 'w-[92px] shrink-0 bg-surface px-3 py-2 text-meta text-muted-foreground'
+                      : 'w-[92px] shrink-0 bg-surface px-3 py-2 text-meta text-muted-foreground'
+                  }
+                >
                   {item.label}
                 </dt>
-                <dd className="min-w-0 flex-1 truncate px-3 py-2">{item.value}</dd>
+                <dd
+                  className={
+                    item.wrap
+                      ? 'min-w-0 flex-1 whitespace-pre-wrap break-words px-3 py-2'
+                      : 'min-w-0 flex-1 truncate px-3 py-2'
+                  }
+                >
+                  {item.value}
+                </dd>
               </div>
             ))}
           </dl>
@@ -146,7 +172,7 @@ export function OrderDetailSheet({
               {order.items.map((item) => (
                 <TableRow key={item.id} className="border-border/60 hover:bg-surface">
                   <TableCell className={DETAIL_CELL}>
-                    <p className="font-medium">{item.styleNo}</p>
+                    <CopyableText text={item.styleNo} textClassName="font-medium" label="款号" />
                     <p className="text-meta text-muted-foreground">{item.name}</p>
                   </TableCell>
                   <TableCell className={DETAIL_CELL}>

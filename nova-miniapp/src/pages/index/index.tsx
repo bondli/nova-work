@@ -27,7 +27,7 @@ export default function HomePage() {
   // 开启右上角「···」面板里的「转发给朋友」：未声明 onShareAppMessage 时该项点了没反应
   useShareAppMessage(() => ({
     title: 'Dave & Bella · 童装会员礼遇',
-    path: '/pages/home/index',
+    path: '/pages/index/index',
     imageUrl: home?.store.image || undefined,
   }))
 
@@ -50,7 +50,7 @@ export default function HomePage() {
 
   const handleBanner = (banner: HomeBanner) => {
     if (banner.link) {
-      const isTab = ['/pages/home/index', '/pages/discover/index', '/pages/mine/index'].includes(banner.link)
+      const isTab = ['/pages/index/index', '/pages/discover/index', '/pages/mine/index'].includes(banner.link)
       if (isTab) {
         void Taro.switchTab({ url: banner.link })
       } else {

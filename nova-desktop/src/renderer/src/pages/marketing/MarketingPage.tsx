@@ -239,10 +239,6 @@ export function MarketingPage() {
             rowKey="id"
             isLoading={isLoading}
             error={error ? (error as Error).message : undefined}
-            onRowClick={(campaign) => {
-              setDetailId(campaign.id)
-              setDetailOpen(true)
-            }}
             empty={{
               icon: Megaphone,
               title: '暂无活动',

@@ -204,7 +204,6 @@ export function OrdersPage() {
         <FilterField label="订单号 / 会员手机">
           <Input
             className="h-8 w-[180px]"
-            placeholder="输入订单号或会员手机号"
             aria-label="订单号或会员手机号"
             value={keyword}
             onChange={(event) => {
@@ -269,7 +268,6 @@ export function OrdersPage() {
         rowKey="no"
         isLoading={isLoading}
         error={error ? (error as Error).message : undefined}
-        onRowClick={(order) => setDetailNo(order.no)}
         empty={{
           icon: ReceiptText,
           title: '暂无订单',

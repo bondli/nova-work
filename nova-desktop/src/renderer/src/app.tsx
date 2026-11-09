@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { HashRouter } from 'react-router-dom'
 import { Toaster } from '@renderer/components/ui/sonner'
 import { TooltipProvider } from '@renderer/components/ui/tooltip'
+import { SelectionCopy } from '@renderer/components/common/SelectionCopy'
 import { useFontSizeEffect } from '@renderer/hooks/use-font-size-effect'
 import { useThemeEffect } from '@renderer/hooks/use-theme-effect'
 import { useSettingsStore } from '@renderer/stores/settings-store'
@@ -44,6 +45,7 @@ export function App() {
         </HashRouter>
       </TooltipProvider>
       <Toaster theme={settings.appearance.theme} position="top-center" />
+      <SelectionCopy />
     </QueryClientProvider>
   )
 }

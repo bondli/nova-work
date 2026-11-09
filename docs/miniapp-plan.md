@@ -97,7 +97,7 @@ flowchart TB
 
 | # | 路由 | 页面 | 登录 | 说明 |
 |---|---|---|---|---|
-| 1 | `pages/home/index` | 首页 | 否 | tabBar |
+| 1 | `pages/index/index` | 首页 | 否 | tabBar；同时作为小程序码落地页 |
 | 2 | `pages/discover/index` | 发现 | 是 | tabBar，未登录渲染 `LoginGuide` |
 | 3 | `pages/mine/index` | 我的 | 是 | tabBar，未登录渲染 `LoginGuide` |
 | 4 | `pages/orders/index` | 购物记录 | 是 | 状态筛选 + 分页 |
@@ -532,7 +532,7 @@ nova-miniapp/
 │   │   ├── ProductCard.tsx / CouponCard.tsx / SignInCard.tsx
 │   │   ├── LotteryCard.tsx / RedeemCard.tsx / RecordRow.tsx
 │   ├── pages/
-│   │   ├── home/index.tsx
+│   │   ├── index/index.tsx
 │   │   ├── discover/index.tsx
 │   │   ├── mine/index.tsx
 │   │   ├── orders/index.tsx / order-detail/index.tsx
@@ -556,7 +556,7 @@ nova-miniapp/
 | demo 区块 | 前端组件/页面 | 说明 |
 |---|---|---|
 | 手机壳、状态栏、tabbar | `app.config.ts` + 自定义 tabBar（或原生 tabBar 配图标） | 小程序原生 tabBar 更稳，图标用本地 PNG |
-| 首页 品牌条 / 活动 Banner / 主营类目 / 品牌价值 / 近期活动 / 新品 / 门店 | `pages/home/index` + `BannerSwiper` / `CategoryGrid` / `BrandStory` / `ProductCard` / `SectionHeader` | 配置接口驱动；三块核心内容顺序不可调换 |
+| 首页 品牌条 / 活动 Banner / 主营类目 / 品牌价值 / 近期活动 / 新品 / 门店 | `pages/index/index` + `BannerSwiper` / `CategoryGrid` / `BrandStory` / `ProductCard` / `SectionHeader` | 配置接口驱动；三块核心内容顺序不可调换 |
 | 发现 签到卡 / 抽奖卡 / 积分兑换卡 | `pages/discover/index` + `SignInCard` / `LotteryCard` / `RedeemCard` | 未登录整体替换为 `LoginGuide`；抽奖卡点击进入 `pages/draw/index` |
 | 抽奖大转盘页 | `pages/draw/index` + `Wheel` | 转盘按服务端结果停靠对应扇区，旋转中禁用按钮 |
 | 我的 会员卡 / 六宫格（含我的兑换）/ 最近订单 | `pages/mine/index` + `MemberCard` | 六宫格跳子页；会员卡「资料」打开只读浮层，浮层底部进入 `pages/profile-edit/index` |

@@ -35,6 +35,7 @@ mac:
   hardenedRuntime: false
 win:
   icon: assets/icon.ico
+  artifactName: ${productName}-${version}-${arch}.${ext}
   target:
     - target: nsis
       arch:

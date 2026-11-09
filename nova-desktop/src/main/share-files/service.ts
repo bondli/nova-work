@@ -75,3 +75,12 @@ export async function readShareFile(name: string): Promise<Buffer> {
   const { readFile } = await import('node:fs/promises')
   return readFile(join(SHARE_DIR, safeName))
 }
+
+/**
+ * 读取共享文件大小（局域网直连前先拿到大小，避免整文件读入内存）。
+ */
+export async function statShareFile(name: string): Promise<{ size: number }> {
+  const safeName = basename(name)
+  const s = await stat(join(SHARE_DIR, safeName))
+  return { size: s.size }
+}

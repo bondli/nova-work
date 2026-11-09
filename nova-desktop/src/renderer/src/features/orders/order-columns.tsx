@@ -10,6 +10,7 @@ import {
 } from '@renderer/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@renderer/components/ui/popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@renderer/components/ui/tooltip'
+import { CopyableText } from '@renderer/components/common/CopyText'
 import { Money } from '@renderer/components/common/Money'
 import { StatusBadge } from '@renderer/components/common/StatusBadge'
 import { PAYMENT_LABEL } from './labels'
@@ -87,18 +88,19 @@ export function createOrderColumns({
       header: '订单号',
       cell: ({ row }) => {
         const no = (
-          <span
-            className={row.original.remark ? 'font-medium text-warning' : 'font-medium'}
-            aria-label={row.original.remark ? `备注：${row.original.remark}` : undefined}
-          >
-            {row.original.no}
-          </span>
+          <CopyableText
+            text={row.original.no}
+            textClassName={row.original.remark ? 'font-medium text-warning' : 'font-medium'}
+            label="订单号"
+          />
         )
         // 有备注的订单用颜色区分，hover 时展示完整备注内容
         if (!row.original.remark) return no
         return (
           <Tooltip>
-            <TooltipTrigger asChild>{no}</TooltipTrigger>
+            <TooltipTrigger asChild>
+              <span>{no}</span>
+            </TooltipTrigger>
             <TooltipContent side="top" className="max-w-[280px] whitespace-pre-wrap">
               备注：{row.original.remark}
             </TooltipContent>
@@ -154,7 +156,11 @@ export function createOrderColumns({
       accessorKey: 'memberPhone',
       header: '会员',
       cell: ({ row }) => (
-        <span className="tnum text-ui">{row.original.memberPhone || '—'}</span>
+        <CopyableText
+          text={row.original.memberPhone || ''}
+          textClassName="tnum text-ui"
+          label="会员手机号"
+        />
       )
     },
     {

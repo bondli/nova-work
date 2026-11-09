@@ -4,8 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { Button, Empty, Screen, TabGroup } from '@/src/components/ui';
 import { useUiStore } from '@/src/stores/ui';
-import { useShareStore, listRemoteFiles, downloadRemoteFile } from '@/src/lib/share/store';
-import { pickAndAddToShare, deleteShareFile, shareFile } from '@/src/lib/share/files';
+import { useShareStore, listRemoteFiles, downloadRemoteFile, cancelRemoteDownload } from '@/src/lib/share/store';
+import { pickAndAddToShare, deleteShareFile, saveShareFileToDevice } from '@/src/lib/share/files';
 import type { Peer, ShareFileInfo } from '@/src/lib/share/relay-client';
 import { themedStyles } from '@/src/theme/styles';
 import { colors, fs, useThemeRevision } from '@/src/theme/tokens';
@@ -23,6 +23,12 @@ function formatTime(ms: number): string {
   return `${d.getMonth() + 1}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+/** 下载进度百分比（0-100） */
+function percentOf(p: { received: number; total: number } | null): number {
+  if (!p || p.total <= 0) return 0;
+  return Math.min(100, Math.round((p.received / p.total) * 100));
+}
+
 export default function ShareScreen() {
   useThemeRevision();
   const showToast = useUiStore((state) => state.showToast);
@@ -35,6 +41,8 @@ export default function ShareScreen() {
   const [remoteFiles, setRemoteFiles] = useState<ShareFileInfo[]>([]);
   const [remoteLoading, setRemoteLoading] = useState(false);
   const [downloading, setDownloading] = useState<string | null>(null);
+  /** 当前下载进度（字节），仅在 downloading 命中的文件行展示 */
+  const [progress, setProgress] = useState<{ received: number; total: number } | null>(null);
 
   useEffect(() => {
     void refreshLocal();
@@ -56,14 +64,35 @@ export default function ShareScreen() {
 
   async function handleDownload(peer: Peer, name: string) {
     setDownloading(name);
+    setProgress(null);
+    let lastPercent = -1;
     try {
-      const uri = await downloadRemoteFile(peer.deviceId, name);
-      showToast(`已下载：${name}`);
-      if (uri) await shareFile(uri);
+      // 按百分比变化节流刷新，避免每片都触发重渲染
+      const uri = await downloadRemoteFile(peer.deviceId, name, (received, total) => {
+        const percent = total > 0 ? Math.min(100, Math.round((received / total) * 100)) : 0;
+        if (percent === lastPercent) return;
+        lastPercent = percent;
+        setProgress({ received, total });
+      });
+      // 直接保存到手机（首次选择一次目标文件夹，之后记住），不再弹分享面板
+      const saved = uri ? await saveShareFileToDevice(uri) : false;
+      // 保存成功后沙盒中转文件已删除，同步刷新「本机共享」列表
+      if (saved) void refreshLocal();
+      showToast(saved ? `已保存到手机：${name}` : '已下载到应用内共享目录');
     } catch (e) {
-      showToast(e instanceof Error ? e.message : '下载失败', 'error');
+      const msg = e instanceof Error ? e.message : '下载失败';
+      // 主动取消不算错误，避免再弹一个红色提示
+      if (!msg.includes('取消')) showToast(msg, 'error');
     } finally {
       setDownloading(null);
+      setProgress(null);
+    }
+  }
+
+  /** 取消当前下载：删除半成品文件并通知发送方停止推送 */
+  function handleCancel(name: string) {
+    if (cancelRemoteDownload(name)) {
+      showToast('已取消下载');
     }
   }
 
@@ -91,25 +120,30 @@ export default function ShareScreen() {
 
   return (
     <Screen title="文件共享" back>
-      <View style={styles.statusBar}>
-        <View style={styles.statusDot}>
-          <View style={[styles.dot, { backgroundColor: status.connected ? colors.success : colors.faint }]} />
-          <Text style={styles.statusText}>
-            中继{status.connected ? '已连接' : '未连接'}
-            {status.lastError ? `（${status.lastError}）` : ''}
-          </Text>
+      {/* 状态与切换 Tab 收进同一张卡片，与文件卡片保持统一的圆角与间距 */}
+      <View style={styles.topCard}>
+        <View style={styles.statusRow}>
+          <View style={styles.statusDot}>
+            <View style={[styles.dot, { backgroundColor: status.connected ? colors.success : colors.faint }]} />
+            <Text style={styles.statusText}>
+              中继{status.connected ? '已连接' : '未连接'}
+              {status.lastError ? `（${status.lastError}）` : ''}
+            </Text>
+          </View>
+          <Text style={styles.statusCount}>同组设备 {status.peers.length}</Text>
         </View>
-        <Text style={styles.statusCount}>同组设备 {status.peers.length}</Text>
-      </View>
 
-      <TabGroup
-        items={[
-          { id: 'devices', label: '设备列表' },
-          { id: 'local', label: '本机共享' },
-        ]}
-        active={tab}
-        onChange={(id) => setTab(id as 'devices' | 'local')}
-      />
+        <View style={styles.tabsInCard}>
+          <TabGroup
+            items={[
+              { id: 'devices', label: '设备列表' },
+              { id: 'local', label: '本机共享' },
+            ]}
+            active={tab}
+            onChange={(id) => setTab(id as 'devices' | 'local')}
+          />
+        </View>
+      </View>
 
       {tab === 'devices' ? (
         activeDevice ? (
@@ -128,17 +162,30 @@ export default function ShareScreen() {
                 {remoteFiles.map((f) => (
                   <View key={f.name} style={styles.fileRow}>
                     <View style={styles.fileInfo}>
-                      <Text style={styles.fileName}>{f.name}</Text>
-                      <Text style={styles.fileMeta}>
-                        {formatBytes(f.size)} · {formatTime(f.mtime)}
+                      <Text style={styles.fileName} numberOfLines={1} ellipsizeMode="middle">
+                        {f.name}
                       </Text>
+                      <Text style={styles.fileMeta} numberOfLines={1}>
+                        {downloading === f.name && progress
+                          ? `下载中 ${percentOf(progress)}% · ${formatBytes(progress.received)} / ${formatBytes(progress.total)}`
+                          : `${formatBytes(f.size)} · ${formatTime(f.mtime)}`}
+                      </Text>
+                      {downloading === f.name && progress ? (
+                        <View style={styles.progressTrack}>
+                          <View style={[styles.progressBar, { width: `${percentOf(progress)}%` }]} />
+                        </View>
+                      ) : null}
                     </View>
-                    <Button
-                      title={downloading === f.name ? '下载中' : '下载'}
-                      variant="secondary"
-                      disabled={downloading === f.name}
-                      onPress={() => handleDownload(activeDevice, f.name)}
-                    />
+                    {downloading === f.name ? (
+                      <Button title="取消" variant="secondary" compact onPress={() => handleCancel(f.name)} />
+                    ) : (
+                      <Button
+                        title="下载"
+                        variant="secondary"
+                        compact
+                        onPress={() => handleDownload(activeDevice, f.name)}
+                      />
+                    )}
                   </View>
                 ))}
               </View>
@@ -186,8 +233,10 @@ export default function ShareScreen() {
               {localFiles.map((f) => (
                 <View key={f.name} style={styles.fileRow}>
                   <View style={styles.fileInfo}>
-                    <Text style={styles.fileName}>{f.name}</Text>
-                    <Text style={styles.fileMeta}>
+                    <Text style={styles.fileName} numberOfLines={1} ellipsizeMode="middle">
+                      {f.name}
+                    </Text>
+                    <Text style={styles.fileMeta} numberOfLines={1}>
                       {formatBytes(f.size)} · {formatTime(f.mtime)}
                     </Text>
                   </View>
@@ -208,16 +257,19 @@ const styles = themedStyles(createStyles);
 
 function createStyles() {
   return StyleSheet.create({
-    statusBar: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingHorizontal: 16,
-      paddingVertical: 10,
+    topCard: {
+      marginHorizontal: 16,
+      marginTop: 12,
+      marginBottom: 8,
+      padding: 12,
       backgroundColor: colors.card,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: colors.divider,
+      borderRadius: 12,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.divider,
+      gap: 10,
     },
+    statusRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    tabsInCard: {},
     statusDot: { flexDirection: 'row', alignItems: 'center', gap: 6 },
     dot: { width: 8, height: 8, borderRadius: 4 },
     statusText: { fontSize: fs(12), color: colors.muted },
@@ -263,9 +315,17 @@ function createStyles() {
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: colors.divider,
     },
-    fileInfo: { flex: 1, marginRight: 8 },
+    fileInfo: { flex: 1, minWidth: 0, marginRight: 8 },
     fileName: { fontSize: fs(13), color: colors.fg, fontWeight: '500' },
     fileMeta: { fontSize: fs(11), color: colors.muted, marginTop: 2 },
+    progressTrack: {
+      height: 3,
+      borderRadius: 2,
+      backgroundColor: colors.divider,
+      marginTop: 6,
+      overflow: 'hidden',
+    },
+    progressBar: { height: 3, borderRadius: 2, backgroundColor: colors.brand },
     deleteBtn: { padding: 8 },
     loading: { textAlign: 'center', color: colors.muted, marginTop: 24, fontSize: fs(13) },
   });

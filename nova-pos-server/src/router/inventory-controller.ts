@@ -468,33 +468,34 @@ export const batchProcessPurchaseData = async (req: Request, res: Response) => {
   const { dataList } = req.body;
 
   let totalCount = 0;
-  
-  // 收集所有需要查询的 sn 和 sku
-  const sns = new Set<string>();
-  const skus = new Set<string>();
-  
-  // 预处理数据，收集所有需要查询的 sn 和 sku
-  for (const item of dataList) {
-    const inventoryData = {
-      name: item.小类 || item.品名,
-      sn: item.商品 || item.货号,
-      brand: item.品牌 || '戴维贝拉',
-      sku: item.条码,
-      size: item.尺码,
-      color: item.颜色,
-      originalPrice: item.吊牌价,
-      costPrice: item.销售价 || item.进货价 || 0,
-      counts: Number(item.出库数量 || item.数量),
-    };
 
-    // 如果品牌为空，则赋值为戴维贝拉
+  // Excel 中相同条码可能出现在多行，先按条码合并、数量累加，
+  // 避免后续批量入库时因唯一索引冲突报错
+  const mergedMap = new Map<string, any>();
+  for (const item of dataList) {
+    const sku = item.条码;
+    const counts = Number(item.出库数量 || item.数量) || 0;
     if (!item.品牌) {
       item.品牌 = '戴维贝拉';
     }
+    if (mergedMap.has(sku)) {
+      const existing = mergedMap.get(sku)!;
+      existing.数量 = Number(existing.出库数量 || existing.数量) + counts;
+      // 数量字段统一写回「数量」，出库数量留空，保证展示与提交一致
+      delete existing.出库数量;
+    } else {
+      mergedMap.set(sku, { ...item });
+    }
+  }
+  const mergedList = Array.from(mergedMap.values());
 
-    totalCount += Number(inventoryData.counts);
-    sns.add(inventoryData.sn);
-    skus.add(inventoryData.sku);
+  // 收集所有需要查询的 sn 和 sku
+  const sns = new Set<string>();
+  const skus = new Set<string>();
+  for (const item of mergedList) {
+    totalCount += Number(item.出库数量 || item.数量) || 0;
+    sns.add(item.商品 || item.货号);
+    skus.add(item.条码);
   }
 
   // 一次性查询所有相关的库存记录
@@ -524,7 +525,7 @@ export const batchProcessPurchaseData = async (req: Request, res: Response) => {
   );
 
   // 处理每条数据
-  for (const item of dataList) {
+  for (const item of mergedList) {
     const sn = item.货号;
     const sku = item.条码;
 
@@ -543,7 +544,7 @@ export const batchProcessPurchaseData = async (req: Request, res: Response) => {
 
   res.json({
     success: true,
-    dataList,
+    dataList: mergedList,
     totalCount,
   });
 };
