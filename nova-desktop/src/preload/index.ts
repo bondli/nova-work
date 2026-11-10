@@ -163,6 +163,7 @@ const api = {
     devices: () => ipcRenderer.invoke(IPC.shareDevices) as Promise<IpcResult<RelayStatus>>,
     remoteList: (deviceId: string) => ipcRenderer.invoke(IPC.shareRemoteList, deviceId) as Promise<IpcResult<Array<{ name: string; size: number; mtime: number }>>>,
     remoteDownload: (deviceId: string, name: string) => ipcRenderer.invoke(IPC.shareRemoteDownload, { deviceId, name }) as Promise<IpcResult<{ filePath: string | null }>>,
+    remoteCancel: (deviceId: string, name: string) => ipcRenderer.invoke(IPC.shareRemoteCancel, { deviceId, name }) as Promise<IpcResult<boolean>>,
     status: () => ipcRenderer.invoke(IPC.shareStatus) as Promise<IpcResult<RelayStatus>>,
     /** 订阅中继状态变更；返回取消订阅函数 */
     onStatus: (callback: (status: RelayStatus) => void): (() => void) => {

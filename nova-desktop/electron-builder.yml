@@ -14,6 +14,8 @@ asar: true
 # sql.js 通过 __dirname 读取同目录 wasm，必须从 asar 解包后才能被加载
 asarUnpack:
   - node_modules/sql.js/dist/*.wasm
+# macOS 打包完成后做 ad-hoc 签名，避免分发到其他 Mac 被判定为「已损坏」
+afterPack: scripts/after-pack.mjs
 # 运行时主题切换需要两套图标，打包到 Resources/assets 供主进程读取
 extraResources:
   - from: assets

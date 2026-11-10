@@ -130,6 +130,19 @@ export function registerShareIpc(getWindow: () => BrowserWindow | null): void {
     }
   })
 
+  ipcMain.handle(IPC.shareRemoteCancel, async (_event, input: unknown) => {
+    const schema = z.object({ deviceId: deviceIdSchema, name: fileNameSchema })
+    const parsed = schema.safeParse(input)
+    if (!parsed.success) return failure('INVALID_INPUT', '参数不合法')
+    if (!relayClient) return failure('INTERNAL_ERROR', '中继未启动')
+    try {
+      const canceled = relayClient.cancelRemote(parsed.data.deviceId, parsed.data.name)
+      return success(canceled)
+    } catch (error) {
+      return internalFailure(error)
+    }
+  })
+
   ipcMain.handle(IPC.shareStatus, async () => {
     try {
       const status = relayClient?.getStatus() ?? { connected: false, peers: [], lastError: '中继未启动' }

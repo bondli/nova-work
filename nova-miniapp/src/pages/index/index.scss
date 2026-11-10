@@ -88,6 +88,15 @@
   border-radius: 8px;
 }
 
+/* 未登录时的授权登录按钮与「进入会员中心」保持完全一致的高度、字号与间距 */
+.nb-member-strip .nb-auth-button {
+  height: 34px;
+  line-height: 34px;
+  margin-top: 10px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+
 .nb-home-foot {
   display: block;
   margin-top: 20px;

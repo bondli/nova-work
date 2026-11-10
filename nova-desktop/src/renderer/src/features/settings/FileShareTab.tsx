@@ -139,10 +139,22 @@ export function FileShareTab() {
         toast.info('已取消下载')
       }
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : '下载失败')
+      const message = e instanceof Error ? e.message : '下载失败'
+      // 主动取消不算失败，避免再弹一个错误提示
+      if (!message.includes('取消')) toast.error(message)
     } finally {
       setDownloading(null)
       setProgress(null)
+    }
+  }
+
+  /** 取消进行中的下载：通知发送方停止推送并中止本地接收 */
+  const handleCancelDownload = async (peer: Peer, name: string) => {
+    try {
+      const canceled = unwrap(await window.nova.share.remoteCancel(peer.deviceId, name))
+      if (canceled) toast.success('已取消下载')
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '取消失败')
     }
   }
 
@@ -204,35 +216,55 @@ export function FileShareTab() {
               ) : (
                 <FileTable
                   files={remoteFiles}
-                  action={(file) => {
+                  meta={(file) => {
                     const isDownloading = downloading === file.name
-                    const percent = isDownloading ? downloadPercent() : null
+                    if (!isDownloading) {
+                      return (
+                        <p className="text-meta text-muted-foreground">
+                          {formatBytes(file.size)} · {formatTime(file.mtime)}
+                        </p>
+                      )
+                    }
+                    // 与手机端一致：进度文案 + 细进度条
+                    const percent = downloadPercent()
+                    const total = progress?.total || file.size
                     return (
-                      <div className="flex flex-col items-end gap-1">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={isDownloading}
-                          onClick={() => handleDownload(activeDevice, file.name)}
-                        >
-                          {isDownloading ? <RefreshCw className="mr-1 h-3.5 w-3.5 animate-spin" /> : <Download className="mr-1 h-3.5 w-3.5" />}
-                          {isDownloading
-                            ? percent === null
-                              ? '下载中'
-                              : `下载中 ${percent}%`
-                            : '下载'}
-                        </Button>
-                        {isDownloading && percent !== null ? (
-                          <div className="h-1 w-24 overflow-hidden rounded-full bg-muted">
-                            <div
-                              className="h-full rounded-full bg-primary transition-[width]"
-                              style={{ width: `${percent}%` }}
-                            />
-                          </div>
-                        ) : null}
+                      <div className="space-y-1">
+                        <p className="text-meta text-muted-foreground">
+                          {percent === null ? '下载中…' : `下载中 ${percent}%`}
+                          {progress && total > 0
+                            ? ` · ${formatBytes(progress.received)} / ${formatBytes(total)}`
+                            : ''}
+                        </p>
+                        <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
+                          <div
+                            className="h-full rounded-full bg-primary transition-[width]"
+                            style={{ width: `${percent ?? 0}%` }}
+                          />
+                        </div>
                       </div>
                     )
                   }}
+                  action={(file) =>
+                    downloading === file.name ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleCancelDownload(activeDevice, file.name)}
+                      >
+                        取消
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDownload(activeDevice, file.name)}
+                      >
+                        <Download className="mr-1 h-3.5 w-3.5" />
+                        下载
+                      </Button>
+                    )
+                  }
                 />
               )}
             </div>
@@ -282,6 +314,11 @@ export function FileShareTab() {
           ) : (
             <FileTable
               files={localFiles}
+              meta={(file) => (
+                <p className="text-meta text-muted-foreground">
+                  {formatBytes(file.size)} · {formatTime(file.mtime)}
+                </p>
+              )}
               action={(file) => (
                 <Button size="sm" variant="outline" onClick={() => handleDelete(file.name)}>
                   <Trash2 className="mr-1 h-3.5 w-3.5" />
@@ -296,8 +333,16 @@ export function FileShareTab() {
   )
 }
 
-/** 文件列表：与手机端一致，文件名一行、大小与时间一行，右侧操作按钮 */
-function FileTable({ files, action }: { files: ShareFile[]; action: (file: ShareFile) => React.ReactNode }) {
+/** 文件列表：与手机端一致，文件名一行、大小/时间（或下载进度）一行，右侧操作按钮 */
+function FileTable({
+  files,
+  action,
+  meta
+}: {
+  files: ShareFile[]
+  action: (file: ShareFile) => React.ReactNode
+  meta: (file: ShareFile) => React.ReactNode
+}) {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-auto">
       {files.map((file) => (
@@ -309,9 +354,7 @@ function FileTable({ files, action }: { files: ShareFile[]; action: (file: Share
             <p className="truncate text-ui font-medium" title={file.name}>
               {file.name}
             </p>
-            <p className="mt-0.5 text-meta text-muted-foreground">
-              {formatBytes(file.size)} · {formatTime(file.mtime)}
-            </p>
+            <div className="mt-0.5">{meta(file)}</div>
           </div>
           <div className="shrink-0">{action(file)}</div>
         </div>

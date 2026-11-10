@@ -109,10 +109,10 @@ function ProfileSheet() {
         <Text style={styles.dialogBody}>确认退出当前账号？</Text>
         <View style={styles.dialogActions}>
           <View style={styles.dialogActionItem}>
-            <Button title="取消" variant="secondary" onPress={() => setConfirming(false)} />
+            <Button title="取消" variant="secondary" compact onPress={() => setConfirming(false)} />
           </View>
           <View style={styles.dialogActionItem}>
-            <Button title="退出" variant="danger" onPress={doLogout} />
+            <Button title="退出" variant="danger" compact onPress={doLogout} />
           </View>
         </View>
       </AppDialog>

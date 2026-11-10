@@ -264,7 +264,7 @@ export default function MinePage() {
       </BottomSheet>
 
       <BottomSheet visible={logoutVisible} title='退出登录' onClose={() => setLogoutVisible(false)}>
-        <Text className='nb-logout-desc'>退出后将清除本地会员登录态，再次使用需重新微信授权手机号。</Text>
+        <Text className='nb-logout-desc'>退出后将清除本地会员登录态，再次使用需重新登录。</Text>
         <View className='nb-logout-actions'>
           <Button className='nb-logout-cancel' onClick={() => setLogoutVisible(false)}>
             取消

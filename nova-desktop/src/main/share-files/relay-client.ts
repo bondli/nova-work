@@ -222,6 +222,22 @@ export class ShareRelayClient {
     })
   }
 
+  /** 取消进行中的下载：通知发送方停止推送并释放本地下载状态 */
+  cancelRemote(deviceId: string, name: string): boolean {
+    for (const [id, dl] of this.downloads) {
+      if (dl.name !== name || dl.senderId !== deviceId) continue
+      this.send('share:download-cancel', {}, { id, to: deviceId })
+      const pend = this.pending.get(id)
+      if (pend) {
+        pend.reject(new Error('已取消下载'))
+      } else {
+        this.downloads.delete(id)
+      }
+      return true
+    }
+    return false
+  }
+
   // ===== 连接管理 =====
 
   private async fetchShareToken(): Promise<{ groupToken: string; relayUrl: string }> {
@@ -710,6 +726,11 @@ export class ShareRelayClient {
         const parts: Buffer[] = []
         let received = 0
         for (;;) {
+          // 用户取消后立即中止读取，避免继续消耗带宽
+          if (this.downloads.get(id) !== dl) {
+            await reader.cancel().catch(() => undefined)
+            return
+          }
           const { done, value } = await reader.read()
           if (done) break
           if (value) {

@@ -51,6 +51,7 @@ export const IPC = {
   shareDevices: 'share:devices',
   shareRemoteList: 'share:remote-list',
   shareRemoteDownload: 'share:remote-download',
+  shareRemoteCancel: 'share:remote-cancel',
   shareStatus: 'share:status'
 } as const
 

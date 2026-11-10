@@ -135,14 +135,14 @@ export default function HomePage() {
               <Text className='nb-member-strip-title'>会员专属</Text>
             </View>
             <Text className='nb-member-strip-desc'>
-              微信授权手机号即可查看会员资产、购物记录与优惠券，签到攒积分还能兑换实物到店自提。手机号就是你的门店会员号，无需重复注册。
+              手机号登录即可查看会员资产、购物记录与优惠券，签到攒积分还能兑换实物到店自提。手机号就是你的门店会员号，无需重复注册。
             </Text>
             {token ? (
               <Button type='primary' block className='nb-member-strip-button' onClick={handleMemberAction}>
                 进入会员中心
               </Button>
             ) : (
-              <AuthButton text='微信授权手机号，解锁会员权益' />
+              <AuthButton text='手机号快捷登录，解锁会员权益' />
             )}
           </View>
 
